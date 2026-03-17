@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/ApiUsageTemplate/bindings/api_usage_template_binding.dart';
+import '../modules/ApiUsageTemplate/views/api_usage_template_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
@@ -22,6 +24,11 @@ class AppPages {
       name: _Paths.HOME,
       page: () => const HomeView(),
       binding: HomeBinding(),
+    ),
+    GetPage(
+      name: _Paths.API_USAGE_TEMPLATE,
+      page: () => const ApiUsageTemplateView(),
+      binding: ApiUsageTemplateBinding(),
     ),
   ];
 }
