@@ -14,11 +14,16 @@ class SplashView extends GetView<SplashController> {
         width: double.infinity,
         height: double.infinity,
         color: Colors.blue,
-        child: Center(
-          child: Text(
-            "SplashView Page",
-            style: TextStyle(color: Colors.white, fontSize: 16),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              "SplashView Page",
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+
+          ],
         ),
       ),
     );
