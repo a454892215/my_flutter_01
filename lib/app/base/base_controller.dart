@@ -6,18 +6,18 @@ class BaseController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    Log.d(" BaseController onInit $runtimeType");
+    Log.d(" ======= BaseController onInit $runtimeType");
   }
 
   @override
   void onReady() {
     super.onReady();
-    Log.d(" BaseController onReady $runtimeType");
+    Log.d(" ======= BaseController onReady $runtimeType");
   }
 
   @override
   void onClose() {
     super.onClose();
-    Log.d("BaseController onReady onInit $runtimeType");
+    Log.d(" ======= BaseController onClose $runtimeType");
   }
 }

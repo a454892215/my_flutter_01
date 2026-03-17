@@ -21,22 +21,26 @@ import 'globe_exception_catch.dart';
 import 'navigator/observer.dart';
 
 void main() {
-  // WidgetsFlutterBinding.ensureInitialized(); // 保证 WidgetsBindingObserver使用时候，已经初始化
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  GlobeExceptionHandler().init(() => runApp(
-    const ScreenAdapterConfigurationWidget(
-      child: RefreshConfigurationWidget(),
-    ),
-  ));
+
+  GlobeExceptionHandler().init(() {
+    // WidgetsFlutterBinding.ensureInitialized(); // 保证 WidgetsBindingObserver使用时候，已经初始化
+    WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+    if (Platform.isAndroid) {
+      /// 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Color.fromRGBO(3, 11, 29, 1),
+      ));
+    }
+    runApp(
+      const ScreenAdapterConfigurationWidget(
+        child: RefreshConfigurationWidget(),
+      ),
+    );
+  });
   //FlutterChain.capture(() => runApp(buildScreenUtilInit(child: getRootWidget())));
-  if (Platform.isAndroid) {
-    /// 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Color.fromRGBO(3, 11, 29, 1),
-    ));
-  }
 }
 
 class RefreshConfigurationWidget extends StatelessWidget {

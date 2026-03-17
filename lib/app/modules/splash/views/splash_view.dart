@@ -28,13 +28,7 @@ class SplashView extends GetView<SplashController> {
             AppButton(
               padding: EdgeInsets.all(8),
               text: "去home页面66",
-              onClick: () => {Get.toNamed(Routes.HOME)},
-            ),
-            SizedBox(height: 5),
-            AppButton(
-              padding: EdgeInsets.all(8),
-              text: "去API使用示列页面",
-              onClick: () => {Get.toNamed(Routes.API_USAGE_TEMPLATE)},
+              onClick: () => {Get.offNamed(Routes.HOME)},
             ),
           ],
         ),
