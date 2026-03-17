@@ -1,9 +1,9 @@
 import 'Log.dart';
 
-class ExeTimer {
+class CostWatch {
   int start = 0;
   int exeIndex = 0;
-  ExeTimer() {
+  CostWatch() {
     start = DateTime.now().millisecondsSinceEpoch;
   }
 

@@ -1,56 +1,9 @@
-import 'dart:io';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_comm/util/toast_util.dart';
-import 'package:intl/intl.dart';
+
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'Log.dart';
-
 class AppUtil {
-  static String timestamp2Date(String value) {
-    if (value.isEmpty) {
-      return '-';
-    }
-    int timestamp = int.parse(value);
-    if (timestamp < 10000000000) {
-      timestamp *= 1000;
-    }
-    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    return DateFormat('yyyy-MM-dd HH:mm:ss').format(date);
-  }
-
-  static String amountFormat(String value) {
-    if (value.isEmpty) {
-      return '-';
-    }
-    double amount = double.parse(value);
-    NumberFormat currencyFormat = NumberFormat.currency(locale: 'zh_CN', symbol: 'R\$');
-    String result = currencyFormat.format(amount);
-    return result;
-  }
-
-  /// 获取整数部分
-  static String getIntegerPart(String num) {
-    if (num.isEmpty) {
-      return '-';
-    }
-    double amount = double.parse(num);
-    var int = amount.toInt();
-    return "R\$${int.toString()}";
-  }
-
-  static void copy(String value) async {
-    try {
-      await Clipboard.setData(ClipboardData(text: value));
-      Toast.show('复制成功！');
-    } catch (e) {
-      Toast.show('复制失败!');
-      Log.d('复制失败!');
-    }
-  }
-
   static Future<void> launch(String url) async {
     Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {

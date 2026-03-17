@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'Log.dart';
+import '../Log.dart';
 
 SpUtil spUtil = SpUtil();
 

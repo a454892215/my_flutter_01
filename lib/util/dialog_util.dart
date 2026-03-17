@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 
-class AppDialog {
+class DialogUtil {
   /// 打开更新app弹框
   static void showUpdateAppDialog(Widget dialogWidget) {
     bool isForce = false;
@@ -29,7 +29,4 @@ class AppDialog {
     );
   }
 
-  /// 打开去设置支付密码弹框
-  static void showSetPayPwdDialog() {
-  }
 }

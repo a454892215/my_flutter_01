@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_comm/skin/skin_manager.dart';
 import 'package:flutter_comm/util/Log.dart';
 
-import 'package:flutter_comm/util/sp_util.dart';
+import 'package:flutter_comm/util/sp/sp_util.dart';
 
 import 'package:flutter_comm/util/system_util.dart';
 import 'package:get/get.dart';

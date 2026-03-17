@@ -1,8 +1,8 @@
 import 'package:flutter_comm/http/request.dart';
 
 import '../util/Log.dart';
-import '../util/sp_util.dart';
-import '../util/sp_util_key.dart';
+import '../util/sp/sp_util.dart';
+import '../util/sp/sp_util_key.dart';
 
 Future<void> requestUserInfo() async {
   String loginToken = spUtil.getString(keyLoginToken) ?? "";

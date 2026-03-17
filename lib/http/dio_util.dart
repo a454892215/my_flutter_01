@@ -4,8 +4,8 @@ import 'package:cbor/cbor.dart';
 import 'package:dio/dio.dart';
 import '../util/Log.dart';
 import '../util/loading_util.dart';
-import '../util/sp_util.dart';
-import '../util/sp_util_key.dart';
+import '../util/sp/sp_util.dart';
+import '../util/sp/sp_util_key.dart';
 
 class DioUtil {
   late final Dio _dio;

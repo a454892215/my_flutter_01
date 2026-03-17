@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_comm/util/app_util.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_comm/util/toast_util.dart';
 
 import 'Log.dart';
 
@@ -18,9 +19,16 @@ class TextMeasureUtil {
   }
 }
 
-/// 复制链接
-void copyText(String link) {
-  AppUtil.copy(link);
+/// 复制
+Future<void> copyText(String str) async {
+  try {
+    await Clipboard.setData(ClipboardData(text: str));
+    Toast.show('复制成功！');
+  } catch (e) {
+    var fail = '复制失败!';
+    Toast.show(fail);
+    Log.e(fail);
+  }
 }
 
 String getUrlDecodeStr(String text) {

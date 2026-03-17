@@ -1,23 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'dart:developer';
 
 class Log {
   static const String tag = "LLpp:";
   static bool isDebug = false;
-  static bool debugEnable = isDebugMode();
+// 1. 使用官方标准常量，生产环境自动为 false
+  static bool debugEnable = kDebugMode;
+
   static var logger = Logger(
     // printer: MyLogPrinter(),
     printer: SimplePrinter(),
   );
 
-  static bool isDebugMode() {
-    assert(() {
-      isDebug = true;
-      return true;
-    }());
-    print("LLpp 是否debug 环境：$isDebug");
-    return isDebug;
-  }
 
   static void d(dynamic msg, {int traceDepth = 1}) {
     if (debugEnable) {

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_comm/util/sp_util.dart';
-import 'package:flutter_comm/util/sp_util_key.dart';
+import 'package:flutter_comm/util/sp/sp_util.dart';
+import 'package:flutter_comm/util/sp/sp_util_key.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 
@@ -31,7 +31,9 @@ extension StringExtension on String {
 
     for (String word in words) {
       if (word.isNotEmpty) {
-        capitalizedWords.add(word[0].toUpperCase() + word.substring(1).toLowerCase());
+        capitalizedWords.add(
+          word[0].toUpperCase() + word.substring(1).toLowerCase(),
+        );
       }
     }
 
@@ -43,17 +45,14 @@ class AppRxList<T> extends RxList<T> {
   dynamic other;
   String? strExt;
 
-  AppRxList([List<T> initial = const []]) : super(initial);
+  AppRxList([super.initial]);
 }
 
 class AppScrollController extends ScrollController {
   AppScrollController({
-    double initialScrollOffset = 0.0,
-    keepScrollOffset = true,
-  }) : super(
-          initialScrollOffset: initialScrollOffset,
-          keepScrollOffset: keepScrollOffset,
-        );
+    super.initialScrollOffset,
+    super.keepScrollOffset = true,
+  });
 
   Callback? callback;
 

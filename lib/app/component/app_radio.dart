@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class AppRadio extends StatelessWidget {
   const AppRadio({super.key, this.isCheck = false, this.onClick});
 
-  final isCheck;
+  final bool isCheck;
   final VoidCallback? onClick;
 
   @override

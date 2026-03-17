@@ -54,7 +54,7 @@ class _AppSelectState extends State<AppSelect> {
             context,
             data: widget.selectDataList,
             selectData: _label,
-            ok: (String value, String label) {
+            callBack: (String value, String label) {
               _setValue(label);
               if (widget.onChange != null) {
                 widget.onChange!(value);
@@ -75,7 +75,7 @@ class _AppSelectState extends State<AppSelect> {
           children: [
             Text(_label, style: TextStyle(color: const Color.fromRGBO(14, 209, 244, 1), fontSize: 24.w)),
             SizedBox(width: 10.w),
-            Image.asset('assets/images/down.webp', width: 25.w)
+          //  Image.asset('assets/images/down.webp', width: 25.w)
           ],
         )
       ),
