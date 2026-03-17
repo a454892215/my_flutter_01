@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 class AppLoading {
-  static initLoading() {
+  static void initLoading() {
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.ring
@@ -19,11 +19,11 @@ class AppLoading {
       ..userInteractions = false
       ..dismissOnTap = false;
   }
-  static show() {
+  static void show() {
     EasyLoading.show(status: 'loading...');
   }
 
-  static close() {
+  static void close() {
     EasyLoading.isShow ? EasyLoading.dismiss() : null;
   }
 }

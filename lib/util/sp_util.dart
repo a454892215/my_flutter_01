@@ -7,7 +7,7 @@ SpUtil spUtil = SpUtil();
 class SpUtil {
   late SharedPreferences prefs;
 
-  init() async {
+  Future<void> init() async {
     prefs = await SharedPreferences.getInstance();
     Log.d("SharedPreferences 初始化完毕");
   }

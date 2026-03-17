@@ -37,7 +37,7 @@ class FlutterChain {
     };
   }
 
-  static printError(error, stack, {bool simple = false}) {
+  static void printError(error, stack, {bool simple = false}) {
     String errorStr = "";
     if (simple) {
       errorStr = _parseFlutterStack(Trace.from(stack));

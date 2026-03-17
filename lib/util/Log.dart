@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:logger/logger.dart';
 import 'dart:developer';
 
@@ -47,16 +46,19 @@ class Log {
   static void _print(Level level, dynamic msg, {int traceDepth = 1}) {
     String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
     String text = "${DateTime.now()} $traceInfo $tag$msg";
-    if(text.length > 200){
+    if (text.length > 200) {
       log(text);
-    }else{
+    } else {
       logger.log(level, text);
     }
   }
 
   static String getTraceInfo(Level level, {int traceDepth = 1}) {
     try {
-      var traceList = StackTrace.current.toString().replaceAll(RegExp(r"(\s\s\s\s)+"), "    ").split("\n");
+      var traceList = StackTrace.current
+          .toString()
+          .replaceAll(RegExp(r"(\s\s\s\s)+"), "    ")
+          .split("\n");
       String pre = traceList[0];
       String traceInfo = '未定位到调用位置';
       int end = traceList.length > 6 ? 6 : traceList.length;

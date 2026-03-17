@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 class AliveWidget extends StatefulWidget {
   final Widget child;
 
-  const AliveWidget({Key? key, required this.child}) : super(key: key);
+  const AliveWidget({super.key, required this.child});
 
   @override
   State<StatefulWidget> createState() {
