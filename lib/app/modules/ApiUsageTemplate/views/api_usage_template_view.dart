@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../component/app_button.dart';
+import '../../../component/my_app_bar.dart';
 import '../controllers/api_usage_template_controller.dart';
 
 class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
@@ -10,9 +11,8 @@ class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ApiUsageTemplateView'),
-        centerTitle: true,
+      appBar: MyAppBar(
+        title: 'ApiUsageTemplateView',
       ),
       body: Container(
       width: double.infinity,

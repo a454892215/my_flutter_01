@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_comm/app/widget/scroller_marquee_helper.dart';
+import 'package:flutter_comm/widget/scroller_marquee_helper.dart';
+
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

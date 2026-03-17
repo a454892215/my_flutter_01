@@ -6,8 +6,9 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 
 import '../../util/Log.dart';
+import '../../widget/input_field.dart';
 import '../app_style.dart';
-import '../widget/input_field.dart';
+
 
 class UserInfoInputField extends StatelessWidget {
   const UserInfoInputField({
