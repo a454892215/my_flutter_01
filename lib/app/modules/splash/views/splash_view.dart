@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_comm/app/component/app_button.dart';
 
 import 'package:get/get.dart';
 
+import '../../../routes/app_pages.dart';
 import '../controllers/splash_controller.dart';
 
 class SplashView extends GetView<SplashController> {
@@ -22,7 +24,11 @@ class SplashView extends GetView<SplashController> {
               "SplashView Page",
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
-
+            AppButton(
+              padding: EdgeInsets.all(10),
+              text: "去home页面66",
+              onClick: () => {Get.toNamed(Routes.HOME)},
+            ),
           ],
         ),
       ),
