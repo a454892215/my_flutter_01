@@ -46,3 +46,9 @@ widget 自定义UI组建模块
 navigator 导航相关模块
 依赖关系，lib下的app模块依赖依赖其他模块，但是其他模块不能依赖app模块
 以后其他模
+
+激活：get_cli
+dart pub global activate get_cli
+初始化项目：get init
+创建模块: get create page:home
+
