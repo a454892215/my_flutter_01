@@ -12,7 +12,7 @@ class DioUtil {
   final String baseUrl;
   bool isCborEnabled = false; // CBOR 开关
 
-  DioUtil(this.baseUrl) {
+  DioUtil(this.baseUrl, {bool isCborEnabled = false}) {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 15),
