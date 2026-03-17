@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/Log.dart';
 
 typedef RoutePopCallBack = void Function(Route<dynamic> route, Route<dynamic>? previousRoute);
-
+/// 通过自定义 NavigatorObserver 并维护 List<Route> 的做法，是目前原生 Flutter 开发中 最准确、最可控 的方案
 class AppNavigatorObserver extends NavigatorObserver {
   // 使用 List 存储 Route 对象本身更可靠
   final List<Route<dynamic>> _history = [];
