@@ -18,17 +18,15 @@ class TabView2 extends StatelessWidget {
         return Container(
           width: double.infinity,
           height: double.infinity,
-          color: Color(0xff599ecf),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              AppText(text: "TabView2"),
               Expanded(
                 child: RefreshWidget(
                   refreshController: controller.refreshController,
                   child: ListView.builder(
-                    itemCount: 20,
+                    itemCount: 5,
                     padding: EdgeInsets.only(
                       left: 0.w,
                       right: 0.w,

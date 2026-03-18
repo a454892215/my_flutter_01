@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // 用于触感反馈
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
@@ -10,11 +9,10 @@ class RefreshWidget extends StatefulWidget {
     this.onRefresh,
     this.onLoading,
     required this.refreshController,
-    this.enablePullDown = true,
-    this.enablePullUp = true,
+    this.refreshEnable = true,
+    this.loadmoreEnable = true,
     this.header,
     this.footer,
-    this.isEmpty = false, // 是否显示空状态
     this.emptyWidget, // 自定义空状态组件
     this.onEmptyTap, // 点击空状态的回调（通常用于重新加载）
     this.initialRefresh = false, // 是否在加载时自动触发一次刷新
@@ -24,13 +22,13 @@ class RefreshWidget extends StatefulWidget {
   final Future<void> Function()? onRefresh;
   final Future<void> Function()? onLoading;
   final RefreshController refreshController;
-  final bool enablePullDown;
-  final bool enablePullUp;
+  final bool refreshEnable;
+  final bool loadmoreEnable;
   final Widget? header;
   final Widget? footer;
 
   // 状态增强参数
-  final bool isEmpty;
+//  final bool isEmpty;
   final Widget? emptyWidget;
   final VoidCallback? onEmptyTap;
   final bool initialRefresh;
@@ -51,13 +49,12 @@ class _RefreshWidgetState extends State<RefreshWidget> {
     }
   }
 
-  /// 内部包装刷新逻辑：处理震动、自动结束状态、异常捕获
+  bool isRefreshing = false;
+  /// 内部包装刷新逻辑：自动结束状态、异常捕获
   Future<void> _handleRefresh() async {
     if (widget.onRefresh == null) return;
-
     // 模拟原生下拉到临界点的震动反馈
-    HapticFeedback.lightImpact();
-
+    // HapticFeedback.lightImpact();
     try {
       widget.refreshController.resetNoData();
       await widget.onRefresh!();
@@ -71,7 +68,6 @@ class _RefreshWidgetState extends State<RefreshWidget> {
   /// 内部包装加载逻辑
   Future<void> _handleLoading() async {
     if (widget.onLoading == null) return;
-
     try {
       await widget.onLoading!();
       // 注意：loadComplete 通常由外部根据分页数据量决定是否调用 loadNoData()
@@ -88,40 +84,17 @@ class _RefreshWidgetState extends State<RefreshWidget> {
   @override
   Widget build(BuildContext context) {
     // 核心逻辑：如果是空状态，则渲染占位图而非 child
-    Widget content = widget.isEmpty ? _buildEmptyView() : widget.child;
-
     return SmartRefresher(
-      enablePullDown: widget.enablePullDown,
-      enablePullUp: widget.enablePullUp && !widget.isEmpty, // 空状态时禁用上拉
+      enablePullDown: widget.refreshEnable,
+      enablePullUp: widget.loadmoreEnable,
       controller: widget.refreshController,
       onRefresh: _handleRefresh,
       onLoading: _handleLoading,
-      physics: const BouncingScrollPhysics(), // 强制开启越界回弹，增强手感
-      header: widget.header ?? _buildDefaultHeader(),
-      footer: widget.footer ?? _buildDefaultFooter(),
-      child: content,
-    );
-  }
-
-  /// 构建空状态 UI
-  Widget _buildEmptyView() {
-    return GestureDetector(
-      onTap: widget.onEmptyTap ?? () => widget.refreshController.requestRefresh(),
-      child: widget.emptyWidget ??
-          Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.only(top: 100.h),
-            child: Column(
-              children: [
-                Icon(Icons.inbox, size: 80.w, color: Colors.grey[300]),
-                SizedBox(height: 16.h),
-                Text(
-                  "暂无数据，点击重试",
-                  style: TextStyle(fontSize: 14.sp, color: Colors.grey[400]),
-                ),
-              ],
-            ),
-          ),
+      physics: const BouncingScrollPhysics(),
+      // 强制开启越界回弹，增强手感
+     // header: widget.header ?? _buildDefaultHeader(),
+     // footer: widget.footer ?? _buildDefaultFooter(),
+      child: widget.child,
     );
   }
 
@@ -134,20 +107,20 @@ class _RefreshWidgetState extends State<RefreshWidget> {
           body = const CircularProgressIndicator(strokeWidth: 2);
         } else {
           final Map<RefreshStatus, String> statusMap = {
-            RefreshStatus.idle: "下拉刷新",
-            RefreshStatus.canRefresh: "释放以刷新",
-            RefreshStatus.failed: "刷新失败",
-            RefreshStatus.completed: "刷新成功",
+            RefreshStatus.idle: "下拉刷新...",
+            RefreshStatus.canRefresh: "释放刷新...",
+            RefreshStatus.failed: "刷新失败...",
+            RefreshStatus.completed: "刷新成功...",
           };
-          body = Text(statusMap[mode] ?? "");
+          body = Text(
+            statusMap[mode] ?? "",
+            style: TextStyle(fontSize: 13, color: Color(0x33333333)),
+          );
         }
         return SizedBox(
-          height: 60.h,
+          height: 60,
           child: Center(
-            child: DefaultTextStyle(
-              style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-              child: body,
-            ),
+            child: body,
           ),
         );
       },

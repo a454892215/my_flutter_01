@@ -49,10 +49,10 @@ class RefreshConfigurationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefreshConfiguration(
-        headerBuilder: () => const WaterDropHeader(),
+        headerBuilder: () => const ClassicHeader(refreshingIcon: CupertinoActivityIndicator()),
         footerBuilder: () =>
         const ClassicFooter(loadingIcon: CupertinoActivityIndicator()),
-        hideFooterWhenNotFull: false,
+        hideFooterWhenNotFull: true,
         // Viewport不满一屏时,禁用上拉加载更多功能
         enableBallisticLoad: false,
         // 可以通过惯性滑动触发加载更多
