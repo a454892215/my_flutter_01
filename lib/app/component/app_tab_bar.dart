@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'custom_tab_indicator.dart';
 /// 基于TabBar的水平tab 可以设置 indicatorWidth
-class AppTab extends StatefulWidget {
-  const AppTab({
+class AppTabBar extends StatefulWidget {
+  const AppTabBar({
     super.key,
     required this.tabs,
     this.isScrollable = false,
@@ -11,6 +11,7 @@ class AppTab extends StatefulWidget {
     this.onTap,
     this.indicatorWidth,
     this.controller,
+    this.labelPadding = const EdgeInsets.symmetric(horizontal: 16.0),
   });
 
   final List<Map<String, dynamic>> tabs;
@@ -26,14 +27,16 @@ class AppTab extends StatefulWidget {
   // 指示器宽度
   final double? indicatorWidth;
 
+  final EdgeInsetsGeometry? labelPadding;
+
   // 点击回调
   final void Function(int index, String value)? onTap;
 
   @override
-  State<AppTab> createState() => _AppTabState();
+  State<AppTabBar> createState() => _AppTabState();
 }
 
-class _AppTabState extends State<AppTab> with SingleTickerProviderStateMixin {
+class _AppTabState extends State<AppTabBar> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
@@ -50,6 +53,9 @@ class _AppTabState extends State<AppTab> with SingleTickerProviderStateMixin {
       // 超出滚动
       isScrollable: widget.isScrollable,
       dividerHeight: 1,
+      tabAlignment: TabAlignment.start,
+      padding: EdgeInsets.zero,
+      labelPadding: widget.labelPadding,
       dividerColor: Color(0xffffffff),
       labelStyle: TextStyle(
         fontSize: 26.w,

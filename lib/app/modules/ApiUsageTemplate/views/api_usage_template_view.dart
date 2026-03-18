@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../component/app_button.dart';
-import '../../../component/app_tab.dart';
+import '../../../component/app_tab_bar.dart';
 import '../../../component/my_app_bar.dart';
 import '../controllers/api_usage_template_controller.dart';
 import 'drawer_view.dart';
@@ -28,11 +28,13 @@ class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  AppTab(
+                  AppTabBar(
                     controller: controller.tabController,
                     tabs: controller.tabs,
                     height: 100.w,
+                    labelPadding: EdgeInsetsDirectional.symmetric(horizontal: 30.w),
                     indicatorWidth: 88.w,
+                    isScrollable: true,
                     onTap: (int index, String value) {
 
                     },

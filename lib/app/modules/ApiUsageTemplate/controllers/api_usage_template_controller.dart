@@ -9,9 +9,11 @@ class ApiUsageTemplateController extends BaseController
     with GetSingleTickerProviderStateMixin {
   late TabController tabController;
   List<Map<String, dynamic>> tabs = [
-    {'label': '标题1', 'value': '1'},
-    {'label': '标题2', 'value': '2'},
-    {'label': '标题3', 'value': '3'},
+    {'label': '组件大全', 'value': '1'},
+    {'label': 'refresh', 'value': '2'},
+    {'label': 'tab示列', 'value': '3'},
+    {'label': '动画示列1', 'value': '3'},
+    {'label': '动画示列2', 'value': '3'},
   ];
 
   @mustCallSuper
