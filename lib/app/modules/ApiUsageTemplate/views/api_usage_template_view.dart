@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
 
 import '../../../component/app_button.dart';
 import '../../../component/my_app_bar.dart';
 import '../controllers/api_usage_template_controller.dart';
-import 'drawer_api.dart';
+import 'drawer_view.dart';
 
 class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
   const ApiUsageTemplateView({super.key});

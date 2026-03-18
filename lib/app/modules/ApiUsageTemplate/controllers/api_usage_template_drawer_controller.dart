@@ -5,7 +5,7 @@ import '../../../../util/Log.dart';
 import '../../../base/base_controller.dart';
 
 class TemplateDrawerController extends BaseController {
-
+  final name = "抽屉页面".obs;
 
   @mustCallSuper
   @override
@@ -24,5 +24,4 @@ class TemplateDrawerController extends BaseController {
   void onClose() {
     super.onClose();
   }
-
 }
