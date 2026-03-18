@@ -10,7 +10,7 @@ class AppCupertinoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoButton(
       padding: const EdgeInsets.all(0),
-      minSize: 0,
+      minimumSize: Size.zero,
       onPressed: () {
         if (onPressed != null) {
           onPressed!();

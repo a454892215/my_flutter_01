@@ -23,9 +23,9 @@ class AppEmpty extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset('assets/images/empty.webp', width: 192.w),
+         // Image.asset('assets/images/empty.webp', width: 192.w),
           Center(
-            child: Text('Sem dados', style: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.7), fontSize: 26.w)),
+            child: Text('暂无数据！', style: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.7), fontSize: 26.w)),
           )
         ],
       ),
