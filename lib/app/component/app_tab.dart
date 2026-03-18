@@ -49,6 +49,8 @@ class _AppTabState extends State<AppTab> with SingleTickerProviderStateMixin {
       unselectedLabelColor: const Color.fromRGBO(255, 255, 255, 0.40),
       // 超出滚动
       isScrollable: widget.isScrollable,
+      dividerHeight: 1,
+      dividerColor: Color(0xffffffff),
       labelStyle: TextStyle(
         fontSize: 26.w,
         fontWeight: FontWeight.w700,

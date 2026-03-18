@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
 
 import '../../../component/app_button.dart';
+import '../../../component/app_tab.dart';
 import '../../../component/my_app_bar.dart';
 import '../controllers/api_usage_template_controller.dart';
 import 'drawer_view.dart';
@@ -26,6 +28,15 @@ class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  AppTab(
+                    controller: controller.tabController,
+                    tabs: controller.tabs,
+                    height: 100.w,
+                    indicatorWidth: 88.w,
+                    onTap: (int index, String value) {
+
+                    },
+                  ),
                   AppButton(
                     padding: EdgeInsets.all(10),
                     text: '打开抽屉',

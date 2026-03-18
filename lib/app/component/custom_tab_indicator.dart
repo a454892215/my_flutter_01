@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class CustomTabIndicator extends Decoration {
@@ -5,81 +7,88 @@ class CustomTabIndicator extends Decoration {
   final Color color;
   final double borderRadius;
   final BoxShadow boxShadow;
-  final double? width; // 新增的宽度参数
+  final double? width;
 
   const CustomTabIndicator({
     required this.height,
     required this.color,
     this.borderRadius = 0.0,
     this.boxShadow = const BoxShadow(color: Colors.transparent),
-    this.width, // 添加宽度参数
+    this.width,
   });
+
+  // 关键优化：支持插值动画
+  // 当 Tab 切换时，框架会调用此方法实现属性的平滑过渡
+  @override
+  Decoration? lerpFrom(Decoration? a, double t) {
+    if (a is CustomTabIndicator) {
+      return CustomTabIndicator(
+        height: lerpDouble(a.height, height, t)!,
+        color: Color.lerp(a.color, color, t)!,
+        borderRadius: lerpDouble(a.borderRadius, borderRadius, t)!,
+        boxShadow: BoxShadow.lerp(a.boxShadow, boxShadow, t)!,
+        width: lerpDouble(a.width, width, t),
+      );
+    }
+    return super.lerpFrom(a, t);
+  }
 
   @override
   BoxPainter createBoxPainter([VoidCallback? onChanged]) {
     return _CustomTabIndicatorPainter(
-      height: height,
-      color: color,
-      borderRadius: borderRadius,
-      boxShadow: boxShadow,
-      width: width,
+      this, // 传递整个对象，减少构造函数参数冗余
+      onChanged,
     );
   }
 }
 
 class _CustomTabIndicatorPainter extends BoxPainter {
-  final double height;
-  final Color color;
-  final double borderRadius;
-  final BoxShadow boxShadow;
-  final double? width; // 新增的宽度参数
+  final CustomTabIndicator decoration;
+  final Paint _paint = Paint()..style = PaintingStyle.fill;
+  late final Paint? _shadowPaint; // 缓存阴影 Paint
 
-  _CustomTabIndicatorPainter({
-    required this.height,
-    required this.color,
-    required this.borderRadius,
-    required this.boxShadow,
-    required this.width, // 添加宽度参数
-  });
+  _CustomTabIndicatorPainter(
+      this.decoration,
+      VoidCallback? onChanged,
+      ) : super(onChanged) {
+    _paint.color = decoration.color;
+
+    // 提前计算阴影 Paint，避免在 paint 方法中反复调用 toPaint()
+    if (decoration.boxShadow.color != Colors.transparent) {
+      _shadowPaint = decoration.boxShadow.toPaint();
+    } else {
+      _shadowPaint = null;
+    }
+  }
 
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final tabWidth = width ?? configuration.size!.width; // 计算指示器的宽度
+    final Size? configurationSize = configuration.size;
+    if (configurationSize == null) return;
 
-    final leftOffset = (configuration.size!.width - tabWidth) / 2.0; // 居中偏移量计算
+    // 使用局部变量减少属性访问开销
+    final double indicatorHeight = decoration.height;
+    final double? targetWidth = decoration.width;
 
-    final rect = Offset(offset.dx + leftOffset, (offset.dy + configuration.size!.height) - height) &
-    Size(tabWidth, height); // 使用指定的宽度和偏移量
+    final tabWidth = targetWidth ?? configurationSize.width;
+    final leftOffset = (configurationSize.width - tabWidth) / 2.0;
+
+    final rect = Offset(
+        offset.dx + leftOffset,
+        (offset.dy + configurationSize.height) - indicatorHeight
+    ) & Size(tabWidth, indicatorHeight);
 
     final roundedRect = RRect.fromRectAndRadius(
       rect,
-      Radius.circular(borderRadius),
+      Radius.circular(decoration.borderRadius),
     );
 
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    if (boxShadow.color != Colors.transparent) {
-      final shadowRect = rect.shift(boxShadow.offset);
-      final shadowRRect = RRect.fromRectAndRadius(
-        shadowRect,
-        Radius.circular(borderRadius),
-      );
-
-      canvas.drawRRect(
-        shadowRRect,
-        BoxShadow(
-          color: boxShadow.color,
-          blurRadius: boxShadow.blurRadius,
-          spreadRadius: boxShadow.spreadRadius,
-          offset: Offset.zero,
-        ).toPaint(),
-      );
+    // 1. 绘制阴影（使用缓存好的 Paint）
+    if (_shadowPaint != null) {
+      canvas.drawRRect(roundedRect.shift(decoration.boxShadow.offset), _shadowPaint);
     }
 
-    canvas.drawRRect(roundedRect, paint);
+    // 2. 绘制指示器
+    canvas.drawRRect(roundedRect, _paint);
   }
 }
-
-
