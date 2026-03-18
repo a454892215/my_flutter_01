@@ -27,7 +27,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.API_USAGE_TEMPLATE,
-      page: () => const ApiUsageTemplateView(),
+      page: () =>  ApiUsageTemplateView(),
       binding: ApiUsageTemplateBinding(),
     ),
   ];
