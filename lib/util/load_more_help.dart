@@ -14,7 +14,7 @@ class LoadMorePageIndexHelper {
       int? pageIndex = pageIndexMap[listUIKey];
       retIndex = pageIndex! + 1;
     }
-    Log.d2("listUIKey: $listUIKey   retIndex: $retIndex");
+    Log.d("listUIKey: $listUIKey   retIndex: $retIndex");
     return retIndex;
   }
 
