@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cbor/cbor.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_comm/http/response.dart';
 
 import '../util/Log.dart';
 import 'dio_client.dart';
 
-abstract class BaseApiService {
+ class BaseApiService {
   final DioClient client;
 
   BaseApiService(this.client);
@@ -16,6 +17,9 @@ abstract class BaseApiService {
     String path, {
     String method = 'GET',
     dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Options? options,
     T Function(dynamic json)? decoder,
   }) async {
     // 1. 调用底层的纯净请求
@@ -23,13 +27,15 @@ abstract class BaseApiService {
       path,
       method: method,
       data: data,
+      queryParameters: queryParameters,
+      headers: headers,
+      options: options,
     );
 
     // 2. 检查基础状态
     if (response.data == null || response.data!.isEmpty) {
       return null;
     }
-
     // 3. 执行反序列化 (JSON 或 CBOR)
     dynamic decodedJson;
     try {
