@@ -80,7 +80,7 @@ dependencies:
   device_info_plus: ^11.0.0 # 确保使用最新版以适配 AGP 8.0+
   flutter_native_splash: ^2.2.18
   flutter_smart_dialog: ^4.9.3+2
-  pull_to_refresh_flutter3: ^2.0.1
+  pull_to_refresh_flutter3: ^2.0.2
   cbor: ^6.1.1  # 这是目前适配 Dart 3 强类型且性能最好的版本
   flutter_inappwebview: ^6.1.5
 

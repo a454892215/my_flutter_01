@@ -10,6 +10,7 @@ class RefreshWidget extends StatefulWidget {
     this.onLoading,
     required this.refreshController,
     this.scrollController,
+    this.physics,
     this.refreshEnable = true,
     this.loadmoreEnable = true,
     this.header,
@@ -23,6 +24,7 @@ class RefreshWidget extends StatefulWidget {
   final Future<void> Function()? onRefresh;
   final Future<void> Function()? onLoading;
   final RefreshController refreshController;
+  final ScrollPhysics? physics;
   final bool refreshEnable;
   final bool loadmoreEnable;
   final Widget? header;
@@ -93,7 +95,7 @@ class _RefreshWidgetState extends State<RefreshWidget> {
       scrollController: widget.scrollController,
       onRefresh: _handleRefresh,
       onLoading: _handleLoading,
-      physics: const BouncingScrollPhysics(),
+      physics: widget.physics,
       // 强制开启越界回弹，增强手感
      // header: widget.header ?? _buildDefaultHeader(),
      // footer: widget.footer ?? _buildDefaultFooter(),

@@ -51,12 +51,21 @@ class RefreshConfigurationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshConfiguration(
       headerBuilder: () => const ClassicHeader(
-        completeDuration: Duration(milliseconds: 200),
+      //  refreshStyle: RefreshStyle.Follow,
+        completeDuration: Duration(milliseconds: 0),
         refreshingIcon: CupertinoActivityIndicator(),
       ),
       footerBuilder: () =>
           const ClassicFooter(loadingIcon: CupertinoActivityIndicator()),
 
+      /// 回收刷新头过程 会回收越界 隐藏部分头部内容，然后再次上滚显示隐藏的内容 造成了回弹，通过springDescription调整，消除回收越界
+      springDescription: const SpringDescription(
+        mass: 1.5, // 质量，越大 惯性越大
+        stiffness: 120, // 刚度越大，拉力/推力越强
+        damping: 30,    // 阻尼越大，能量耗散越快
+      ),
+      maxUnderScrollExtent: 0,
+      bottomHitBoundary: 0,
       /// 关键：刷新结束后，允许在回弹时即刻触发下次滚动
       enableScrollWhenRefreshCompleted: true,
 

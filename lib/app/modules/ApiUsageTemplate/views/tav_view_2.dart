@@ -14,7 +14,7 @@ class TabView2 extends StatefulWidget {
 class _TabView2State extends State<TabView2> {
   /// 需要回收的controller 一般建议定义在State中 而不是GetxController中，因为GetxController的生命周期不一定是和Widget严格绑定的
   late RefreshController _refreshController;
-
+  final ScrollPhysics _physics = ClampingScrollPhysics();
   final int _perSize = 10;
   final int _initSize = 10;
   int _listSize = 10;
@@ -59,12 +59,13 @@ class _TabView2State extends State<TabView2> {
         loadmoreEnable: _listSize >= _perSize,
         onRefresh: _handleRefresh,
         onLoading: _handleLoading,
+        physics: _physics,
         child: ListView.builder(
           itemCount: _listSize,
           // 优化：固定高度使用 itemExtent 提升渲染效率
           itemExtent: 50,
           padding: EdgeInsets.zero,
-          physics: const ClampingScrollPhysics(),
+          physics: _physics,
           // 建议保持默认或按需调整，700 对简单列表而言较高
           cacheExtent: 500,
           itemBuilder: (BuildContext context, int index) {
