@@ -1,5 +1,5 @@
 import 'api.dart';
-import 'dio_client.dart';
+import 'core/dio_client.dart';
 
 
 ApiRequest apiRequest = ApiRequest();

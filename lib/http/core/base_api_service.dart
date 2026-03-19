@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cbor/cbor.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_comm/http/response.dart';
+import 'package:flutter_comm/http/core/response.dart';
 
-import '../util/Log.dart';
+import '../../util/Log.dart';
 import 'dio_client.dart';
 
- class BaseApiService {
+abstract class BaseApiService {
   final DioClient client;
 
   BaseApiService(this.client);
@@ -20,6 +20,7 @@ import 'dio_client.dart';
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     Options? options,
+    CancelToken? cancelToken,
     T Function(dynamic json)? decoder,
   }) async {
     // 1. 调用底层的纯净请求
@@ -29,6 +30,7 @@ import 'dio_client.dart';
       data: data,
       queryParameters: queryParameters,
       headers: headers,
+      cancelToken: cancelToken,
       options: options,
     );
 

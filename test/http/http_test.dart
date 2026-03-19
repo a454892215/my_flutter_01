@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter_comm/http/dio_client.dart';
-import 'package:flutter_comm/http/response.dart';
+import 'package:flutter_comm/http/core/dio_client.dart';
+import 'package:flutter_comm/http/core/response.dart';
 import 'package:flutter_comm/util/Log.dart';
 
 class HttpTest {

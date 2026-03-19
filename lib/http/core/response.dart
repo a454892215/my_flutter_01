@@ -7,12 +7,14 @@ class NetworkResponse<T> {
   final String? statusMessage; // 状态描述
   final Map<String, List<String>> headers; // 响应头
   final bool isSuccess; // 逻辑判断是否成功 (200-299)
+  final bool isCancelled;  // 请求是否被取消
 
   NetworkResponse({
     this.data,
     this.statusCode,
     this.statusMessage,
-    required this.headers,
+    this.isCancelled = false,
+    this.headers =  const {},
   }) : isSuccess = statusCode != null && statusCode >= 200 && statusCode < 300;
 
   dynamic getData() {
