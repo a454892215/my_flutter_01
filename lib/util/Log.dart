@@ -1,26 +1,31 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
-import 'dart:developer';
 
 class Log {
   static const String tag = "LLpp:";
-  static bool isDebug = false;
-// 1. 使用官方标准常量，生产环境自动为 false
+
+  // 1. 自动识别编译模式：Release 模式下不打印 Debug 级别日志
   static bool debugEnable = kDebugMode;
 
-  static var logger = Logger(
-    // printer: MyLogPrinter(),
-    printer: SimplePrinter(),
+  // 2. 配置 Logger 实例
+  static final Logger _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      // 内部已通过 getTraceInfo 自定义堆栈，此处设为 0
+      errorMethodCount: 8,
+      // 错误堆栈层级
+      lineLength: 100,
+      // 每行宽度
+      colors: !Platform.isWindows,
+      // Windows 命令行对 ANSI 颜色支持不一，建议关闭以防乱码
+      printEmojis: true,
+      // 是否打印 Emoji
+      printTime: false, // 内部已手动添加时间戳
+    ),
   );
 
-
   static void d(dynamic msg, {int traceDepth = 1}) {
-    if (debugEnable) {
-      _print(Level.debug, msg, traceDepth: traceDepth);
-    }
-  }
-
-  static void d2(dynamic msg, {int traceDepth = 1}) {
     if (debugEnable) {
       _print(Level.debug, msg, traceDepth: traceDepth);
     }
@@ -34,79 +39,74 @@ class Log {
     _print(Level.warning, msg);
   }
 
-  static void e(dynamic msg) {
+  static void e(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
     _print(Level.error, msg);
-  }
-
-  static void _print(Level level, dynamic msg, {int traceDepth = 1}) {
-    String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
-    String text = "${DateTime.now()} $traceInfo $tag$msg";
-    if (text.length > 200) {
-      log(text);
-    } else {
-      logger.log(level, text);
+    if (error != null || stackTrace != null) {
+      _logger.e("$tag Error details:", error: error, stackTrace: stackTrace);
     }
   }
 
+  /// 核心打印逻辑：兼容 PC 与 移动端
+  static void _print(Level level, dynamic msg, {int traceDepth = 1}) {
+    String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
+    // 构造最终输出字符串
+    String text =
+        "${DateTime.now().toIso8601String().split('T').last} $traceInfo $tag$msg";
+    // API 选择策略：
+    // 1. 在 PC 端运行时，debugPrint (stdout) 是最可靠的输出通道
+    // 2. logger.log 内部虽然也用 print，但经过 SimplePrinter/PrettyPrinter 处理后更易读
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      // 桌面端直接使用 debugPrint，避免 dart:developer.log 在终端失效的问题
+      debugPrint(text);
+    } else {
+      // 移动端使用 logger 库，利用其分段机制防止 Android 系统对单条日志长度（4KB）的限制
+      _logger.log(level, text);
+    }
+  }
+
+  /// 跨平台堆栈轨迹解析
   static String getTraceInfo(Level level, {int traceDepth = 1}) {
     try {
-      var traceList = StackTrace.current
-          .toString()
-          .replaceAll(RegExp(r"(\s\s\s\s)+"), "    ")
-          .split("\n");
-      String pre = traceList[0];
-      String traceInfo = '未定位到调用位置';
-      int end = traceList.length > 6 ? 6 : traceList.length;
-      List<String> tarTraceList = [];
-      for (int i = 1; i < end; i++) {
-        var cur = traceList[i];
-        if (pre.contains("Log.") && !cur.contains("Log.")) {
-          traceInfo = cur;
-          int end2 = i + traceDepth;
-          end2 = end2 > traceList.length ? traceList.length : end2;
-          for (int j = i; j < end2; j++) {
-            var cur = traceList[j];
-            tarTraceList.add(cur);
+      // 获取当前堆栈并标准化格式
+      var traceList = StackTrace.current.toString().split("\n");
+
+      String traceInfo = 'Unknown Location';
+      List<String> targetTraces = [];
+
+      // 遍历寻找非 Log 类本身的调用层级
+      for (int i = 0; i < traceList.length; i++) {
+        String line = traceList[i];
+        // 过滤掉当前 Log 工具类本身的堆栈信息
+        if (!line.contains("Log.") &&
+            !line.contains("_print") &&
+            line.isNotEmpty) {
+          int end = i + traceDepth;
+          end = end > traceList.length ? traceList.length : end;
+
+          for (int j = i; j < end; j++) {
+            String item = traceList[j];
+
+            // 兼容性截取：PC 端和移动端的 StackTrace 格式不完全一致
+            // 寻找 '(' 或 'package:' 标记
+            int startIdx = item.indexOf('(package:');
+            if (startIdx == -1) startIdx = item.indexOf('package:');
+
+            if (startIdx > -1) {
+              item = item.substring(startIdx);
+            }
+            targetTraces.add(item.trim());
           }
           break;
         }
-        pre = traceList[i];
       }
-      String ret = "";
-      var tarSize = tarTraceList.length;
-      for (int i = 0; i < tarSize; i++) {
-        String item = tarTraceList[i];
-        int start = item.indexOf('(package:');
-        if (start > -1) {
-          item = item.substring(start);
-        }
-        String delimiter = i == tarSize - 1 ? "" : '\r\n';
-        ret += '$item$delimiter';
+
+      // 将深度堆栈组合成字符串输出
+      if (targetTraces.isNotEmpty) {
+        return targetTraces.join(" \n -> ");
       }
-      return ret.isEmpty ? traceInfo : ret;
-    } catch (e, trace) {
-      logger.log(level, "${DateTime.now()} $e $tag $trace");
+      return traceInfo;
+    } catch (e) {
+      return "Trace Error: $e";
     }
-    return "定位调用栈发生异常";
-  }
-}
-
-class MyLogPrinter extends LogPrinter {
-  @override
-  List<String> log(LogEvent event) {
-    return _formatAndPrint(level: event.level, message: event.message);
-  }
-
-  List<String> _formatAndPrint({
-    required Level level,
-    required String message,
-  }) {
-    List<String> buffer = [];
-    final ansiColor = PrettyPrinter.defaultLevelColors[level];
-    // var ansiColor = PrettyPrinter.levelColors[level]; 低版本
-    for (var line in message.split('\n')) {
-      buffer.add(ansiColor!(line));
-    }
-    return buffer;
   }
 }
