@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../component/refresh_widget.dart';
-import '../../../component/text/text_def.dart';
 import '../controllers/tab_view_2_controller.dart';
 
 /// refresh sample
@@ -25,17 +24,33 @@ class TabView2 extends StatelessWidget {
               Expanded(
                 child: RefreshWidget(
                   refreshController: controller.refreshController,
+                  scrollController: controller.scrollController,
+                  loadmoreEnable: controller.listSize >= controller.perSize,
+                  onRefresh: () async{
+                    await Future.delayed(Duration(milliseconds: 800));
+                    controller.listSize = controller.initSize;
+                    // 2. 手动通知 GetBuilder 重构
+                    controller.update();
+                  },
+                  onLoading: () async{
+                    await Future.delayed(Duration(milliseconds: 800));
+                    controller.listSize = controller.listSize + controller.perSize;
+                    // 2. 手动通知 GetBuilder 重构
+                    controller.update();
+                  },
                   child: ListView.builder(
-                    itemCount: 5,
+                    itemCount: controller.listSize,
                     padding: EdgeInsets.only(
                       left: 0.w,
                       right: 0.w,
                       top: 0.w,
                       bottom: 0.w,
                     ),
-                    physics: const BouncingScrollPhysics(),
-                    controller: ScrollController(),
-                    shrinkWrap: true,
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    controller:  controller.scrollController,
+                    shrinkWrap: false,
                     itemBuilder: (BuildContext context, int index) {
                       return Container(
                         width: double.infinity,

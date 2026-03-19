@@ -9,6 +9,7 @@ class RefreshWidget extends StatefulWidget {
     this.onRefresh,
     this.onLoading,
     required this.refreshController,
+    required this.scrollController,
     this.refreshEnable = true,
     this.loadmoreEnable = true,
     this.header,
@@ -32,6 +33,7 @@ class RefreshWidget extends StatefulWidget {
   final Widget? emptyWidget;
   final VoidCallback? onEmptyTap;
   final bool initialRefresh;
+  final ScrollController? scrollController;
 
   @override
   State<RefreshWidget> createState() => _RefreshWidgetState();
@@ -53,12 +55,14 @@ class _RefreshWidgetState extends State<RefreshWidget> {
   /// 内部包装刷新逻辑：自动结束状态、异常捕获
   Future<void> _handleRefresh() async {
     if (widget.onRefresh == null) return;
-    // 模拟原生下拉到临界点的震动反馈
-    // HapticFeedback.lightImpact();
     try {
-      widget.refreshController.resetNoData();
       await widget.onRefresh!();
       widget.refreshController.refreshCompleted();
+      // refreshToIdle 可以避免，刷新结束如果不满一屏幕内容，refreshCompleted后，
+      // 如果没有设置enableScrollWhenRefreshCompleted: true 不能马上响应触摸滚动事件
+     // widget.refreshController.refreshToIdle();
+      //resetNoData 把底部的‘没有更多内容’提示去掉，恢复成可以上拉的状态
+      widget.refreshController.resetNoData();
     } catch (e) {
       debugPrint("AppList Refresh Error: $e");
       widget.refreshController.refreshFailed();
@@ -70,8 +74,6 @@ class _RefreshWidgetState extends State<RefreshWidget> {
     if (widget.onLoading == null) return;
     try {
       await widget.onLoading!();
-      // 注意：loadComplete 通常由外部根据分页数据量决定是否调用 loadNoData()
-      // 这里仅做兜底结束，防止加载动画卡死
       if (widget.refreshController.isLoading) {
         widget.refreshController.loadComplete();
       }
@@ -88,6 +90,7 @@ class _RefreshWidgetState extends State<RefreshWidget> {
       enablePullDown: widget.refreshEnable,
       enablePullUp: widget.loadmoreEnable,
       controller: widget.refreshController,
+      scrollController: widget.scrollController,
       onRefresh: _handleRefresh,
       onLoading: _handleLoading,
       physics: const BouncingScrollPhysics(),

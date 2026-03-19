@@ -9,7 +9,11 @@ class TabView2ControllerController extends BaseController {
   final name = "TabView2 页面".obs;
 
   final RefreshController refreshController = RefreshController();
-
+  // 定义持久化的 ScrollController
+  final ScrollController scrollController = ScrollController();
+  int initSize = 10;
+  int listSize = 10;
+  int perSize = 10;
   @mustCallSuper
   @override
   void onInit() {
@@ -26,5 +30,7 @@ class TabView2ControllerController extends BaseController {
   @override
   void onClose() {
     super.onClose();
+    refreshController.dispose();
+    scrollController.dispose();
   }
 }

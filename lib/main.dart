@@ -21,7 +21,6 @@ import 'globe_exception_catch.dart';
 import 'navigator/observer.dart';
 
 void main() {
-
   GlobeExceptionHandler().init(() {
     // WidgetsFlutterBinding.ensureInitialized(); // 保证 WidgetsBindingObserver使用时候，已经初始化
     WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -29,10 +28,12 @@ void main() {
 
     if (Platform.isAndroid) {
       /// 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Color.fromRGBO(3, 11, 29, 1),
-      ));
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Color.fromRGBO(3, 11, 29, 1),
+        ),
+      );
     }
     runApp(
       const ScreenAdapterConfigurationWidget(
@@ -49,23 +50,49 @@ class RefreshConfigurationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefreshConfiguration(
-        headerBuilder: () => const ClassicHeader(refreshingIcon: CupertinoActivityIndicator()),
-        footerBuilder: () =>
-        const ClassicFooter(loadingIcon: CupertinoActivityIndicator()),
-        hideFooterWhenNotFull: true,
-        // Viewport不满一屏时,禁用上拉加载更多功能
-        enableBallisticLoad: false,
-        // 可以通过惯性滑动触发加载更多
-        enableBallisticRefresh: false,
-        child: Builder(builder: (context) {
+      headerBuilder: () => const ClassicHeader(
+        completeDuration: Duration(milliseconds: 200),
+        refreshingIcon: CupertinoActivityIndicator(),
+      ),
+      footerBuilder: () =>
+          const ClassicFooter(loadingIcon: CupertinoActivityIndicator()),
+
+      /// 关键：刷新结束后，允许在回弹时即刻触发下次滚动
+      enableScrollWhenRefreshCompleted: true,
+
+      /// 下拉刷新触发距离
+      headerTriggerDistance: 80,
+
+      /// 加载更多触发距离
+      footerTriggerDistance: 20,
+
+      ///阻尼系数。手动拖动时的速度比例，数值越大拖动越轻松，默认 1.0
+      dragSpeedRatio: 0.8,
+
+      /// 当内容不满一页时，Footer 是紧跟在内容后面，还是固定在底部
+      shouldFooterFollowWhenNotFull: (LoadStatus? status) {
+        return false;
+      },
+      hideFooterWhenNotFull: false,
+
+      /// enableBallisticLoad 是否启动惯性滑动 加载更多
+      enableBallisticLoad: true,
+
+      /// 是否启动惯性滑动 刷新
+      enableBallisticRefresh: false,
+      child: Builder(
+        builder: (context) {
           Log.d("===根页面重构？===Builder========");
           return const AppConfigurationWidget();
-        }));
+        },
+      ),
+    );
   }
 }
 
 class ScreenAdapterConfigurationWidget extends StatelessWidget {
   const ScreenAdapterConfigurationWidget({super.key, required this.child});
+
   final Widget child;
 
   @override
@@ -95,7 +122,8 @@ class AppConfigurationWidget extends StatelessWidget {
       /// 4. Theme.of方法可以获取当前的 ThemeData，MaterialDesign种有些样式不能自定义，比如导航栏高度
       theme: appThemeData,
       // 将 Transition.noTransition 改为以下之一：
-      defaultTransition: Transition.native, // 自动适配平台原生效果
+      defaultTransition: Transition.native,
+      // 自动适配平台原生效果
       // defaultTransition: Transition.rightToLeft, // 强制左右滑动
       /// routes 路由配置：对象是Map<String, WidgetBuilder>
       // routes: [], 这种方式配置路由，defaultTransition 不能生效
@@ -109,25 +137,29 @@ class AppConfigurationWidget extends StatelessWidget {
       /// 配置404页面: 如果路由不存在则跳到该页面
       onGenerateRoute: (RouteSettings settings) {
         return MaterialPageRoute(
-            builder: (BuildContext context) => const ErrPage());
-      },
-      builder: EasyLoading.init(builder: (context, widget) {
-        return MediaQuery(
-          ///设置文字大小不随系统设置改变
-          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
-          child: FlutterSmartDialog.init()(context, widget),
+          builder: (BuildContext context) => const ErrPage(),
         );
-      }),
+      },
+      builder: EasyLoading.init(
+        builder: (context, widget) {
+          return MediaQuery(
+            ///设置文字大小不随系统设置改变
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(1.0)),
+            child: FlutterSmartDialog.init()(context, widget),
+          );
+        },
+      ),
 
       /// 配置页面离开和进入的监听
       navigatorObservers: [
         MyNavigatorObserver(),
         routeObserver,
         FlutterSmartDialog.observer,
-        appNavigatorObserver
+        appNavigatorObserver,
       ],
-      routingCallback: (Routing? routing) {
-      },
+      routingCallback: (Routing? routing) {},
     );
   }
 }

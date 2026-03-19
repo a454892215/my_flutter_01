@@ -35,5 +35,6 @@ class ApiUsageTemplateController extends BaseController
   void onClose() {
     super.onClose();
     tabController.dispose();
+    pageController.dispose();
   }
 }
