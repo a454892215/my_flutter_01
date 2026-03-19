@@ -64,7 +64,11 @@ class RefreshConfigurationWidget extends StatelessWidget {
         stiffness: 120, // 刚度越大，拉力/推力越强
         damping: 30,    // 阻尼越大，能量耗散越快
       ),
-      maxUnderScrollExtent: 0,
+
+      /// Header 最大可以被拉出的越界距离
+      maxOverScrollExtent: 380,
+
+      /// 底部加载更多 越界多少算触底
       bottomHitBoundary: 0,
       /// 关键：刷新结束后，允许在回弹时即刻触发下次滚动
       enableScrollWhenRefreshCompleted: true,
@@ -87,8 +91,8 @@ class RefreshConfigurationWidget extends StatelessWidget {
       /// enableBallisticLoad 是否启动惯性滑动 加载更多
       enableBallisticLoad: true,
 
-      /// 是否启动惯性滑动 刷新
-      enableBallisticRefresh: false,
+      /// 是否启动惯性滑动 刷新? 无效--需要配合BouncingScrollPhysics才能触发惯性滚动
+      enableBallisticRefresh: true,
       child: Builder(
         builder: (context) {
           Log.d("===根页面重构？===Builder========");

@@ -10,7 +10,7 @@ class RefreshWidget extends StatefulWidget {
     this.onLoading,
     required this.refreshController,
     this.scrollController,
-    this.physics,
+    this.physics = const BouncingScrollPhysics(),
     this.refreshEnable = true,
     this.loadmoreEnable = true,
     this.header,
