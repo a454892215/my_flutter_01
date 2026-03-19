@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart'
     show RefreshController;
 import '../../../component/refresh_widget.dart';
+import '../controllers/tab_view_2_controller.dart';
 
 /// refresh sample
 class TabView2 extends StatefulWidget {
@@ -14,13 +17,14 @@ class TabView2 extends StatefulWidget {
 class _TabView2State extends State<TabView2> {
   /// 需要回收的controller 一般建议定义在State中 而不是GetxController中，因为GetxController的生命周期不一定是和Widget严格绑定的
   late RefreshController _refreshController;
-  final int _perSize = 10;
-  final int _initSize = 10;
-  int _listSize = 10;
+
+  late final TabView2ControllerController controller;
 
   @override
   void initState() {
     super.initState();
+    // 立即实例化并注入内存
+    controller = Get.put(TabView2ControllerController());
     // 2. 初始化 API 实例
     _refreshController = RefreshController();
   }
@@ -29,6 +33,7 @@ class _TabView2State extends State<TabView2> {
   void dispose() {
     super.dispose();
     _refreshController.dispose();
+    Get.delete<TabView2ControllerController>();
   }
 
   // 模拟 API 请求
@@ -36,7 +41,7 @@ class _TabView2State extends State<TabView2> {
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) {
       setState(() {
-        _listSize = _initSize;
+        controller.listSize = controller.initSize;
       });
     }
   }
@@ -45,7 +50,7 @@ class _TabView2State extends State<TabView2> {
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) {
       setState(() {
-        _listSize += _perSize;
+        controller.listSize += controller.perSize;
       });
     }
   }
@@ -55,11 +60,11 @@ class _TabView2State extends State<TabView2> {
     return Scaffold(
       body: RefreshWidget(
         refreshController: _refreshController,
-        loadmoreEnable: _listSize >= _perSize,
+        loadmoreEnable: controller.listSize >= controller.perSize,
         onRefresh: _handleRefresh,
         onLoading: _handleLoading,
         child: ListView.builder(
-          itemCount: _listSize,
+          itemCount: controller.listSize,
           // 优化：固定高度使用 itemExtent 提升渲染效率
           itemExtent: 50,
           padding: EdgeInsets.zero,

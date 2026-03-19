@@ -5,6 +5,11 @@ import '../../../base/base_controller.dart';
 
 class TabView2ControllerController extends BaseController {
   final name = "TabView2 页面".obs;
+
+  final int perSize = 10;
+  final int initSize = 10;
+  int listSize = 10;
+
   @mustCallSuper
   @override
   void onInit() {
