@@ -4,7 +4,7 @@ import 'dio_util.dart';
 ApiRequest apiRequest = ApiRequest();
 
 class ApiRequest {
-  DioUtil httpUtil = DioUtil(baseUrl, isCborEnabled: false);
+  DioUtil httpUtil = DioUtil(isCborEnabled: false, baseUrl: baseUrl);
 
   dynamic requestRegister(Map<String, Object> params) {
     return httpUtil.post(register, params);

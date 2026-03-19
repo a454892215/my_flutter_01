@@ -2,25 +2,39 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cbor/cbor.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_http2_adapter/dio_http2_adapter.dart'; // 需添加此库
 import '../util/Log.dart';
-import '../util/loading_util.dart';
 import '../util/sp/sp_util.dart';
 import '../util/sp/sp_util_key.dart';
 
 class DioUtil {
+  // 1. 静态实例池：根据 baseUrl 缓存不同的 DioUtil
+  static final Map<String, DioUtil> _instanceMap = {};
+
   late final Dio _dio;
   final String baseUrl;
-  bool isCborEnabled = false; // CBOR 开关
+  final bool isCborEnabled;
 
-  DioUtil(this.baseUrl, {bool isCborEnabled = false}) {
+  // 2. 私有构造函数
+  DioUtil._internal(this.baseUrl, this.isCborEnabled) {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
-      responseType: ResponseType.bytes, // 统一先按字节流接收，方便按需解析
+      // 注意：HTTP/2 模式下 responseType 建议保持默认，底层由 Adapter 处理
+      responseType: ResponseType.bytes,
     ));
 
-    // 添加拦截器：处理 Header、Token 和 日志
+    // 3. 启用 HTTP/2 适配器以支持多路复用
+    _dio.httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        idleTimeout: const Duration(seconds: 15),
+        // 如果有自签名证书需求在这里配置
+        onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
+      ),
+    );
+
+    // 4. 拦截器配置
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
         String token = spUtil.getString(keyLoginToken) ?? "";
@@ -28,90 +42,81 @@ class DioUtil {
         return handler.next(options);
       },
       onResponse: (response, handler) {
-        // 自动提取并保存 Header 中的 ID (Token)
         final ids = response.headers['id'];
         if (ids != null && ids.isNotEmpty) {
           spUtil.setString(keyLoginToken, ids.first);
         }
         return handler.next(response);
       },
+      onError: (e, handler) {
+        Log.e("Dio Error: ${e.type} | Path: ${e.requestOptions.path} | Msg: ${e.message}");
+        return handler.next(e);
+      },
     ));
   }
 
-  /// 核心逻辑：处理发送数据
+  // 5. 工厂构造函数：确保相同 baseUrl 全局共享一个连接池
+  factory DioUtil({required String baseUrl, bool isCborEnabled = false}) {
+    return _instanceMap.putIfAbsent(
+      baseUrl,
+          () => DioUtil._internal(baseUrl, isCborEnabled),
+    );
+  }
+
+  /// GET 请求
+  Future<T> get<T>(String path, {Map<String, dynamic>? params}) async {
+    final response = await _dio.get(
+      path,
+      queryParameters: params,
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
+    );
+    return _handleResponse<T>(response);
+  }
+
+  /// POST 请求
+  Future<T> post<T>(String path, Map<String, dynamic> data) async {
+    final payload = _encodePayload(data);
+    final response = await _dio.post(
+      path,
+      data: payload,
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
+    );
+    return _handleResponse<T>(response);
+  }
+
+  /// CBOR 编码逻辑
   dynamic _encodePayload(Map<String, dynamic> data) {
     if (!isCborEnabled) return data;
-    // 将 Map 转为 CBOR 字节，再转为 Base64 字符串（对应你原有的 Post 逻辑）
     final cborValue = CborValue(data);
-    final bytes = cbor.encode(cborValue);
-    return base64Encode(bytes);
+    return base64Encode(cbor.encode(cborValue));
   }
 
-  /// 核心逻辑：处理响应数据并转换成 String
-  String _decodePayload(dynamic responseData) {
-    if (responseData == null) return "";
-
-    Uint8List bytes;
-    if (responseData is Uint8List) {
-      bytes = responseData;
-    } else {
-      return responseData.toString();
-    }
+  /// 统一响应处理与泛型转换
+  T _handleResponse<T>(Response response) {
+    final Uint8List bytes = response.data;
+    dynamic decodedData;
 
     if (isCborEnabled) {
-      final decoded = cbor.decode(bytes);
-      // 根据你原有逻辑，CBOR 解析后转为 JSON 字符串返回
-      return jsonEncode(decoded.toJson());
+      final cborDecoded = cbor.decode(bytes);
+      // 直接转为 Map/List，避免转 String 再转 Map
+      decodedData = cborDecoded.toJson();
     } else {
-      // 非 CBOR 模式下，直接将字节流转为 UTF8 字符串
-      return utf8.decode(bytes);
+      final utf8String = utf8.decode(bytes);
+      decodedData = jsonDecode(utf8String);
     }
-  }
 
-  Future<String> get(String path, {Map<String, dynamic>? params}) async {
-    try {
-      final response = await _dio.get(
-        path,
-        queryParameters: params,
-        options: Options(contentType: 'application/x-www-form-urlencoded'),
+    Log.d("Path: ${response.requestOptions.path} | Response: $decodedData");
+
+    // 业务状态判断（根据你的业务协议调整）
+    if (decodedData is Map && decodedData['status'] == false) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        error: decodedData['message'] ?? "Business logic error",
       );
-      return _handleResponse(response);
-    } on DioException catch (e) {
-      _handleError(e);
-      rethrow;
-    }
-  }
-
-  Future<String> post(String path, Map<String, dynamic> data) async {
-    try {
-      final payload = _encodePayload(data);
-      final response = await _dio.post(
-        path,
-        data: payload,
-        options: Options(contentType: 'application/x-www-form-urlencoded'),
-      );
-      return _handleResponse(response);
-    } on DioException catch (e) {
-      _handleError(e);
-      rethrow;
-    }
-  }
-
-  String _handleResponse(Response response) {
-    final resultString = _decodePayload(response.data);
-    Log.d("Path: ${response.requestOptions.path} | Response: $resultString");
-
-    // 如果需要根据业务 status 抛异常，可以在这里解析 resultString
-    final Map<String, dynamic> jsonMap = jsonDecode(resultString);
-    if (jsonMap['status'] == false) {
-      throw Exception(resultString);
     }
 
-    return resultString;
-  }
-
-  void _handleError(DioException e) {
-    Log.e("Dio Error: ${e.type} | Message: ${e.message}");
-    AppLoading.close();
+    return decodedData as T;
   }
 }

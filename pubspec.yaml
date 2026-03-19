@@ -40,6 +40,7 @@ dependencies:
 
   # 网络与图片
   dio: ^5.7.0
+  dio_http2_adapter: ^2.7.0
   cached_network_image: ^3.4.1
 
   # 系统与路径（确保 package_info_plus 足够新来解决 win32 冲突）
