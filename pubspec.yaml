@@ -42,10 +42,6 @@ dependencies:
   dio: ^5.7.0
   cached_network_image: ^3.4.1
 
-  # 刷新组件（修正版本号）
-  pull_to_refresh: ^2.0.0
-  flutter_easyrefresh: 2.2.2
-
   # 系统与路径（确保 package_info_plus 足够新来解决 win32 冲突）
   path_provider: ^2.1.5
   path: ^1.9.0

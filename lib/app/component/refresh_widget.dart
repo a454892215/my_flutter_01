@@ -9,7 +9,7 @@ class RefreshWidget extends StatefulWidget {
     this.onRefresh,
     this.onLoading,
     required this.refreshController,
-    required this.scrollController,
+    this.scrollController,
     this.refreshEnable = true,
     this.loadmoreEnable = true,
     this.header,

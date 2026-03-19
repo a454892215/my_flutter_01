@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import 'Log.dart';
 
@@ -14,7 +14,7 @@ class PaginationHelper {
   final isAddOnLoadCall = false.obs;
   final int perPageSize;
 
-  final EasyRefreshController easyRefreshController = EasyRefreshController();
+  final RefreshController easyRefreshController = RefreshController();
   final ScrollController sc = ScrollController();
 
   PaginationHelper(this.perPageSize);
