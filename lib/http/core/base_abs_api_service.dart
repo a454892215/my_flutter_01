@@ -15,7 +15,6 @@ abstract class BaseAbsApiService {
   BaseAbsApiService(this.baseUrl, {this.isCborEnabled = false})
     : client = DioClient(baseUrl: baseUrl, isCborEnabled: isCborEnabled);
 
-  @nonVirtual
   Future<NetworkResponse<T>> request<T>(
     String path, {
     String method = 'GET',
