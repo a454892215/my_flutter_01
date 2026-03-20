@@ -1,18 +1,11 @@
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter_comm/http/core/dio_client.dart';
-import 'package:flutter_comm/http/core/response.dart';
+import 'package:flutter_comm/http/api_service.dart';
 import 'package:flutter_comm/util/Log.dart';
 
 class HttpTest {
   static Future<void> test1() async {
-    DioClient httpUtil = DioClient(baseUrl: 'https://8.210.49.248:9443/');
-    NetworkResponse<Uint8List> response = await httpUtil
-        .request(
-          "test",
-          queryParameters: {'clientId': 'client77'},
-          headers: {'d': 35, 't': 'your_actual_token_here'}, // 检查这里的 Token
-        );
+    ApiService apiService = ApiService();
+    final response = await apiService.test({'clientId': 'client77'});
     Log.d("====请求成功====：$response type:${response.runtimeType}");
   }
 }

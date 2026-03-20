@@ -38,9 +38,7 @@ abstract class BaseAbsApiService {
 
     T? finalData;
     // 2. 仅在请求成功且有数据时执行解析逻辑
-    if (response.isSuccess &&
-        response.data != null &&
-        response.data!.isNotEmpty) {
+    if (response.data != null) {
       try {
         dynamic decodedJson = response.getData(isCborEnabled: isCborEnabled);
         // 执行 Model 转换

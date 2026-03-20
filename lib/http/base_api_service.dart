@@ -10,9 +10,8 @@ class BaseApiService extends BaseAbsApiService {
   BaseApiService(super.baseUrl) : super(isCborEnabled: false);
 
   /// 重写父类 request 方法，在这里注入 APP 业务逻辑
-  @override
   @nonVirtual
-  Future<NetworkResponse<T>> request<T>(
+  Future<T?> requestData<T>(
       String path, {
         String method = 'GET',
         dynamic data,
@@ -55,7 +54,7 @@ class BaseApiService extends BaseAbsApiService {
     }
 
     // --- 4. 调用父类 BaseAbsApiService 的原始 request 执行请求与解析 ---
-    final response = await super.request(
+    NetworkResponse<T> response = await super.request<T>(
       path,
       method: method,
       data: finalData,
@@ -70,8 +69,7 @@ class BaseApiService extends BaseAbsApiService {
     if (response.statusCode == 401) {
       _handleTokenExpired();
     }
-
-    return response;
+    return response.data;
   }
 
   /// 模拟获取本地存储的 Token
@@ -86,7 +84,7 @@ class BaseApiService extends BaseAbsApiService {
   }
 
 
-  Future<NetworkResponse<T>> get<T>(
+  Future<T?> get<T>(
       String path, {
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
@@ -94,7 +92,7 @@ class BaseApiService extends BaseAbsApiService {
         CancelToken? cancelToken,
         T Function(dynamic json)? decoder,
       }) async {
-    return request(
+    return requestData(
       path,
       method: 'GET',
       queryParameters: queryParameters,
@@ -105,7 +103,7 @@ class BaseApiService extends BaseAbsApiService {
     );
   }
 
-  Future<NetworkResponse<T>> post<T>(
+  Future<T?> post<T>(
       String path, {
         dynamic data,
         Map<String, dynamic>? headers,
@@ -113,7 +111,7 @@ class BaseApiService extends BaseAbsApiService {
         CancelToken? cancelToken,
         T Function(dynamic json)? decoder,
       }) async {
-    return request(
+    return requestData(
       path,
       method: 'POST',
       data: data,
