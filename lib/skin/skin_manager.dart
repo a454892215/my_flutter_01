@@ -1,85 +1,69 @@
-import 'package:flutter/cupertino.dart';
-import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
-import 'base_skin.dart';
-import 'black_skin.dart';
-import 'bright_skin.dart';
+import 'package:flutter/material.dart';
 
-import '../../util/Log.dart';
+// 使用 ThemeExtension 扩展自定义颜色，这是 Flutter 官方推荐的扩展方式
+class AppSkin extends ThemeExtension<AppSkin> {
+  final Color textColor1;
+  final Color bgColor1;
 
-class Skin {
-  SkinType _curSkinType = SkinType.bright;
-  Callback? onSystemThemeChangeListener;
-  Brightness? curSystemTheme;
+  AppSkin({required this.textColor1, required this.bgColor1});
 
-  void changeSink(SkinType type) {
+  @override
+  AppSkin copyWith({Color? textColor1, Color? bgColor1}) {
+    return AppSkin(
+      textColor1: textColor1 ?? this.textColor1,
+      bgColor1: bgColor1 ?? this.bgColor1,
+    );
+  }
+
+  @override
+  AppSkin lerp(ThemeExtension<AppSkin>? other, double t) {
+    if (other is! AppSkin) return this;
+    return AppSkin(
+      textColor1: Color.lerp(textColor1, other.textColor1, t)!,
+      bgColor1: Color.lerp(bgColor1, other.bgColor1, t)!,
+    );
+  }
+}
+
+
+
+enum SkinType { bright, black, system }
+
+class SkinManager extends ChangeNotifier {
+  // 私有构造，单例模式
+  SkinManager._();
+  static final SkinManager instance = SkinManager._();
+
+  SkinType _curSkinType = SkinType.system;
+  SkinType get curSkinType => _curSkinType;
+
+  // 获取当前的 ThemeMode
+  ThemeMode get themeMode {
+    switch (_curSkinType) {
+      case SkinType.bright: return ThemeMode.light;
+      case SkinType.black: return ThemeMode.dark;
+      case SkinType.system: return ThemeMode.system;
+    }
+  }
+
+  // 切换皮肤 API
+  void updateSkin(SkinType type) {
+    if (_curSkinType == type) return;
     _curSkinType = type;
+    notifyListeners(); // 核心：通知 UI 刷新
   }
 
-  BaseSkin getSkin() => _curSkinType.getSkin();
+  // 预定义亮色主题
+  static ThemeData get brightTheme => ThemeData.light().copyWith(
+    extensions: [
+      AppSkin(textColor1: Colors.black, bgColor1: Colors.white),
+    ],
+  );
 
-  void onSystemThemeChange() {
-    if (onSystemThemeChangeListener != null) {
-      onSystemThemeChangeListener!();
-    }
-  }
-}
-
-Skin _skin = Skin();
-
-Skin get globalSkin => _skin;
-
-BaseSkin skin() {
-  return _skin.getSkin();
-}
-
-void changeSink(SkinType type, {isFromSystem = false}) {
-  _skin.changeSink(type);
-  if (isFromSystem) {
-    _skin.onSystemThemeChange();
-  }
-}
-
-void switchSink() {
-  SkinType type = _skin._curSkinType == SkinType.bright ? SkinType.black : SkinType.bright;
-  _skin.changeSink(type);
-}
-
-void setOnSystemThemeChangeListener(Callback? onSystemThemeChangeListener) {
-  _skin.onSystemThemeChangeListener = onSystemThemeChangeListener;
-}
-
-void syncSystemThemeMode(BuildContext context) {
-  Brightness brightness = MediaQueryData.fromWindow(WidgetsBinding.instance.window).platformBrightness;
-  if (_skin.curSystemTheme != brightness) {
-    Log.d("当前系统主题模式： themeMode: $brightness");
-    if (brightness == Brightness.light) {
-      changeSink(SkinType.bright, isFromSystem: true);
-    } else if (brightness == Brightness.dark) {
-      changeSink(SkinType.black, isFromSystem: true);
-    } else {
-      Log.e("未知的系统主题模式");
-    }
-    _skin.curSystemTheme = brightness;
-  } else {
-    Log.w("主题相同:$brightness");
-  }
-}
-
-BaseSkin _brightSkin = BrightSkin();
-BaseSkin _blackSkin = BlackSkin();
-
-enum SkinType {
-  bright,
-  black;
-
-  BaseSkin getSkin() {
-    switch (this) {
-      case bright:
-        return _brightSkin;
-      case black:
-        return _blackSkin;
-      default:
-        return _brightSkin;
-    }
-  }
+  // 预定义暗色主题
+  static ThemeData get darkTheme => ThemeData.dark().copyWith(
+    extensions: [
+      AppSkin(textColor1: const Color(0xffefefef), bgColor1: const Color(0xff1a1a1a)),
+    ],
+  );
 }

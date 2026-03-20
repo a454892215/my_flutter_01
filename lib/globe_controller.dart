@@ -49,13 +49,11 @@ class GlobeController extends GetxController with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     Log.d("当前系统主题模式改变");
-    syncSystemThemeMode(context);
   }
 
   @override
   void onReady() {
     super.onReady();
-    syncSystemThemeMode(context);
     printEnv();
   }
 

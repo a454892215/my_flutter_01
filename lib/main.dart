@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_comm/skin/skin_manager.dart';
 import 'package:flutter_comm/util/Log.dart';
 import 'package:flutter_comm/util/loading_util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -36,8 +37,13 @@ void main() {
       );
     }
     runApp(
-      const ScreenAdapterConfigurationWidget(
-        child: RefreshConfigurationWidget(),
+      ScreenAdapterConfigurationWidget(
+        child: AnimatedBuilder(
+          animation: SkinManager.instance,
+          builder: (context, child) {
+            return GetMaterialAppConfig();
+          },
+        ),
       ),
     );
   });
@@ -45,13 +51,15 @@ void main() {
 }
 
 class RefreshConfigurationWidget extends StatelessWidget {
-  const RefreshConfigurationWidget({Key? key}) : super(key: key);
+  const RefreshConfigurationWidget(this.child, {super.key});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return RefreshConfiguration(
       headerBuilder: () => const ClassicHeader(
-      //  refreshStyle: RefreshStyle.Follow,
+        //  refreshStyle: RefreshStyle.Follow,
         completeDuration: Duration(milliseconds: 0),
         refreshingIcon: CupertinoActivityIndicator(),
       ),
@@ -62,7 +70,7 @@ class RefreshConfigurationWidget extends StatelessWidget {
       springDescription: const SpringDescription(
         mass: 1.5, // 质量，越大 惯性越大
         stiffness: 120, // 刚度越大，拉力/推力越强
-        damping: 30,    // 阻尼越大，能量耗散越快
+        damping: 30, // 阻尼越大，能量耗散越快
       ),
 
       /// Header 最大可以被拉出的越界距离
@@ -70,6 +78,7 @@ class RefreshConfigurationWidget extends StatelessWidget {
 
       /// 底部加载更多 越界多少算触底
       bottomHitBoundary: 0,
+
       /// 关键：刷新结束后，允许在回弹时即刻触发下次滚动
       enableScrollWhenRefreshCompleted: true,
 
@@ -96,7 +105,7 @@ class RefreshConfigurationWidget extends StatelessWidget {
       child: Builder(
         builder: (context) {
           Log.d("===根页面重构？===Builder========");
-          return const AppConfigurationWidget();
+          return child;
         },
       ),
     );
@@ -118,8 +127,8 @@ class ScreenAdapterConfigurationWidget extends StatelessWidget {
   }
 }
 
-class AppConfigurationWidget extends StatelessWidget {
-  const AppConfigurationWidget({super.key});
+class GetMaterialAppConfig extends StatelessWidget {
+  const GetMaterialAppConfig({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +142,10 @@ class AppConfigurationWidget extends StatelessWidget {
       title: "LB88",
 
       /// 4. Theme.of方法可以获取当前的 ThemeData，MaterialDesign种有些样式不能自定义，比如导航栏高度
-      theme: appThemeData,
+      theme: SkinManager.brightTheme,
+      darkTheme: SkinManager.darkTheme,
+      themeMode: SkinManager.instance.themeMode,
+      // 自动同步系统主题或手动锁定
       // 将 Transition.noTransition 改为以下之一：
       defaultTransition: Transition.native,
       // 自动适配平台原生效果
@@ -155,12 +167,14 @@ class AppConfigurationWidget extends StatelessWidget {
       },
       builder: EasyLoading.init(
         builder: (context, widget) {
-          return MediaQuery(
-            ///设置文字大小不随系统设置改变
-            data: MediaQuery.of(
-              context,
-            ).copyWith(textScaler: TextScaler.linear(1.0)),
-            child: FlutterSmartDialog.init()(context, widget),
+          return RefreshConfigurationWidget(
+            MediaQuery(
+              ///设置文字大小不随系统设置改变
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(1.0)),
+              child: FlutterSmartDialog.init()(context, widget),
+            ),
           );
         },
       ),
