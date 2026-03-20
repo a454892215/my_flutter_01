@@ -9,6 +9,7 @@ Widget getListView() {
       physics: const BouncingScrollPhysics(),
       controller: ScrollController(),
       shrinkWrap: true,
+      cacheExtent: 600,
       itemBuilder: (BuildContext context, int index) {
         return Container(
           width: double.infinity,
@@ -25,6 +26,7 @@ Widget getGridView() {
     physics: const BouncingScrollPhysics(),
     controller: ScrollController(),
     shrinkWrap: true,
+    cacheExtent: 600,
     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.2),
     itemBuilder: (BuildContext context, int index) {
       return Container(
