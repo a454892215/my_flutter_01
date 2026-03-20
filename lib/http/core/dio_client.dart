@@ -3,6 +3,7 @@ import 'package:cbor/cbor.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import '../../util/Log.dart';
+import '../auth_interceptor.dart';
 import 'log_interceptor.dart';
 import 'response.dart';
 
@@ -31,8 +32,8 @@ class DioClient {
       ),
     );
 
-    _dio.interceptors.add(SingleLogInterceptor(),
-    );
+    _dio.interceptors.add(AuthInterceptor());
+    _dio.interceptors.add(SingleLogInterceptor());
   }
 
   factory DioClient({required String baseUrl, bool isCborEnabled = false}) {
