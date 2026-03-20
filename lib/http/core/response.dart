@@ -1,32 +1,37 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:cbor/cbor.dart';
+
 class NetworkResponse<T> {
   final T? data; // 原始字节流或转换后的数据
   final int? statusCode; // HTTP 状态码
   final String? statusMessage; // 状态描述
   final Map<String, List<String>> headers; // 响应头
   final bool isSuccess; // 逻辑判断是否成功 (200-299)
-  final bool isCancelled;  // 请求是否被取消
+  final bool isCancelled; // 请求是否被取消
 
   NetworkResponse({
     this.data,
     this.statusCode,
     this.statusMessage,
     this.isCancelled = false,
-    this.headers =  const {},
+    this.headers = const {},
   }) : isSuccess = statusCode != null && statusCode >= 200 && statusCode < 300;
 
-  dynamic getData() {
-    String dataContent;
+  String getData({bool isCborEnabled = false}) {
+    String dataContent = "";
     if (data == null) {
-      dataContent = "null";
+      dataContent = "";
     } else if (data is Uint8List) {
       final bytes = data as Uint8List;
       try {
-        // 尝试将字节流转换为 UTF-8 字符串
-        /// allowMalformed  当遇到非法的 UTF-8 字节序列时，程序是“报错崩溃”还是“容错继续”
-        dataContent = utf8.decode(bytes, allowMalformed: false);
+        if (isCborEnabled) {
+          dataContent = cbor.decode(bytes).toJson().toString();
+        } else {
+          /// allowMalformed  当遇到非法的 UTF-8 字节序列时，程序是“报错崩溃”还是“容错继续”
+          dataContent = utf8.decode(bytes, allowMalformed: false);
+        }
       } catch (e) {
         // 如果非文本格式（如图片或压缩包），回退到长度显示
         dataContent = "Uint8List(length: ${bytes.length})";

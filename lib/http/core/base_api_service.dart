@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:typed_data';
-import 'package:cbor/cbor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_comm/http/core/response.dart';
 
@@ -9,11 +7,13 @@ import 'dio_client.dart';
 
 abstract class BaseApiService {
   final DioClient client;
+  final String baseUrl;
+  final bool isCborEnabled;
 
-  BaseApiService(this.client);
+  BaseApiService(this.baseUrl, {this.isCborEnabled = false})
+    : client = DioClient(baseUrl: baseUrl, isCborEnabled: isCborEnabled);
 
-  /// 业务层通用的解析方法
-  Future<T?> request<T>(
+  Future<NetworkResponse<T>> request<T>(
     String path, {
     String method = 'GET',
     dynamic data,
@@ -23,7 +23,7 @@ abstract class BaseApiService {
     CancelToken? cancelToken,
     T Function(dynamic json)? decoder,
   }) async {
-    // 1. 调用底层的纯净请求
+    // 1. 获取底层响应
     NetworkResponse<Uint8List> response = await client.request(
       path,
       method: method,
@@ -34,29 +34,30 @@ abstract class BaseApiService {
       options: options,
     );
 
-    // 2. 检查基础状态
-    if (response.data == null || response.data!.isEmpty) {
-      return null;
-    }
-    // 3. 执行反序列化 (JSON 或 CBOR)
-    dynamic decodedJson;
-    try {
-      if (client.isCborEnabled) {
-        decodedJson = cbor.decode(response.data!).toJson();
-      } else {
-        decodedJson = jsonDecode(
-          utf8.decode(response.data!, allowMalformed: true),
-        );
+    T? finalData;
+    // 2. 仅在请求成功且有数据时执行解析逻辑
+    if (response.isSuccess &&
+        response.data != null &&
+        response.data!.isNotEmpty) {
+      try {
+        dynamic decodedJson = response.getData(isCborEnabled: isCborEnabled);
+        // 执行 Model 转换
+        if (decoder != null && decodedJson != null) {
+          finalData = decoder(decodedJson);
+        } else {
+          finalData = decodedJson as T?;
+        }
+      } catch (e) {
+        Log.e("业务解析异常: ${baseUrl + path}, error: $e");
       }
-    } catch (e) {
-      Log.e("业务解析异常: $path, error: $e");
-      return null;
     }
-
-    // 4. 转换为 Model
-    if (decoder != null && decodedJson != null) {
-      return decoder(decodedJson);
-    }
-    return decodedJson as T?;
+    // 3. 统一出口：将底层状态透传，并带上处理后的 data 和 message
+    return NetworkResponse<T>(
+      data: finalData,
+      statusCode: response.statusCode,
+      statusMessage: response.statusMessage,
+      headers: response.headers,
+      isCancelled: response.isCancelled,
+    );
   }
 }
