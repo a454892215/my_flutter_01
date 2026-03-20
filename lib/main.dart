@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_comm/skin/skin_factory.dart';
 import 'package:flutter_comm/skin/skin_manager.dart';
 import 'package:flutter_comm/util/Log.dart';
 import 'package:flutter_comm/util/loading_util.dart';
+import 'package:flutter_comm/util/sp/sp_util.dart';
+import 'package:flutter_comm/util/system_util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -21,12 +24,14 @@ import 'err_page.dart';
 import 'globe_exception_catch.dart';
 import 'navigator/observer.dart';
 
-void main() {
-  GlobeExceptionHandler().init(() {
+void main() async {
+  GlobeExceptionHandler().init(() async {
     // WidgetsFlutterBinding.ensureInitialized(); // 保证 WidgetsBindingObserver使用时候，已经初始化
     WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
+    await spUtil.init();
+    await SkinManager.instance.init();
+    await SysUtil.init();
     if (Platform.isAndroid) {
       /// 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
       SystemChrome.setSystemUIOverlayStyle(
@@ -142,8 +147,10 @@ class GetMaterialAppConfig extends StatelessWidget {
       title: "LB88",
 
       /// 4. Theme.of方法可以获取当前的 ThemeData，MaterialDesign种有些样式不能自定义，比如导航栏高度
-      theme: SkinManager.brightTheme,
-      darkTheme: SkinManager.darkTheme,
+// 始终将当前计算出的皮肤给 theme
+      theme: SkinManager.instance.currentTheme,
+      // 只有在模式为 system 时，才需要提供暗色兜底，否则只看 theme 即可
+      darkTheme: SkinFactory.createTheme(SkinType.black),
       themeMode: SkinManager.instance.themeMode,
       // 自动同步系统主题或手动锁定
       // 将 Transition.noTransition 改为以下之一：
