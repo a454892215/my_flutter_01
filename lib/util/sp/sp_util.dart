@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Log.dart';
 
 SpUtil spUtil = SpUtil();
-
 class SpUtil {
   late SharedPreferences prefs;
 
@@ -44,8 +43,8 @@ class SpUtil {
     return prefs.getDouble(key);
   }
 
-  String? getString(String key) {
-    return prefs.getString(key);
+  String getString(String key, {def = ""}) {
+    return prefs.getString(key) ?? def;
   }
 
   List<String>? getStringList(String key) {

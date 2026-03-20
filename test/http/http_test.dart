@@ -1,18 +1,29 @@
 import 'dart:io';
-import 'package:flutter_comm/http/api_service.dart';
 import 'package:flutter_comm/util/Log.dart';
+import 'package:flutter_comm/util/sp/sp_util.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'test_api_service.dart';
 
 class HttpTest {
   static Future<void> test1() async {
-    ApiService apiService = ApiService();
+    TestApiService apiService = TestApiService();
     final response = await apiService.test({'clientId': 'client77'});
     Log.d("====请求成功====：$response type:${response.runtimeType}");
   }
 }
 
 Future<void> main() async {
+  // 1. 关键：初始化测试环境的 Binding
+  TestWidgetsFlutterBinding.ensureInitialized();
   // 全局忽略证书校验（仅限开发/测试环境！）
   HttpOverrides.global = MyHttpOverrides();
+  SharedPreferences.setMockInitialValues({
+    'sp_key_token': 'test_token_666', // 你可以预设一些测试数据
+  });
+  // 初始化你的工具类
+  await spUtil.init();
   // 应用程序启动逻辑
   print("我是 main 函数");
   await HttpTest.test1();
