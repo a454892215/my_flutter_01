@@ -34,6 +34,8 @@ samples, guidance on mobile development, and a full API reference.
 
 /Users/llpp/Library/Android/sdk/cmdline-tools/latest/bin/apkanalyzer
 
+/Users/llpp/development/flutter_3_38_8/bin/flutter pub run build_runner build --delete-conflicting-outputs
+
 jadx-gui 打开apk分析工具
 
 项目结构：
