@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart'; // 用于 @nonVirtual
+import '../util/app_util.dart';
+import '../util/system_util.dart';
 import 'core/base_abs_api_service.dart';
 import 'core/response.dart';
 
@@ -24,8 +26,8 @@ class BaseApiService extends BaseAbsApiService {
     // --- 1. 处理公共 Headers (如 Token) ---
     final Map<String, dynamic> commonHeaders = {
       'Authorization': 'Bearer ${_getAppToken()}',
-      'App-Platform': 'Android',
-      'App-Version': '1.0.0', // 实际开发中通过 package_info_plus 获取
+      'Platform': AppUtil.platform,
+      'Version': AppUtil.appVersion, // 实际开发中通过 package_info_plus 获取
     };
     // 合并 Headers (外部传入的 headers 优先级更高)
     final Map<String, dynamic> mergedHeaders = {
@@ -35,7 +37,7 @@ class BaseApiService extends BaseAbsApiService {
 
     // --- 2. 处理 URL 公共 Query 参数 (如 DeviceId, Timestamp) ---
     final Map<String, dynamic> commonQueryParams = {
-      'device_id': 'android_unique_id',
+      'device_id': SysUtil.deviceId,
       'ts': DateTime.now().millisecondsSinceEpoch,
     };
 

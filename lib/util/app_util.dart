@@ -1,9 +1,42 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_comm/util/toast_util.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppUtil {
+
+  static String _appVersion = "";
+  static String _platform = "";
+
+  // 暴露只读 getter，外部通过 SysUtil.deviceId 直接同步访问
+  static String get appVersion => _appVersion;
+  static String get platform => _platform;
+
+  static void init() async{
+    _appVersion = await getAppVersion();
+    _platform = platformName;
+  }
+
+  // 是否是 H5
+  static bool get isH5 => kIsWeb;
+
+  // 是否是 Android
+  static bool get isAndroid => !kIsWeb && Platform.isAndroid;
+
+  // 是否是 iOS
+  static bool get isIOS => !kIsWeb && Platform.isIOS;
+
+  // 获取平台名称字符串
+  static String get platformName {
+    if (kIsWeb) return "H5";
+    if (Platform.isAndroid) return "Android";
+    if (Platform.isIOS) return "iOS";
+    return "Unknown";
+  }
+
   static Future<void> launch(String url) async {
     Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {

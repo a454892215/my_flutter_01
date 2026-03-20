@@ -14,11 +14,15 @@ class SysUtil {
   /// 外部唯一的初始化入口
   static Future<void> init() async {
     if (_deviceId.isNotEmpty) return;
-    _deviceId = await _fetchDeviceId();
+    _deviceId = await fetchDeviceId();
   }
 
   /// 私有化获取逻辑：纯粹的 API 交互
-  static Future<String> _fetchDeviceId() async {
+  static Future<String> fetchDeviceId() async {
+    if(_deviceId.isEmpty){
+      await init();
+      return _deviceId;
+    }
     String? id;
     final deviceInfo = DeviceInfoPlugin();
 
