@@ -1,5 +1,3 @@
-
-
 import 'package:flutter_comm/http/base_api_service.dart';
 
 import 'test_base_entity.dart';
@@ -13,7 +11,10 @@ class TestApiService extends BaseApiService {
   factory TestApiService() => _instance;
 
   Future<TestBaseEntity?> test(dynamic data) {
-    return get<TestBaseEntity>('test', queryParameters: {}, decoder: (json) => TestBaseEntity.fromJson(json as Map<String, dynamic>));
+    return get<TestBaseEntity>(
+      'test',
+      queryParameters: {},
+      decoder: (json) => TestBaseEntity.fromJson(json),
+    );
   }
-
 }

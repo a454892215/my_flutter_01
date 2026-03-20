@@ -44,11 +44,17 @@ abstract class BaseAbsApiService {
         // 执行 Model 转换
         if (decoder != null && decodedJson != null) {
           finalData = decoder(decodedJson);
+        } else if (decodedJson is T) {
+          // 只有类型匹配时才赋值
+          finalData = decodedJson;
         } else {
-          finalData = decodedJson as T?;
+          // 如果类型不匹配且没有 decoder，记录日志或处理
+          Log.e("数据类型不匹配: 预期 $T, 实际 ${decodedJson.runtimeType}");
+          finalData = null;
         }
-      } catch (e) {
-        Log.e("业务解析异常: ${baseUrl + path}, error: $e");
+      } catch (e, s) {
+        Log.e("业务解析异常: ${baseUrl + path}, error: $e $decoder");
+        Log.e("StackTrace: \n$s");
       }
     }
     // 3. 统一出口：将底层状态透传，并带上处理后的 data 和 message

@@ -19,27 +19,34 @@ class NetworkResponse<T> {
     this.headers = const {},
   }) : isSuccess = statusCode != null && statusCode >= 200 && statusCode < 300;
 
-  String getData({bool isCborEnabled = false}) {
-    String dataContent = "";
-    if (data == null) {
-      dataContent = "";
-    } else if (data is Uint8List) {
+  /// 将原始字节流转换为 Map、List 或 String (自动识别 JSON)
+  dynamic getData({bool isCborEnabled = false}) {
+    if (data == null) return null;
+
+    if (data is Uint8List) {
       final bytes = data as Uint8List;
       try {
         if (isCborEnabled) {
-          dataContent = cbor.decode(bytes).toJson().toString();
+          // CBOR 转换后直接返回对象/集合，而不是 .toString()
+          return cbor.decode(bytes).toJson();
         } else {
-          /// allowMalformed  当遇到非法的 UTF-8 字节序列时，程序是“报错崩溃”还是“容错继续”
-          dataContent = utf8.decode(bytes, allowMalformed: false);
+          // 1. 先转码为 UTF8 字符串
+          String utf8String = utf8.decode(bytes, allowMalformed: true);
+          try {
+            // 2. 关键：尝试将其解析为 JSON 对象 (Map 或 List)
+            return jsonDecode(utf8String);
+          } catch (_) {
+            // 如果不是标准的 JSON 格式，则原样返回字符串
+            return utf8String;
+          }
         }
       } catch (e) {
-        // 如果非文本格式（如图片或压缩包），回退到长度显示
-        dataContent = "Uint8List(length: ${bytes.length})";
+        // 解析失败，可能是图片或其他二进制数据
+        return bytes;
       }
-    } else {
-      dataContent = data.toString();
     }
-    return dataContent;
+    // 如果 data 已经是 T 类型，直接返回
+    return data;
   }
 
   @override

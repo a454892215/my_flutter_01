@@ -5,12 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'test_api_service.dart';
+import 'test_base_entity.dart';
 
 class HttpTest {
   static Future<void> test1() async {
     TestApiService apiService = TestApiService();
-    final response = await apiService.test({'clientId': 'client77'});
-    Log.d("====请求成功====：$response type:${response.runtimeType}");
+    TestBaseEntity? entity = await apiService.test({'clientId': 'client77'});
+    Log.d("====请求成功====：$entity type:${entity?.runtimeType}  msg:${entity?.msg}");
   }
 }
 
