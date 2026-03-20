@@ -1,18 +1,21 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_comm/http/core/response.dart';
 
 import '../../util/Log.dart';
 import 'dio_client.dart';
 
-abstract class BaseApiService {
+/// 把数据转成需要的Modal
+abstract class BaseAbsApiService {
   final DioClient client;
   final String baseUrl;
   final bool isCborEnabled;
 
-  BaseApiService(this.baseUrl, {this.isCborEnabled = false})
+  BaseAbsApiService(this.baseUrl, {this.isCborEnabled = false})
     : client = DioClient(baseUrl: baseUrl, isCborEnabled: isCborEnabled);
 
+  @nonVirtual
   Future<NetworkResponse<T>> request<T>(
     String path, {
     String method = 'GET',
