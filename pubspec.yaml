@@ -55,6 +55,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_picker: ^2.1.0
   flutter_sticky_header: ^0.6.5
+  visibility_detector: ^0.4.0+2
   # signature: ^5.5.0
 
   # 工具类（将 intl 设为 any，让 pub 自己去匹配 get_cli 和系统的需求）

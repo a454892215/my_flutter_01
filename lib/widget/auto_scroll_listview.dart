@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../util/Log.dart';
 
@@ -14,7 +15,7 @@ class AutoScrollListViewController {
 
 class AutoScrollUtil {
   final ScrollController sc;
-  double scrollSpeed; // 这里的单位是：像素/秒
+  double scrollSpeed; // 单位：像素/秒
   late final Ticker _ticker;
 
   bool _isPaused = false;
@@ -23,33 +24,30 @@ class AutoScrollUtil {
   AutoScrollUtil({
     required this.sc,
     required TickerProvider vsync,
-    this.scrollSpeed = 50.0, // 默认每秒滚动 50 像素
+    this.scrollSpeed = 50.0,
   }) {
-    // 类似于 Choreographer 的回调
     _ticker = vsync.createTicker(_onTick);
     _ticker.start();
   }
 
-  // 增加动态更新速度的方法
   void updateSpeed(double newSpeed) {
     scrollSpeed = newSpeed;
   }
 
   void _onTick(Duration elapsed) {
-    Log.d("_onTick: elapsed:$elapsed offset: ${sc.offset}");
+    // 如果被暂停（手势按下、页面不可见、App后台），直接 Return，不触发 jumpTo
     if (_isPaused) {
       _lastElapsed = Duration.zero;
       return;
     }
-
-    // 计算两帧之间的时间差，实现平滑移动
+    Log.dt("elapsed:$elapsed sc:${sc.offset}");
     if (_lastElapsed != Duration.zero) {
       final double deltaTime =
           (elapsed.inMicroseconds - _lastElapsed.inMicroseconds) / 1000000.0;
       final double step = scrollSpeed * deltaTime;
 
       if (sc.hasClients && sc.position.hasContentDimensions) {
-        // 使用 jumpTo 避免动画竞争
+        // 核心：仅在有 Client 且未暂停时执行位移，类似 Android Choreographer postFrameCallback
         sc.jumpTo(sc.offset + step);
       }
     }
@@ -71,10 +69,10 @@ class AutoScrollUtil {
 ///
 /// 核心特性：
 /// 1. [Ticker-Based]: 基于 Flutter Ticker 实现像素级平滑滚动，类似 Android Choreographer。
-/// 2. [Frame-Independent]: 引入 Delta Time 计算，确保 60Hz/120Hz 屏幕下滚动速度一致。
+/// 2. [Frame-Independent]: 引入 Delta Time 计算，确保滚动速度不受屏幕刷新率影响。
 /// 3. [Gesture-Aware]: 自动处理用户触摸暂停与离开恢复逻辑。
-/// 4. [Decoupled]: 不耦合具体数据源，仅需传入 [itemCount] 和 [itemBuilder]。
-/// 5. [Infinite-Loop]: 内部封装索引取模逻辑，实现内容无限循环。
+/// 4. [Visibility-Aware]: 集成 VisibilityDetector，当在 PageView 中滑出屏幕或 App 切到后台时自动停止滚动，节省资源。
+/// 5. [Infinite-Loop]: 内部封装索引取模逻辑，配合超大 itemCount 实现视觉上的无限循环。
 class AutoScrollListView extends StatefulWidget {
   const AutoScrollListView({
     super.key,
@@ -95,13 +93,21 @@ class AutoScrollListView extends StatefulWidget {
   State<AutoScrollListView> createState() => _AutoScrollListViewState();
 }
 
-class _AutoScrollListViewState extends State<AutoScrollListView> with TickerProviderStateMixin {
+class _AutoScrollListViewState extends State<AutoScrollListView>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
+
   late ScrollController _mainScrollController;
   late AutoScrollUtil _autoScrollUtil;
+
+  // 内部状态标记
+  bool _isPageVisible = true;
+  bool _isFingerDown = false;
 
   @override
   void initState() {
     super.initState();
+    // 注册系统生命周期观察者（类似 Activity 生命周期）
+    WidgetsBinding.instance.addObserver(this);
     _mainScrollController = ScrollController();
     _initUtil();
   }
@@ -114,58 +120,90 @@ class _AutoScrollListViewState extends State<AutoScrollListView> with TickerProv
     );
   }
 
-  // 🌟 关键补全：处理外部参数更新
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 当 App 退到后台（Home键），强制暂停 Ticker 逻辑
+    if (state == AppLifecycleState.paused) {
+      _autoScrollUtil.pause();
+    } else if (state == AppLifecycleState.resumed) {
+      // 回到前台时，如果页面本身可见且手指没按住，则恢复
+      _checkAndResume();
+    }
+  }
+
   @override
   void didUpdateWidget(AutoScrollListView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // 如果外部动态修改了速度，更新 Util 内部速度
     if (oldWidget.scrollSpeed != widget.scrollSpeed) {
       _autoScrollUtil.updateSpeed(widget.scrollSpeed);
     }
-    // 如果 itemCount 变化，可能需要重置当前 offset 以防计算溢出（可选）
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _mainScrollController.dispose();
     _autoScrollUtil.dispose();
     super.dispose();
   }
 
-  void _handlePointerUp(PointerEvent e) {
-    _autoScrollUtil.resume();
-    widget.controller.startScroll();
+  // 统一的恢复判断逻辑
+  void _checkAndResume() {
+    if (_isPageVisible && !_isFingerDown) {
+      _autoScrollUtil.resume();
+      widget.controller.startScroll();
+    }
   }
 
+  // 手势处理：按下停止
   void _handlePointerDown(PointerDownEvent e) {
+    _isFingerDown = true;
     _autoScrollUtil.pause();
     widget.controller.stopScroll();
   }
 
+  // 手势处理：抬起/取消恢复
+  void _handlePointerUp(PointerEvent e) {
+    _isFingerDown = false;
+    _checkAndResume();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 严谨的空检查，Android 习惯：先判断无效状态
     if (widget.itemCount <= 0) return const SizedBox.shrink();
 
-    return Listener(
-      onPointerDown: _handlePointerDown,
-      onPointerUp: _handlePointerUp,
-      onPointerCancel: _handlePointerUp,
-      behavior: HitTestBehavior.translucent,
-      child: ListView.builder(
-        padding: EdgeInsets.zero,
-        physics: const NeverScrollableScrollPhysics(),
-        controller: _mainScrollController,
-        scrollDirection: widget.scrollDirection,
-        // 999999 对 Ticker 来说绰绰有余
-        itemCount: 999999,
-        // 🌟 性能：设置 cacheExtent 减少边缘 Item 创建时的跳动
-        cacheExtent: 300,
-        itemBuilder: (context, index) {
-          // 这里使用最新的 widget.itemCount
-          final realIndex = index % widget.itemCount;
-          return widget.itemBuilder(context, realIndex);
-        },
+    return VisibilityDetector(
+      // 这里的 Key 必须唯一，建议使用 identityHashCode 或 ObjectKey
+      key: ObjectKey(this),
+      onVisibilityChanged: (info) {
+        // 核心优化：感知 PageView 切页
+        if (info.visibleFraction <= 0) {
+          _isPageVisible = false;
+          _autoScrollUtil.pause();
+          Log.d("AutoScroll: 页面不可见，已停止滚动计算");
+        } else {
+          _isPageVisible = true;
+          _checkAndResume();
+          Log.d("AutoScroll: 页面进入视野，恢复滚动");
+        }
+      },
+      child: Listener(
+        onPointerDown: _handlePointerDown,
+        onPointerUp: _handlePointerUp,
+        onPointerCancel: _handlePointerUp,
+        behavior: HitTestBehavior.translucent,
+        child: ListView.builder(
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          controller: _mainScrollController,
+          scrollDirection: widget.scrollDirection,
+          itemCount: 999999,
+          cacheExtent: 300,
+          itemBuilder: (context, index) {
+            final realIndex = index % widget.itemCount;
+            return widget.itemBuilder(context, realIndex);
+          },
+        ),
       ),
     );
   }

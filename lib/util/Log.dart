@@ -47,6 +47,34 @@ class Log {
     }
   }
 
+  // 存储每个 Key 上次打印的时间戳
+  static final Map<String, int> _lastPrintTimeMap = {};
+
+  // 默认节流时间，例如 1000ms
+  static const int defaultThrottleMs = 1000;
+
+  /// 具有节流功能的 Debug 日志
+  /// [msg] 日志内容
+  /// [throttleKey] 节流的唯一标识，如果不传则使用 msg 本身作为 Key
+  /// [throttleMs] 节流时长，单位毫秒
+  static void dt(dynamic msg, {String? throttleKey, int throttleMs = defaultThrottleMs, int traceDepth = 0}) {
+    if (!debugEnable) return;
+
+    final String key = throttleKey ?? _getAutoThrottleKey();
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    final int lastPrint = _lastPrintTimeMap[key] ?? 0;
+
+    if (now - lastPrint >= throttleMs) {
+      _lastPrintTimeMap[key] = now;
+      _print(Level.debug, msg, traceDepth: traceDepth + 1);
+
+      // 清理 Map 防止内存溢出（当 Key 过多时）
+      if (_lastPrintTimeMap.length > 100) {
+        _lastPrintTimeMap.remove(_lastPrintTimeMap.keys.first);
+      }
+    }
+  }
+
   /// 核心打印逻辑：兼容 PC 与 移动端
   static void _print(Level level, dynamic msg, {int traceDepth = 1}) {
     String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
@@ -64,6 +92,7 @@ class Log {
       _logger.log(level, text);
     }
   }
+  
 
   /// 跨平台堆栈轨迹解析
   static String getTraceInfo(Level level, {int traceDepth = 1}) {
@@ -108,6 +137,26 @@ class Log {
       return traceInfo;
     } catch (e) {
       return "Trace Error: $e";
+    }
+  }
+
+  /// 核心：自动提取调用者的“类名_方法名”作为节流标识
+  static String _getAutoThrottleKey() {
+    try {
+      // 这里的 traceDepth 需要根据调用层级微调
+      // 通常 StackTrace.current.toString() 的第 2 或 3 行是调用处
+      var lines = StackTrace.current.toString().split('\n');
+      // 过滤掉 Log 类自身的堆栈，找到真正的调用点
+      for (var line in lines) {
+        if (!line.contains('Log.') && line.contains('package:')) {
+          // 简单正则或字符串截取，提取 类名.方法名
+          // 示例：#2      AutoScrollUtil._onTick (package:xxx/auto_scroll_list_view.dart:45:5)
+          return line.split('(').first.trim();
+        }
+      }
+      return "default_key";
+    } catch (e) {
+      return "error_key";
     }
   }
 }
