@@ -19,17 +19,8 @@ class AppSkin extends ThemeExtension<AppSkin> {
   @override
   AppSkin lerp(ThemeExtension<AppSkin>? other, double t) {
     if (other is! AppSkin) return this;
-    /// 在这里处理 SkinData 内部属性的插值逻辑
     return AppSkin(
-      data: SkinData(
-        // 颜色值平滑过渡
-        textColor1: Color.lerp(data.textColor1, other.data.textColor1, t)!,
-        bgColor1: Color.lerp(data.bgColor1, other.data.bgColor1, t)!,
-        headerBgColor: Color.lerp(data.headerBgColor, other.data.headerBgColor, t)!,
-        headerTextColor: Color.lerp(data.headerTextColor, other.data.headerTextColor, t)!,
-        // 非数值类型（如 String/AssetPath）无法插值，通常在进度过半时直接切换
-        assetPath: t < 0.5 ? data.assetPath : other.data.assetPath,
-      ),
+      data: data.lerp(other.data, t),
     );
   }
 }
