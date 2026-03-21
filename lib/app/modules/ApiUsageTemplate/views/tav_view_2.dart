@@ -57,8 +57,8 @@ class _TabView2State extends State<TabView2> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: RefreshWidget(
+    return SizedBox(
+      child: RefreshWidget(
         refreshController: _refreshController,
         loadmoreEnable: controller.listSize >= controller.perSize,
         onRefresh: _handleRefresh,

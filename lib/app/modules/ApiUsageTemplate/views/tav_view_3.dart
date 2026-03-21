@@ -1,28 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
 
+import '../../../../skin/app_skin.dart';
+import '../../../../widget/auto_scroll_listview.dart';
 import '../../../component/text/text_def.dart';
-import '../controllers/api_usage_template_drawer_controller.dart';
+import '../controllers/tab_view_3_controller.dart';
 
 /// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller
-class TabView3 extends GetView<TemplateDrawerController> {
+class TabView3 extends StatelessWidget {
   const TabView3({super.key});
 
   @override
   Widget build(BuildContext context) {
     // 只要第一次打开时请求过，数据就会一直保存在这个内存对象中
+    final skin = context.skinData;
     return Container(
       width: double.infinity,
       height: double.infinity,
       color: Color(0xff79a1e8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          AppText(text: "TabView3",)
-        ],
+      child: GetX<TabView3ControllerController>(
+        /// 它会在 GetX 组件插入树时自动创建 Controller，并在组件从树中移除时自动销毁Controller。
+        init: TabView3ControllerController(),
+        builder: (controller) => Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            AppText(text: controller.name.value),
+            Expanded(
+              child: AutoScrollListView(
+                itemCount: controller.rxList.length,
+                controller: controller.autoScrollController,
+                scrollSpeed: 60.0,
+                // 每秒滚动 60 像素
+                scrollDirection: Axis.vertical,
+                itemBuilder: (context, index) {
+                  // 这里编写你的 Item UI
+                  return Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Text(
+                      controller.rxList[index],
+                      style: TextStyle(fontSize: 16, color: skin.textColor1),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

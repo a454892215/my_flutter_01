@@ -12,7 +12,7 @@ class ApiUsageTemplateController extends BaseController
   List<Map<String, dynamic>> tabs = [
     {'label': '组件大全', 'value': '1'},
     {'label': 'refresh', 'value': '2'},
-    {'label': 'tab示列', 'value': '3'},
+    {'label': 'AutoScrollListView 示例', 'value': '3'},
     {'label': '动画示列1', 'value': '4'},
     {'label': '动画示列2', 'value': '5'},
   ];
