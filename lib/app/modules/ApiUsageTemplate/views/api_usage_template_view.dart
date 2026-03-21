@@ -57,6 +57,7 @@ class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
                     onTap: (int index, String value) {
                      // controller.pageController.animateToPage(index, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
                       controller.pageController.jumpToPage(index);
+                      controller.selectedPageIndex.value = index;
                     },
                   ),
                   Expanded(child: PageView.builder(

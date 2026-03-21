@@ -5,7 +5,6 @@ import '../../../../widget/auto_scroll_listview.dart';
 import '../../../base/base_controller.dart';
 
 class TabView3ControllerController extends BaseController {
-  final name = "AutoScrollListView 示例".obs;
 
   final rxList = List.generate(30, (index) => "Item $index").obs;
   late final AutoScrollListViewController autoScrollController;

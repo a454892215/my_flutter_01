@@ -16,6 +16,7 @@ class ApiUsageTemplateController extends BaseController
     {'label': '动画示列1', 'value': '4'},
     {'label': '动画示列2', 'value': '5'},
   ];
+   final selectedPageIndex = 0.obs;
 
   @mustCallSuper
   @override

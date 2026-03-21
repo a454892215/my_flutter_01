@@ -5,10 +5,11 @@ import 'package:get/get.dart';
 import '../../../../skin/app_skin.dart';
 import '../../../../widget/auto_scroll_listview.dart';
 import '../../../component/text/text_def.dart';
+import '../controllers/api_usage_template_controller.dart';
 import '../controllers/tab_view_3_controller.dart';
 
 /// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller
-class TabView3 extends StatelessWidget {
+class TabView3 extends GetView<ApiUsageTemplateController> {
   const TabView3({super.key});
 
   @override
@@ -22,15 +23,15 @@ class TabView3 extends StatelessWidget {
       child: GetX<TabView3ControllerController>(
         /// 它会在 GetX 组件插入树时自动创建 Controller，并在组件从树中移除时自动销毁Controller。
         init: TabView3ControllerController(),
-        builder: (controller) => Column(
+        builder: (tabView3ControllerController) => Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            AppText(text: controller.name.value),
+            AppText(text: controller.tabs[controller.selectedPageIndex.value]['label']),
             Expanded(
               child: AutoScrollListView(
-                itemCount: controller.rxList.length,
-                controller: controller.autoScrollController,
+                itemCount: tabView3ControllerController.rxList.length,
+                controller: tabView3ControllerController.autoScrollController,
                 scrollSpeed: 60.0,
                 // 每秒滚动 60 像素
                 scrollDirection: Axis.vertical,
@@ -40,7 +41,7 @@ class TabView3 extends StatelessWidget {
                     height: 50,
                     alignment: Alignment.center,
                     child: Text(
-                      controller.rxList[index],
+                      tabView3ControllerController.rxList[index],
                       style: TextStyle(fontSize: 16, color: skin.textColor1),
                     ),
                   );

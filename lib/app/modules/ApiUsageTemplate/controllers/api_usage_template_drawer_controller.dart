@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
-import '../../../../util/Log.dart';
 import '../../../base/base_controller.dart';
 
 class TemplateDrawerController extends BaseController {
