@@ -43,8 +43,8 @@ void main() async {
     }
     runApp(
       ScreenAdapterConfigurationWidget(
-        child: AnimatedBuilder(
-          animation: SkinManager.instance,
+        child: ListenableBuilder(
+          listenable: SkinManager.instance,
           builder: (context, child) {
             return GetMaterialAppConfig();
           },

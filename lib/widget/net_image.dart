@@ -23,17 +23,22 @@ class AppNetImage extends StatelessWidget {
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
+
+      /// 内存优化
       memCacheWidth: width != null ? (width! * dpr).toInt() : null,
       memCacheHeight: height != null ? (height! * dpr).toInt() : null,
-      placeholder: (context, url) => _buildPlaceholder(),
-      errorWidget: (context, url, error) => _buildErrorWidget(),
-      imageBuilder: (context, imageProvider) {
+
+      placeholder: (_, __) => _placeholder(),
+      errorWidget: (_, __, ___) => _error(),
+
+      imageBuilder: (context, provider) {
         Widget image = Image(
-          image: imageProvider,
+          image: provider,
           width: width,
           height: height,
           fit: fit,
         );
+
         if (borderRadius > 0) {
           image = ClipRRect(
             borderRadius: BorderRadius.circular(borderRadius),
@@ -46,47 +51,21 @@ class AppNetImage extends StatelessWidget {
     );
   }
 
-  ///  占位图（解决单边约束塌陷问题）
-  Widget _buildPlaceholder() {
-    return _buildBox(color: const Color(0xFFF5F5F5), child: const SizedBox());
-  }
-
-  ///  错误图
-  Widget _buildErrorWidget() {
-    return _buildBox(
-      color: const Color(0xFFEEEEEE),
-      child: const Icon(Icons.broken_image, size: 20),
+  Widget _placeholder() {
+    return Container(
+      width: width,
+      height: height,
+      color: const Color(0xFFF5F5F5),
     );
   }
 
-  ///  统一容器（保证尺寸稳定）
-  Widget _buildBox({required Color color, required Widget child}) {
-    Widget box = Container(
+  Widget _error() {
+    return Container(
       width: width,
       height: height,
       alignment: Alignment.center,
-      color: color,
-      child: child,
+      color: const Color(0xFFEEEEEE),
+      child: const Icon(Icons.broken_image, size: 20),
     );
-
-    /// 关键：防止只传一边时塌陷
-    if (width != null && height == null) {
-      box = AspectRatio(
-        aspectRatio: 1, // 临时占位比例（不会影响最终图片）
-        child: box,
-      );
-    } else if (height != null && width == null) {
-      box = AspectRatio(aspectRatio: 1, child: box);
-    }
-
-    /// 圆角保持一致
-    if (borderRadius > 0) {
-      box = ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: box,
-      );
-    }
-
-    return box;
   }
 }
