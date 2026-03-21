@@ -109,7 +109,7 @@ class RefreshConfigurationWidget extends StatelessWidget {
       enableBallisticRefresh: true,
       child: Builder(
         builder: (context) {
-          Log.d("===根页面重构？===Builder========");
+          Log.d("===RefreshConfigurationWidget 根页面重构？===Builder========");
           return child;
         },
       ),

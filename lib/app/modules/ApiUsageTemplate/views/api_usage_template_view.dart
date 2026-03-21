@@ -34,6 +34,7 @@ class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
       appBar: MyAppBar(title: 'ApiUsageTemplateView'),
       // Scaffold嵌套 保证抽屉只在 body部分，不会遮挡appBar
       body: Scaffold(
+        appBar: null,
         drawer: DrawerApiView(),
         body: Container(
           width: double.infinity,

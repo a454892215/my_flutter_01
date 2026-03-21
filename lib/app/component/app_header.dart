@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../skin/app_skin.dart';
 import '../app_style.dart';
 
 class AppHeader extends StatelessWidget {
@@ -16,32 +17,34 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 110.w,
-      decoration: BoxDecoration(
-        color: headerBgColor,
-      ),
       child: Stack(
         alignment: Alignment.center,
         children: [
           Positioned(
-            left: 20.w,
+            left: 15.w,
             child: isNeedLeftBackArrow
                 ? IconButton(
                     onPressed: () {
                       Get.back();
                     },
-                    icon: Icon(Icons.arrow_back_ios, size: 45.w, color: Color(0xffffffff),))
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: 45.w,
+                      color: context.skinData.headerTextColor,
+                    ),
+                  )
                 : const SizedBox(),
           ),
           Text(
             title,
             style: TextStyle(
-              color: Colors.white,
+              color: context.skinData.headerTextColor,
               fontSize: 36.w,
             ),
-          )
+          ),
         ],
       ),
     );

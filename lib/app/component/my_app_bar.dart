@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../app_style.dart';
+import '../../skin/app_skin.dart';
 import 'app_header.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -21,7 +21,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       titleSpacing: 0,
       leadingWidth: 0,
       toolbarHeight: toolbarHeight,
-      backgroundColor: headerBgColor,
+      backgroundColor: context.skinData.headerBgColor,
+      leading: SizedBox(width: 0,), // 覆盖可能动态出现的默认
       title: AppHeader(title: title, isNeedLeftBackArrow: isNeedLeftBackArrow),
     );
   }

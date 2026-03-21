@@ -11,10 +11,9 @@ class SkinFactory {
     // 1. 获取原始静态配置 SkinData
     final SkinData skinData = SkinRepo.configs[type] ?? SkinRepo.configs[SkinType.bright]!;
     final isDark = type == SkinType.black;
-    final baseTheme = isDark ? ThemeData.dark() : ThemeData.light();
-    return baseTheme.copyWith(
+    ThemeData baseThemeData = isDark ? ThemeData.dark() : ThemeData.light();
+    return baseThemeData.copyWith(
       extensions: [
-        // 2. 将整个 config 对象传入
         AppSkin(data: skinData),
       ],
     );

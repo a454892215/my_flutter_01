@@ -3,6 +3,7 @@ import 'package:flutter_comm/skin/skin_factory.dart';
 import 'package:flutter_comm/skin/skin_repo.dart';
 import 'skin_data.dart'; // 假设你的 SkinData 定义在此文件
 
+/// 让 AppSkin继承 ThemeExtension，把AppSkin注册为系统识别的系统标准主题，当主题改变，系统会自动更新
 class AppSkin extends ThemeExtension<AppSkin> {
   // 只持有一个 SkinData 对象，减少属性重复定义
   final SkinData data;
@@ -14,17 +15,18 @@ class AppSkin extends ThemeExtension<AppSkin> {
     return AppSkin(data: data ?? this.data);
   }
 
+  /// 自定义差值过渡 ，使颜色切换更平滑
   @override
   AppSkin lerp(ThemeExtension<AppSkin>? other, double t) {
     if (other is! AppSkin) return this;
-
-    // 在这里处理 SkinData 内部属性的插值逻辑
+    /// 在这里处理 SkinData 内部属性的插值逻辑
     return AppSkin(
       data: SkinData(
         // 颜色值平滑过渡
         textColor1: Color.lerp(data.textColor1, other.data.textColor1, t)!,
         bgColor1: Color.lerp(data.bgColor1, other.data.bgColor1, t)!,
-
+        headerBgColor: Color.lerp(data.headerBgColor, other.data.headerBgColor, t)!,
+        headerTextColor: Color.lerp(data.headerTextColor, other.data.headerTextColor, t)!,
         // 非数值类型（如 String/AssetPath）无法插值，通常在进度过半时直接切换
         assetPath: t < 0.5 ? data.assetPath : other.data.assetPath,
       ),
