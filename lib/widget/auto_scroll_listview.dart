@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
+import '../util/Log.dart';
+
 typedef ItemBuilder = Widget? Function(BuildContext context, int index);
 
 class AutoScrollListViewController {
@@ -34,6 +36,7 @@ class AutoScrollUtil {
   }
 
   void _onTick(Duration elapsed) {
+    Log.d("_onTick: elapsed:$elapsed offset: ${sc.offset}");
     if (_isPaused) {
       _lastElapsed = Duration.zero;
       return;

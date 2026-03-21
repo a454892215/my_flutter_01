@@ -6,6 +6,7 @@ import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_4.dart'
 import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_5.dart';
 import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_6.dart';
 import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_7.dart';
+import 'package:flutter_comm/widget/keep_alive_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
@@ -65,7 +66,7 @@ class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
                     physics: const NeverScrollableScrollPhysics(),
                     controller: controller.pageController,
                     itemBuilder: (BuildContext context, int index) {
-                      return _pages[index];
+                      return AliveWidget(child: _pages[index]);
                     },
                   )),
                 ],

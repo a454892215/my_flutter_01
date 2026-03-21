@@ -22,6 +22,7 @@ class Log {
       printEmojis: true,
       // 是否打印 Emoji
       printTime: false, // 内部已手动添加时间戳
+      noBoxingByDefault: true, // 重要：设置为 true 彻底去掉边框
     ),
   );
 
