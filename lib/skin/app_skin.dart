@@ -1,36 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_comm/skin/skin_factory.dart';
+import 'package:flutter_comm/skin/skin_repo.dart';
+import 'skin_data.dart'; // 假设你的 SkinData 定义在此文件
 
-// 必须继承 ThemeExtension，并指定泛型为自己
 class AppSkin extends ThemeExtension<AppSkin> {
-  final Color textColor1;
-  final Color bgColor1;
-  final String assetPath; // 增加资源路径支持
+  // 只持有一个 SkinData 对象，减少属性重复定义
+  final SkinData data;
 
-  AppSkin({
-    required this.textColor1,
-    required this.bgColor1,
-    required this.assetPath,
-  });
+  AppSkin({required this.data});
 
-  // 必须重写 copyWith：用于主题局部覆盖（虽然全局换肤用得少，但框架要求）
   @override
-  AppSkin copyWith({Color? textColor1, Color? bgColor1, String? assetPath}) {
-    return AppSkin(
-      textColor1: textColor1 ?? this.textColor1,
-      bgColor1: bgColor1 ?? this.bgColor1,
-      assetPath: assetPath ?? this.assetPath,
-    );
+  AppSkin copyWith({SkinData? data}) {
+    return AppSkin(data: data ?? this.data);
   }
 
-  // 必须重写 lerp：这是 Flutter 换肤动效的核心
-  // 当你切换主题时，颜色会在这 200ms 内产生平滑渐变（插值动画）
   @override
   AppSkin lerp(ThemeExtension<AppSkin>? other, double t) {
     if (other is! AppSkin) return this;
+
+    // 在这里处理 SkinData 内部属性的插值逻辑
     return AppSkin(
-      textColor1: Color.lerp(textColor1, other.textColor1, t)!,
-      bgColor1: Color.lerp(bgColor1, other.bgColor1, t)!,
-      assetPath: t < 0.5 ? assetPath : other.assetPath, // 字符串不支持渐变，过半直接切换
+      data: SkinData(
+        // 颜色值平滑过渡
+        textColor1: Color.lerp(data.textColor1, other.data.textColor1, t)!,
+        bgColor1: Color.lerp(data.bgColor1, other.data.bgColor1, t)!,
+
+        // 非数值类型（如 String/AssetPath）无法插值，通常在进度过半时直接切换
+        assetPath: t < 0.5 ? data.assetPath : other.data.assetPath,
+      ),
     );
   }
+}
+/// 给 BuildContext 对象增加扩展属性
+///这一行非常长，而且容易写错泛型类型 : final skin = Theme.of(context).extension<AppSkin>()!.data;
+/// 扩展后 final skin = context.skinData;
+extension AppSkinX on BuildContext {
+  SkinData get skinData {
+    return Theme.of(this).extension<AppSkin>()?.data ??
+        SkinRepo.configs[SkinType.bright]!;
+  }
+
+  ThemeData get theme => Theme.of(this);
 }
