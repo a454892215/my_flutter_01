@@ -2,12 +2,13 @@ flutter_native_splash:
   color: "#ffffff" # 背景颜色
   # ./flutterw pub run flutter_native_splash:create --path=flutter_native_splash.yaml
   # 低于12的版本 才能配置全屏背景图
-  background_image: assets/images/splash.png # 启动图路径
+  image: assets/images/splash.png # 启动图路径
 
   # 在 Android 12+，只能配置：1.背景颜色 2.中间一个图标（必须是正方形 → 会被裁成圆形）3.图标背景色
   #   Android 12+ 不允许 全屏图片  自定义布局  意拉伸背景  动态 UI
   # 系统会自动把你这个正方形图片裁切成一个圆形。如果你的 Logo 边缘靠近图片边界，Logo 的四个角会被切掉
   # 目前主流行业适配方案是低于12，使用全屏背景图 ，高于12 使用logo图加纯色背景图
+  # 如果不配置Android 12 ： splash 图的 icon = launcher icon（不是你的 splash.png）
   android_12:
     image: assets/images/splash_logo.png
     icon_background_color: "#ffffff"
