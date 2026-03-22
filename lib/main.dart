@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_comm/skin/skin_factory.dart';
@@ -140,12 +141,11 @@ class GetMaterialAppConfig extends StatelessWidget {
     AppLoading.initLoading();
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      // showPerformanceOverlay:true, // CPU/UI性能监控
+      /// 仅在非 Release 模式（即 Debug 或 Profile）下显示:!kReleaseMode
+      showPerformanceOverlay: false,// 性能图层
       enableLog: false,
-
       /// title 只对Android生效，ios种，任务视图名称取的是 Info.pList 文件中的CFBundleDisplayName或CFBundleName
       title: "LB88",
-
       /// 4. Theme.of方法可以获取当前的 ThemeData，MaterialDesign种有些样式不能自定义，比如导航栏高度
 // 始终将当前计算出的皮肤给 theme
       theme: SkinManager.instance.currentTheme,
