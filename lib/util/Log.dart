@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'dart:developer' as developer; // 必须导入
 
 class Log {
   static const String tag = "LLpp:";
 
   // 1. 自动识别编译模式：Release 模式下不打印 Debug 级别日志
-  static bool debugEnable = kDebugMode;
+  static bool debugEnable = !kReleaseMode;
 
   // 2. 配置 Logger 实例
   static final Logger _logger = Logger(
@@ -75,22 +76,51 @@ class Log {
     }
   }
 
-  /// 核心打印逻辑：兼容 PC 与 移动端
+  // /// 核心打印逻辑：兼容 PC 与 移动端
+  // static void _print(Level level, dynamic msg, {int traceDepth = 1}) {
+  //   String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
+  //   // 构造最终输出字符串
+  //   String text =
+  //       "${DateTime.now().toIso8601String().split('T').last} $traceInfo $tag$msg";
+  //   // API 选择策略：
+  //   // 1. 在 PC 端运行时，debugPrint (stdout) 是最可靠的输出通道
+  //   // 2. logger.log 内部虽然也用 print，但经过 SimplePrinter/PrettyPrinter 处理后更易读
+  //   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+  //     // 桌面端直接使用 debugPrint，避免 dart:developer.log 在终端失效的问题
+  //     debugPrint(text);
+  //   } else {
+  //     // 移动端使用 logger 库，利用其分段机制防止 Android 系统对单条日志长度（4KB）的限制
+  //     _logger.log(level, text);
+  //   }
+  // }
+
+
+
   static void _print(Level level, dynamic msg, {int traceDepth = 1}) {
+    if (kReleaseMode) return; // Release 模式彻底关闭，保护性能
+
     String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
-    // 构造最终输出字符串
-    String text =
-        "${DateTime.now().toIso8601String().split('T').last} $traceInfo $tag$msg";
-    // API 选择策略：
-    // 1. 在 PC 端运行时，debugPrint (stdout) 是最可靠的输出通道
-    // 2. logger.log 内部虽然也用 print，但经过 SimplePrinter/PrettyPrinter 处理后更易读
-    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      // 桌面端直接使用 debugPrint，避免 dart:developer.log 在终端失效的问题
-      debugPrint(text);
-    } else {
-      // 移动端使用 logger 库，利用其分段机制防止 Android 系统对单条日志长度（4KB）的限制
-      _logger.log(level, text);
-    }
+   // String timestamp = DateTime.now().toIso8601String().split('T').last;
+    String text = "$tag$msg";
+
+    // 1. 传统的打印（供终端/Logcat使用）
+    // 注意：Profile模式下debugPrint可能在IDE控制台不显示，但在adb里有
+   // debugPrint("$timestamp $traceInfo $text");
+    // 2. 专门送往 DevTools 的日志
+    developer.log(
+      "$traceInfo $text",
+      time: DateTime.now(),
+      level: _levelToValue(level), // 将 logger 的 Level 转为整数
+      name: 'FlutterAppLog',             // DevTools 里的 Tag
+      error: null,            // 把堆栈放在 error 字段方便在 DevTools 右侧详情查看
+    );
+  }
+
+// 映射 Level 到 developer.log 的级别
+  static int _levelToValue(Level level) {
+    if (level == Level.error) return 1000;
+    if (level == Level.warning) return 900;
+    return 800; // Info/Debug
   }
   
 
