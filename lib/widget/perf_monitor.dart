@@ -17,6 +17,7 @@ import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 ///Raster Layer & Raster Picture（光栅化层与图片缓存）：这两个指标反映了 Flutter 渲染引擎（Raster Thread） 占用的显存/内存。
 ///               Raster Layer： 指合成渲染层（Layers）时消耗的内存。
 ///               Raster Picture： 指被缓存的绘制指令（Display Lists）或录制好的图片。
+///当前 flutter sdk 版本：3.38.8， profile模式下 无法获取Dart/Flutter内存
 class PerfMonitor {
   static OverlayEntry? _entry;
 
@@ -47,7 +48,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   double _fps = 60.0;
   String _memoryUsage = "0 MB";
   Timer? _timer;
-
+  double imageMb = 0;
   @override
   void initState() {
     super.initState();
@@ -95,6 +96,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   void _updateMemoryUsage() {
     if (!mounted) return;
     double rssMb = ProcessInfo.currentRss / (1024 * 1024);
+    imageMb = PaintingBinding.instance.imageCache.currentSizeBytes / (1024 * 1024);
     setState(() => _memoryUsage = "${rssMb.toStringAsFixed(0)} MB");
   }
 
@@ -105,7 +107,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     // 使用抽取的包装容器
     return DraggableFloatingWidget(
       width: 110,
-      height: 100,
+      height: 130,
       child: Material(
         elevation: 10,
         color: Colors.transparent,
@@ -123,6 +125,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
             children: [
               _buildInfoRow("FPS", _fps.toStringAsFixed(0), color: _fps < (refreshRate * 0.8) ? Colors.redAccent : Colors.greenAccent),
               _buildInfoRow("RSS", _memoryUsage),
+              _buildInfoRow("imageMb", imageMb.toStringAsFixed(1)),
               const Divider(color: Colors.white10, height: 8),
             ],
           ),
