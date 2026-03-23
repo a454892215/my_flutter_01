@@ -129,6 +129,8 @@ flutter:
     - assets/images/promotion/
     - assets/images/user/
     - assets/images/vip/
+    - assets/images/test/
+    - assets/images/test/chat/
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
