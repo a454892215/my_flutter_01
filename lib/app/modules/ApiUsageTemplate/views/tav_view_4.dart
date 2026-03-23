@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 
+import '../../../../widget/asset_image.dart';
 import '../../../component/text/text_def.dart';
 import '../controllers/tab_view_4_controller.dart';
 import '../entity/entities.dart';
@@ -58,7 +59,7 @@ class _TabView4State extends State<TabView4> {
                                 for (int i = 0; i < message.imgList.length; i++)
                                   Padding(
                                     padding: const EdgeInsets.only(bottom: 10),
-                                    child: Image.asset(message.imgList[i], width: double.infinity,),
+                                    child: AppAssetImage(message.imgList[i], width: double.infinity,),
                                   )
                               ],
                             ),
