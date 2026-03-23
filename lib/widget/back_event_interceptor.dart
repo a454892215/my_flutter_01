@@ -1,41 +1,37 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 
-/// 返回键拦截
+typedef BackInterceptCallback = bool Function(RouteInfo info);
+
 class BackInterceptorWidget extends StatefulWidget {
   const BackInterceptorWidget({
     super.key,
     required this.child,
-    required this.isInterceptor,
+    required this.onInterceptBack,
   });
 
   final Widget child;
-  final IsInterceptor isInterceptor;
+  final BackInterceptCallback onInterceptBack;
 
   @override
-  State<StatefulWidget> createState() {
-    return MyState();
-  }
+  State<BackInterceptorWidget> createState() => BackInterceptorState();
 }
 
-typedef IsInterceptor = bool Function(dynamic obj);
+class BackInterceptorState extends State<BackInterceptorWidget> {
+  bool _handler(bool stopDefaultButtonEvent, RouteInfo info) {
+    return widget.onInterceptBack(info);
+  }
 
-class MyState extends State<BackInterceptorWidget> {
   @override
   void initState() {
     super.initState();
-    BackButtonInterceptor.add(isInterceptor);
+    BackButtonInterceptor.add(_handler);
   }
 
   @override
   void dispose() {
-    BackButtonInterceptor.remove(isInterceptor);
+    BackButtonInterceptor.remove(_handler);
     super.dispose();
-  }
-
-  /// true 拦截事件
-  bool isInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
-    return widget.isInterceptor(info);
   }
 
   @override
