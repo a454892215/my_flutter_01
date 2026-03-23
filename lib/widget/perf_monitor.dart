@@ -5,7 +5,18 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-
+import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
+/// flutter devTools 的memory监控中的关键指标及其含义
+/// RSS(Resident Set Size):这是操作系统分配给该进程的实际物理内存总量.
+///                        它包含了应用运行所需的所有资源：Dart堆内存、Flutter引擎内存、原生平台（Android/iOS）内存、加载的动态库、字体、以及正在解码的图片等
+/// Allocated(已分配内存): 这是由 Dart VM 管理的内存总量, 表示 Dart 虚拟机当前占用的内存大小
+/// Dart/Flutter：这是当前 Dart 代码中存活对象实际占用的空间。
+///               对象类型： 包括你定义的 Widget 实例、State、Model 数据、各种 List、Map 等。
+///               Dart/Flutter 必然小于或等于 Allocated。如果这两个值持续上升且不下降，通常意味着 Dart 层存在内存泄漏。
+///Dart/Flutter Native（原生关联内存）: 这是指由 Dart 对象引用，但实际上在 C++ 层（原生层）分配的内存
+///Raster Layer & Raster Picture（光栅化层与图片缓存）：这两个指标反映了 Flutter 渲染引擎（Raster Thread） 占用的显存/内存。
+///               Raster Layer： 指合成渲染层（Layers）时消耗的内存。
+///               Raster Picture： 指被缓存的绘制指令（Display Lists）或录制好的图片。
 class PerfMonitor {
   static OverlayEntry? _entry;
 
@@ -29,42 +40,24 @@ class PerfMonitorWidget extends StatefulWidget {
 }
 
 class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
-  // 样本窗口大小，25帧足以覆盖高刷屏的一个微小周期
+  // 性能采样配置
   final int _sampleSize = 25;
   final ListQueue<FrameTiming> _timingsWindow = ListQueue();
 
   double _fps = 60.0;
-  bool _isBuildSlow = false;
-  bool _isRasterSlow = false;
   String _memoryUsage = "0 MB";
   Timer? _timer;
-
-  Offset _offset = const Offset(20, 100);
-  final double _widgetWidth = 130.0;
-  final double _widgetHeight = 100.0;
 
   @override
   void initState() {
     super.initState();
-    // 注册帧耗时回调
     SchedulerBinding.instance.addTimingsCallback(_onFrameTimings);
-
-    // 每一秒更新一次非高频数据
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _updateMemoryUsage();
-
-      // 逻辑统一：如果长时间没有新帧，说明 UI 静止且极其流畅，显示设备物理刷新率
       if (_timingsWindow.isEmpty) {
-        setState(() {
-          _fps = _getDeviceRefreshRate();
-        });
+        setState(() => _fps = _getDeviceRefreshRate());
       }
     });
-  }
-
-  double _getDeviceRefreshRate() {
-    // 获取当前窗口的物理刷新率
-    return PlatformDispatcher.instance.views.first.display.refreshRate;
   }
 
   @override
@@ -74,161 +67,80 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     super.dispose();
   }
 
+  double _getDeviceRefreshRate() => PlatformDispatcher.instance.views.first.display.refreshRate;
+
+  /// 计算屏幕刷新率
   void _onFrameTimings(List<FrameTiming> timings) {
     if (!mounted) return;
-
-    // 1. 更新滑动窗口数据
     for (var timing in timings) {
       _timingsWindow.addLast(timing);
-      if (_timingsWindow.length > _sampleSize) {
-        _timingsWindow.removeFirst();
-      }
+      if (_timingsWindow.length > _sampleSize) _timingsWindow.removeFirst();
     }
-
     if (_timingsWindow.isEmpty) return;
 
-    // 2. 混合算法计算 FPS
-    // 计算平均耗时 (反映体感整体趋势)
     double avgUs = _timingsWindow.fold(0.0, (sum, t) => sum + t.totalSpan.inMicroseconds) / _timingsWindow.length;
-
-    // 计算最差一帧耗时 (反映 Jank/掉帧)
     int maxUs = _timingsWindow.map((t) => t.totalSpan.inMicroseconds).reduce((a, b) => a > b ? a : b);
 
-    // 混合权重：70% 平均 + 30% 最差。这能防止数值因为单帧抖动而剧烈跳变，
-    // 但又能捕捉到页面切换时的明显卡顿。
+    // 70% 平均 + 30% 最差帧混合算法，兼顾平滑与卡顿监测
     double blendedMs = (avgUs * 0.7 + maxUs * 0.3) / 1000.0;
     double currentFps = 1000.0 / blendedMs;
-
     double deviceMax = _getDeviceRefreshRate();
-    if (currentFps > deviceMax) currentFps = deviceMax;
-
-    final lastTiming = _timingsWindow.last;
 
     setState(() {
-      _fps = currentFps;
-      // 判定阈值：如果耗时超过“1帧应有的时间”，则认为该环节慢
-      double frameBudget = 1000 / deviceMax;
-      _isBuildSlow = lastTiming.buildDuration.inMilliseconds > frameBudget;
-      _isRasterSlow = lastTiming.rasterDuration.inMilliseconds > frameBudget;
+      _fps = currentFps.clamp(0.0, deviceMax);
     });
-
-    // 注意：不要在这里调用 clear()，保持窗口滑动
   }
 
+  /// 更新 rssMb 内存信息
   void _updateMemoryUsage() {
     if (!mounted) return;
-    try {
-      // 获取 RSS (Resident Set Size) - 对应 Android 的 Total Memory
-      double rssMb = ProcessInfo.currentRss / (1024 * 1024);
-      setState(() {
-        _memoryUsage = "${rssMb.toStringAsFixed(1)} MB";
-      });
-    } catch (e) {
-      setState(() { _memoryUsage = "N/A"; });
-    }
+    double rssMb = ProcessInfo.currentRss / (1024 * 1024);
+    setState(() => _memoryUsage = "${rssMb.toStringAsFixed(0)} MB");
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final padding = MediaQuery.of(context).padding;
     final refreshRate = _getDeviceRefreshRate();
 
-    return Positioned(
-      left: _offset.dx,
-      top: _offset.dy,
-      child: GestureDetector(
-        onPanUpdate: (details) {
-          setState(() {
-            _offset += details.delta;
-            _offset = Offset(
-              _offset.dx.clamp(0.0, screenSize.width - _widgetWidth),
-              _offset.dy.clamp(padding.top, screenSize.height - padding.bottom - _widgetHeight),
-            );
-          });
-        },
-        child: Material(
-          elevation: 10,
-          color: Colors.transparent,
-          child: Container(
-            width: _widgetWidth,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E1E1E).withOpacity(0.9),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white12, width: 1.5),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8)
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "PERF MONITOR",
-                  style: TextStyle(color: Colors.blueAccent, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5),
-                ),
-                const SizedBox(height: 6),
-                _buildInfoRow(
-                  "FPS",
-                  _fps.toStringAsFixed(1),
-                  // 掉帧超过 10% 变黄，掉帧超过 25% 变红
-                  valueColor: _fps < (refreshRate * 0.75)
-                      ? Colors.redAccent
-                      : (_fps < (refreshRate * 0.9) ? Colors.orangeAccent : Colors.greenAccent),
-                ),
-                _buildInfoRow("RSS", _memoryUsage),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 4),
-                  child: Divider(color: Colors.white10, height: 1),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildStatusIndicator("UI", _isBuildSlow),
-                    _buildStatusIndicator("GPU", _isRasterSlow),
-                  ],
-                )
-              ],
-            ),
+    // 使用抽取的包装容器
+    return DraggableFloatingWidget(
+      width: 110,
+      height: 100,
+      child: Material(
+        elevation: 10,
+        color: Colors.transparent,
+        child: Container(
+          width: 110,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E).withAlpha(188),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white12, width: 1.5),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInfoRow("FPS", _fps.toStringAsFixed(0), color: _fps < (refreshRate * 0.8) ? Colors.redAccent : Colors.greenAccent),
+              _buildInfoRow("RSS", _memoryUsage),
+              const Divider(color: Colors.white10, height: 8),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {Color valueColor = Colors.white}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.w500)),
-          Text(value, style: TextStyle(color: valueColor, fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusIndicator(String label, bool isSlow) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: isSlow ? Colors.red.withOpacity(0.2) : Colors.green.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 5,
-            height: 5,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: isSlow ? Colors.red : Colors.greenAccent),
-          ),
-          const SizedBox(width: 4),
-          Text(label, style: TextStyle(color: isSlow ? Colors.redAccent : Colors.greenAccent, fontSize: 9, fontWeight: FontWeight.bold)),
-        ],
-      ),
+  Widget _buildInfoRow(String label, String value, {Color color = Colors.white}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+        Text(
+          value,
+          style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }
