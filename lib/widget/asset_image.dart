@@ -17,7 +17,10 @@ class AppAssetImage extends StatelessWidget {
     this.borderRadius = 0,
     this.fit = BoxFit.cover,
     this.enableResize = true,
-  });
+  }) : assert(
+  !(enableResize && (width == double.infinity || height == double.infinity)),
+  '当 enableResize 为 true 时，width 或 height 不能传入 double.infinity。'
+  );
 
   @override
   Widget build(BuildContext context) {

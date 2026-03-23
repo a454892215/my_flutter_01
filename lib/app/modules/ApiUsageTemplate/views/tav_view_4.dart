@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 
@@ -42,24 +43,25 @@ class _TabView4State extends State<TabView4> {
                         ChatMessage message = controller.list[index];
                         return Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 10),
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  message.text,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color:  Color(0xff2e2e2e),
-                                    fontWeight: FontWeight.w400,
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  child: Text(
+                                    message.text,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color:  Color(0xff2e2e2e),
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
                                 ),
                                 for (int i = 0; i < message.imgList.length; i++)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: AppAssetImage(message.imgList[i], width: double.infinity,),
+                                  Center(
+                                    child: AppAssetImage(message.imgList[i], width: 1.sw * 0.82,),
                                   )
                               ],
                             ),

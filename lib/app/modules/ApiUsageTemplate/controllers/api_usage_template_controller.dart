@@ -10,11 +10,11 @@ class ApiUsageTemplateController extends BaseController
   late TabController tabController;
   final PageController pageController= PageController();
   List<Map<String, dynamic>> tabs = [
-    {'label': '组件大全', 'value': '1'},
-    {'label': 'refresh', 'value': '2'},
-    {'label': 'AutoScrollListView 示例', 'value': '3'},
-    {'label': '图片列表', 'value': '4'},
-    {'label': '轮播图', 'value': '5'},
+    {'label': '1组件大全', 'value': '1'},
+    {'label': '2refresh', 'value': '2'},
+    {'label': '3AutoScrollListView 示例', 'value': '3'},
+    {'label': '4图片列表', 'value': '4'},
+    {'label': '5轮播图', 'value': '5'},
   ];
    final selectedPageIndex = 0.obs;
 
