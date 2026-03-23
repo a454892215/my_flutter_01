@@ -7,7 +7,7 @@ class RefreshWidget extends StatefulWidget {
     super.key,
     required this.child,
     this.onRefresh,
-    this.onLoading,
+    this.onLoadMore,
     required this.refreshController,
     this.scrollController,
     this.physics = const BouncingScrollPhysics(),
@@ -22,7 +22,7 @@ class RefreshWidget extends StatefulWidget {
 
   final Widget child;
   final Future<void> Function()? onRefresh;
-  final Future<void> Function()? onLoading;
+  final Future<void> Function()? onLoadMore;
   final RefreshController refreshController;
   final ScrollPhysics? physics;
   final bool refreshEnable;
@@ -73,9 +73,9 @@ class _RefreshWidgetState extends State<RefreshWidget> {
 
   /// 内部包装加载逻辑
   Future<void> _handleLoading() async {
-    if (widget.onLoading == null) return;
+    if (widget.onLoadMore == null) return;
     try {
-      await widget.onLoading!();
+      await widget.onLoadMore!();
       if (widget.refreshController.isLoading) {
         widget.refreshController.loadComplete();
       }

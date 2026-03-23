@@ -109,7 +109,7 @@ Widget getText() {
 }
 
 Widget getImage() {
-  return Image.asset("", width: 60.w);
+  return Image.asset("assets/images/", width: 60.w);
 }
 
 Widget getPositioned() {

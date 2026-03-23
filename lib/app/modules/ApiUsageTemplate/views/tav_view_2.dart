@@ -62,7 +62,7 @@ class _TabView2State extends State<TabView2> {
         refreshController: _refreshController,
         loadmoreEnable: controller.listSize >= controller.perSize,
         onRefresh: _handleRefresh,
-        onLoading: _handleLoading,
+        onLoadMore: _handleLoading,
         child: ListView.builder(
           itemCount: controller.listSize,
           // 优化：固定高度使用 itemExtent 提升渲染效率
