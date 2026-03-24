@@ -29,20 +29,12 @@ class ApiUsageTemplateController extends BaseController
   @override
   void onReady() {
     super.onReady();
-    // 关键：在 build 完成后启动监控，确保 Overlay 能够找到所在的上下文
-    /// 使用 GetX 提供的全局 overlayContext，它不需要你手动从 Widget 传参
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Get.overlayContext != null) {
-        PerfMonitor.start(Get.overlayContext!);
-      }
-    });
   }
 
   @mustCallSuper
   @override
   void onClose() {
     super.onClose();
-    PerfMonitor.stop(); // 必须调用，否则 Overlay 跨页面存在且无法销毁
     tabController.dispose();
     pageController.dispose();
   }
