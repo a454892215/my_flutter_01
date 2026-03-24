@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../skin/app_skin.dart';
 import '../../../../skin/skin_factory.dart';
@@ -79,6 +80,7 @@ class _TabView1State extends State<TabView1> {
             HorizontalIndicatorTab(
               size: _titles.length,
               height: 50,
+              width:1.sw,
               indicatorAttr: IndicatorAttr(height: 3, color: Colors.yellow),
               onSelectChanged: (int index) {  },
               controller: _controller,

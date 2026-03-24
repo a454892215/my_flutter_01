@@ -43,6 +43,7 @@ class HorizontalIndicatorTab extends StatefulWidget {
     super.key,
     required this.size,
     required this.height,
+    this.width,
     required this.onSelectChanged,
     required this.controller,
     this.bgColor,
@@ -54,6 +55,7 @@ class HorizontalIndicatorTab extends StatefulWidget {
   final int size;
   final ItemBuilder itemBuilder;
   final double height;
+  final double? width;
   final void Function(int index) onSelectChanged;
   final Color? bgColor;
   final IndicatorAttr indicatorAttr;
@@ -221,6 +223,7 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> with Si
   Widget build(BuildContext context) {
     return Container(
       height: widget.height,
+      width: widget.width,
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: widget.bgColor,
@@ -258,15 +261,19 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> with Si
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
-                  return Positioned(
-                    left: _leftAnimation.value,
-                    bottom: widget.indicatorAttr.bottomPadding,
-                    child: Container(
-                      width: _widthAnimation.value,
-                      height: widget.indicatorAttr.height,
-                      decoration: BoxDecoration(
-                        color: widget.indicatorAttr.color,
-                        borderRadius: BorderRadius.circular(widget.indicatorAttr.height / 2),
+                  return Padding(
+                    // 固定在左侧，不再触发 Layout 变化
+                    padding: EdgeInsetsGeometry.only(bottom: widget.indicatorAttr.bottomPadding),
+                    // 使用 Transform 位移，这是 Paint 阶段的操作，不会触发父组件 Layout
+                    child: Transform.translate(
+                      offset: Offset(_leftAnimation.value, 0),
+                      child: Container(
+                        width: _widthAnimation.value,
+                        height: widget.indicatorAttr.height,
+                        decoration: BoxDecoration(
+                          color: widget.indicatorAttr.color,
+                          borderRadius: BorderRadius.circular(widget.indicatorAttr.height / 2),
+                        ),
                       ),
                     ),
                   );
