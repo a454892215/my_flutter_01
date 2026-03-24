@@ -2,9 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppRadio extends StatelessWidget {
-  const AppRadio({super.key, this.isCheck = false, this.onClick});
+  const AppRadio({super.key,
+    this.isCheck = false,
+    this.onClick,
+    required this.checkedWidget,
+    required this.uncheckedWidget,
+  });
 
   final bool isCheck;
+  final Widget checkedWidget;
+  final Widget uncheckedWidget;
   final VoidCallback? onClick;
 
   @override
@@ -17,17 +24,7 @@ class AppRadio extends StatelessWidget {
           onClick!();
         }
       },
-      child: Container(
-        width: 40.w,
-        height: 40.w,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(40.w),
-          image: DecorationImage(
-            image: isCheck ? const AssetImage("assets/images/i-radio-active.webp") : const AssetImage("assets/images/i-radio-no.webp"),
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
+      child: isCheck ?  checkedWidget : uncheckedWidget,
     );
   }
 }
