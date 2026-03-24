@@ -20,7 +20,8 @@ class TabView3 extends GetView<ApiUsageTemplateController> {
       width: double.infinity,
       height: double.infinity,
       color: Color(0xff79a1e8),
-      child: GetX<TabView3ControllerController>(
+      padding: EdgeInsets.all(25),
+      child: GetBuilder<TabView3ControllerController>(
         /// 它会在 GetX 组件插入树时自动创建 Controller，并在组件从树中移除时自动销毁Controller。
         init: TabView3ControllerController(),
         builder: (tabView3ControllerController) => Column(
@@ -29,23 +30,26 @@ class TabView3 extends GetView<ApiUsageTemplateController> {
           children: [
             AppText(text: controller.tabs[controller.selectedPageIndex.value]['label']),
             Expanded(
-              child: AutoScrollListView(
-                itemCount: tabView3ControllerController.rxList.length,
-                controller: tabView3ControllerController.autoScrollController,
-                scrollSpeed: 60.0,
-                // 每秒滚动 60 像素
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) {
-                  // 这里编写你的 Item UI
-                  return Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Text(
-                      tabView3ControllerController.rxList[index],
-                      style: TextStyle(fontSize: 16, color: skin.textColor1),
-                    ),
-                  );
-                },
+              child: RepaintBoundary(
+                child: AutoScrollListView(
+                  itemCount: tabView3ControllerController.rxList.length,
+                  controller: tabView3ControllerController.autoScrollController,
+                  scrollSpeed: 60.0,
+                  // 每秒滚动 60 像素
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    // 这里编写你的 Item UI
+                    return Container(
+                      height: 50,
+                      color: Color(0xffe67b7b),
+                      alignment: Alignment.center,
+                      child: Text(
+                        tabView3ControllerController.rxList[index],
+                        style: TextStyle(fontSize: 16, color: skin.textColor1),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],

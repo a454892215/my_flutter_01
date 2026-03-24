@@ -108,26 +108,28 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     return DraggableFloatingWidget(
       width: 110,
       height: 130,
-      child: Material(
-        elevation: 10,
-        color: Colors.transparent,
-        child: Container(
-          width: 110,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E).withAlpha(188),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white12, width: 1.5),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildInfoRow("FPS", _fps.toStringAsFixed(0), color: _fps < (refreshRate * 0.8) ? Colors.redAccent : Colors.greenAccent),
-              _buildInfoRow("RSS", _memoryUsage),
-              _buildInfoRow("imageMb", imageMb.toStringAsFixed(1)),
-              const Divider(color: Colors.white10, height: 8),
-            ],
+      child: RepaintBoundary(
+        child: Material(
+          elevation: 10,
+          color: Colors.transparent,
+          child: Container(
+            width: 110,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E).withAlpha(188),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white12, width: 1.5),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow("FPS", _fps.toStringAsFixed(0), color: _fps < (refreshRate * 0.8) ? Colors.redAccent : Colors.greenAccent),
+                _buildInfoRow("RSS", _memoryUsage),
+                _buildInfoRow("imageMb", imageMb.toStringAsFixed(1)),
+                const Divider(color: Colors.white10, height: 8),
+              ],
+            ),
           ),
         ),
       ),
