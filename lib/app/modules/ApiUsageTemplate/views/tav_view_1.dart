@@ -19,8 +19,6 @@ class _TabView1State extends State<TabView1> {
 // 1. 初始化控制器
   final HorizontalTabController _controller = HorizontalTabController(initialIndex: 0);
 
-  // 2. 定义每个 Tab 的宽度（根据内容或视觉需求设定）
-  final List<double> _itemWidths = [60.0, 100.0, 80.0, 120.0, 70.0, 90.0];
   final List<String> _titles = ["精选", "双11大促", "手机", "电脑办公设备", "美妆", "运动"];
 
   @override
@@ -81,14 +79,13 @@ class _TabView1State extends State<TabView1> {
             HorizontalIndicatorTab(
               size: _titles.length,
               height: 50,
-              itemWidthList: _itemWidths,
+              indicatorAttr: IndicatorAttr(height: 3, color: Colors.yellow),
               onSelectChanged: (int index) {  },
               controller: _controller,
-              itemBuilder: (BuildContext context, int index, int selectedPos) {
-                final isSelected = index == selectedPos;
+              itemBuilder: (BuildContext context, int index, bool isSelected) {
                 return Container(
-                  width: _itemWidths[index],
                   alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     _titles[index],
                     style: TextStyle(

@@ -1,103 +1,144 @@
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 
 /// 属性配置
 class IndicatorAttr {
-  IndicatorAttr({this.color, required this.height, required this.width});
-  final Color? color;
+  const IndicatorAttr({
+    this.color = Colors.green,
+    this.height = 3.0,
+    this.width,
+    this.indicatorScale = 0.8,
+    this.bottomPadding = 2.0, // 增加底部间距配置
+  });
+  final Color color;
   final double height;
-  final double width;
+  final double? width; // 若为null则取 itemWidth * 0.8
+  final double bottomPadding;
+  final double indicatorScale;
 }
 
-/// 预计算宽度与偏移量
+/// 增强型宽度管理器
 class _TabWidthManager {
-  final List<double> itemWidths;
-  late List<double> _offsets;
+  final List<double> _itemWidths = [];
+  final List<double> _offsets = [0.0];
 
-  _TabWidthManager(this.itemWidths) {
-    _offsets = [0.0];
+  void updateWidths(List<double> widths) {
+    _itemWidths.clear();
+    _itemWidths.addAll(widths);
+    _offsets.clear();
+    _offsets.add(0.0);
     double sum = 0;
-    for (var w in itemWidths) {
+    for (var w in _itemWidths) {
       sum += w;
       _offsets.add(sum);
     }
   }
 
   double getOffsetAt(int index) => (index >= 0 && index < _offsets.length) ? _offsets[index] : 0.0;
-  double getWidthAt(int index) => (index >= 0 && index < itemWidths.length) ? itemWidths[index] : 0.0;
-  double get totalWidth => _offsets.last;
+  double getWidthAt(int index) => (index >= 0 && index < _itemWidths.length) ? _itemWidths[index] : 0.0;
+  bool get isReady => _itemWidths.isNotEmpty;
 }
 
-typedef ItemBuilder = Widget Function(BuildContext context, int index, int selectedPos);
+typedef ItemBuilder = Widget Function(BuildContext context, int index, bool isSelected);
 
+/// 基于SingleChildScrollView的 水平 tabview，可以自定义TabWidget样式，选中后的tab自动居中
+/// indicator的宽度会根据TabWidget的宽度自动调整
 class HorizontalIndicatorTab extends StatefulWidget {
   const HorizontalIndicatorTab({
     super.key,
     required this.size,
     required this.height,
-    required this.itemWidthList,
     required this.onSelectChanged,
     required this.controller,
     this.bgColor,
-    this.indicatorAttr,
+    this.indicatorAttr = const IndicatorAttr(),
     this.bgImgPath,
-    this.indicator,
     required this.itemBuilder,
   });
 
   final int size;
   final ItemBuilder itemBuilder;
   final double height;
-  final List<double> itemWidthList;
   final void Function(int index) onSelectChanged;
   final Color? bgColor;
-  final IndicatorAttr? indicatorAttr;
+  final IndicatorAttr indicatorAttr;
   final HorizontalTabController controller;
   final String? bgImgPath;
-  final Widget? indicator;
 
   @override
   State<HorizontalIndicatorTab> createState() => _HorizontalIndicatorTabState();
 }
- /// 基于 SingleChildScrollView的水平Tab 使用于Tab数目比较小 每个Tab 宽度不相同的情况
+
 class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> with TickerProviderStateMixin {
-  late final ScrollController _scrollController = ScrollController();
-  late final AnimationController _animController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 250),
-  );
+  final ScrollController _scrollController = ScrollController();
+  late final AnimationController _animController;
+  late final CurvedAnimation _curvedAnimation;
 
-  late _TabWidthManager _widthManager;
+  final _TabWidthManager _widthManager = _TabWidthManager();
+  List<GlobalKey> _itemKeys = [];
 
-  // 关键优化：双 Tween 同步位置与宽度
-  late Tween<double> _leftTween;
-  late Tween<double> _widthTween;
-  late Animation<double> _leftAnimation;
-  late Animation<double> _widthAnimation;
+  // 使用 Tween 对象本身，而不是 Animation 对象，避免频繁创建实例
+  final Tween<double> _leftTween = Tween(begin: 0.0, end: 0.0);
+  final Tween<double> _widthTween = Tween(begin: 0.0, end: 0.0);
 
   @override
   void initState() {
     super.initState();
-    _widthManager = _TabWidthManager(widget.itemWidthList);
-    _initAnimations();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _curvedAnimation = CurvedAnimation(parent: _animController, curve: Curves.fastOutSlowIn);
+    _updateKeys();
     _attachController();
+
+    // 确保在第一帧布局完成后测量
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureItemWidths(isInitial: true));
   }
 
-  void _initAnimations() {
+  void _updateKeys() {
+    _itemKeys = List.generate(widget.size, (index) => GlobalKey());
+  }
+
+  void _measureItemWidths({bool isInitial = false}) {
+    if (!mounted) return;
+
+    final List<double> widths = _itemKeys.map((key) {
+      final RenderBox? box = key.currentContext?.findRenderObject() as RenderBox?;
+      return box?.hasSize == true ? box!.size.width : 0.0;
+    }).toList();
+
+    if (widths.every((w) => w == 0)) return;
+
+    _widthManager.updateWidths(widths);
+
     int cur = widget.controller.selectedIndex;
-    double initialLeft = _widthManager.getOffsetAt(cur);
-    double initialWidth = _widthManager.getWidthAt(cur);
+    double targetLeft = _calculateIndicatorLeft(cur);
+    double targetWidth = _calculateIndicatorWidth(cur);
 
-    _leftTween = Tween(begin: initialLeft, end: initialLeft);
-    _widthTween = Tween(begin: initialWidth, end: initialWidth);
+    if (isInitial) {
+      _leftTween.begin = _leftTween.end = targetLeft;
+      _widthTween.begin = _widthTween.end = targetWidth;
+      _autoScroll(cur, animate: false);
+    }
 
-    final curve = CurvedAnimation(parent: _animController, curve: Curves.easeInOut);
-    _leftAnimation = _leftTween.animate(curve);
-    _widthAnimation = _widthTween.animate(curve);
+    // 仅在测量完成后刷新一次，后续通过动画更新
+    if (mounted) setState(() {});
+  }
+
+  double _calculateIndicatorWidth(int index) {
+    double itemW = _widthManager.getWidthAt(index);
+    return widget.indicatorAttr.width ?? (itemW * widget.indicatorAttr.indicatorScale);
+  }
+
+  double _calculateIndicatorLeft(int index) {
+    double itemOffset = _widthManager.getOffsetAt(index);
+    double itemWidth = _widthManager.getWidthAt(index);
+    double indicatorWidth = _calculateIndicatorWidth(index);
+    return itemOffset + (itemWidth - indicatorWidth) / 2;
   }
 
   void _attachController() {
-   // widget.controller.attach(this);
     widget.controller.selectedIndexNotifier.addListener(_onControllerIndexChanged);
   }
 
@@ -108,8 +149,9 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> with Ti
       oldWidget.controller.selectedIndexNotifier.removeListener(_onControllerIndexChanged);
       _attachController();
     }
-    if (widget.itemWidthList != oldWidget.itemWidthList) {
-      _widthManager = _TabWidthManager(widget.itemWidthList);
+    if (widget.size != oldWidget.size) {
+      _updateKeys();
+      WidgetsBinding.instance.addPostFrameCallback((_) => _measureItemWidths(isInitial: true));
     }
   }
 
@@ -126,23 +168,22 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> with Ti
   }
 
   void _moveTo(int pos) {
-    if (!mounted) return;
+    if (!mounted || !_widthManager.isReady) return;
 
-    _leftTween.begin = _leftAnimation.value;
-    _leftTween.end = _widthManager.getOffsetAt(pos);
+    // 关键优化：从当前动画的实际值开始，保证动画连贯
+    _leftTween.begin = _leftTween.evaluate(_curvedAnimation);
+    _widthTween.begin = _widthTween.evaluate(_curvedAnimation);
 
-    _widthTween.begin = _widthAnimation.value;
-    _widthTween.end = _widthManager.getWidthAt(pos);
+    _leftTween.end = _calculateIndicatorLeft(pos);
+    _widthTween.end = _calculateIndicatorWidth(pos);
 
     _animController.forward(from: 0);
     widget.onSelectChanged(pos);
-
-    // 确保在下一帧（布局完成后）滚动
-    WidgetsBinding.instance.addPostFrameCallback((_) => _autoScroll(pos));
+    _autoScroll(pos);
   }
 
-  void _autoScroll(int pos) {
-    if (!_scrollController.hasClients) return;
+  void _autoScroll(int pos, {bool animate = true}) {
+    if (!_scrollController.hasClients || !_widthManager.isReady) return;
 
     final RenderBox? box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
@@ -153,12 +194,13 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> with Ti
 
     double target = itemOffset - (viewportWidth / 2) + (itemWidth / 2);
     double maxScroll = _scrollController.position.maxScrollExtent;
+    target = target.clamp(0.0, maxScroll);
 
-    _scrollController.animateTo(
-      target.clamp(0.0, maxScroll),
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    if (animate) {
+      _scrollController.animateTo(target, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+    } else {
+      _scrollController.jumpTo(target);
+    }
   }
 
   @override
@@ -178,59 +220,87 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> with Ti
         child: Stack(
           alignment: Alignment.bottomLeft,
           children: [
-            // Tab Items
             ValueListenableBuilder<int>(
               valueListenable: widget.controller.selectedIndexNotifier,
               builder: (context, selectedIndex, _) {
                 return Row(
                   children: List.generate(widget.size, (i) {
-                    return CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () => widget.controller.select(i),
-                      minimumSize: Size(0, 0),
-                      child: widget.itemBuilder(context, i, selectedIndex),
+                    return GestureDetector(
+                      key: _itemKeys[i],
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => widget.controller.select(i),
+                      child: widget.itemBuilder(context, i, i == selectedIndex),
                     );
                   }),
                 );
               },
             ),
-            // 指示器：同步位置与宽度
-            AnimatedBuilder(
-              animation: _animController,
-              builder: (context, _) {
-                return Positioned(
-                  left: _leftAnimation.value,
-                  width: _widthAnimation.value,
-                  bottom: 0,
-                  child: Center( // 解决指示器在不同宽度 Item 下的对齐问题
-                    child: widget.indicator ?? _buildDefaultIndicator(),
-                  ),
-                );
-              },
-            ),
+            if (_widthManager.isReady)
+              IgnorePointer( // 指示器不拦截点击事件
+                child: AnimatedBuilder(
+                  animation: _curvedAnimation,
+                  builder: (context, _) {
+                    return CustomPaint(
+                      size: Size(_widthManager.getOffsetAt(widget.size), widget.height),
+                      painter: _IndicatorPainter(
+                        indicatorLeft: _leftTween.evaluate(_curvedAnimation),
+                        width: _widthTween.evaluate(_curvedAnimation),
+                        height: widget.indicatorAttr.height,
+                        color: widget.indicatorAttr.color,
+                        bottomPadding: widget.indicatorAttr.bottomPadding,
+                      ),
+                    );
+                  },
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildDefaultIndicator() {
-    double w = widget.indicatorAttr?.width ?? 24.0;
-    double h = widget.indicatorAttr?.height ?? 3.0;
-    return Container(
-      width: w,
-      height: h,
-      decoration: BoxDecoration(
-        color: widget.indicatorAttr?.color ?? Colors.blue,
-        borderRadius: BorderRadius.circular(h / 2),
-      ),
+class _IndicatorPainter extends CustomPainter {
+  final double indicatorLeft;
+  final double width;
+  final double height;
+  final Color color;
+  final double bottomPadding;
+
+  _IndicatorPainter({
+    required this.indicatorLeft,
+    required this.width,
+    required this.height,
+    required this.color,
+    required this.bottomPadding,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // 修复坐标系：CustomPaint 在 Stack 底部，y 为 0 时已经在底部
+    final RRect rrect = RRect.fromLTRBR(
+      indicatorLeft,
+      size.height - height - bottomPadding,
+      indicatorLeft + width,
+      size.height - bottomPadding,
+      Radius.circular(height / 2),
     );
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(_IndicatorPainter oldDelegate) {
+    return oldDelegate.indicatorLeft != indicatorLeft ||
+        oldDelegate.width != width ||
+        oldDelegate.color != color;
   }
 }
 
-/// 控制器实现
 class HorizontalTabController {
- // _HorizontalIndicatorTabState? _state;
   final ValueNotifier<int> selectedIndexNotifier;
   final List<int> _history = [];
 
@@ -241,13 +311,9 @@ class HorizontalTabController {
 
   int get selectedIndex => selectedIndexNotifier.value;
 
- // void attach(_HorizontalIndicatorTabState state) => _state = state;
-
   void select(int index) {
     if (selectedIndexNotifier.value == index) return;
-    if (_history.isEmpty || _history.last != index) {
-      _history.add(index);
-    }
+    _history.add(index);
     selectedIndexNotifier.value = index;
   }
 
