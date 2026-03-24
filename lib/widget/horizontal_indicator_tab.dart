@@ -16,7 +16,6 @@ class IndicatorAttr {
   final double indicatorScale;
 }
 
-/// 增强型宽度管理器
 class _TabWidthManager {
   final List<double> _itemWidths = [];
   final List<double> _offsets = [];
@@ -27,7 +26,7 @@ class _TabWidthManager {
     _offsets.clear();
     double sum = 0;
     for (var w in _itemWidths) {
-      _offsets.add(sum); // 记录每个 item 的起始偏移
+      _offsets.add(sum);
       sum += w;
     }
   }
@@ -39,8 +38,6 @@ class _TabWidthManager {
 
 typedef ItemBuilder = Widget Function(BuildContext context, int index, bool isSelected);
 
-/// 基于SingleChildScrollView的 水平 tabview，可以自定义TabWidget样式，选中后的tab自动居中
-/// indicator的宽度会根据TabWidget的宽度自动调整
 class HorizontalIndicatorTab extends StatefulWidget {
   const HorizontalIndicatorTab({
     super.key,
@@ -67,21 +64,36 @@ class HorizontalIndicatorTab extends StatefulWidget {
   State<HorizontalIndicatorTab> createState() => _HorizontalIndicatorTabState();
 }
 
-class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> {
+class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final _TabWidthManager _widthManager = _TabWidthManager();
   late List<GlobalKey> _itemKeys;
 
-  // 修改：直接记录目标位置和宽度，交给 AnimatedPositioned 处理
-  double _targetLeft = 0.0;
-  double _targetWidth = 0.0;
+  // 优化点 1: 使用 AnimationController 替代 AnimatedPositioned，减少 Layout 触发
+  late AnimationController _animationController;
+  late Animation<double> _leftAnimation;
+  late Animation<double> _widthAnimation;
+
+  double _lastLeft = 0.0;
+  double _lastWidth = 0.0;
+
+  bool _isMeasured = false;
 
   @override
   void initState() {
     super.initState();
     _updateKeys();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    // 初始化动画对象
+    _leftAnimation = ConstantTween<double>(0.0).animate(_animationController);
+    _widthAnimation = ConstantTween<double>(0.0).animate(_animationController);
+
     widget.controller.selectedIndexNotifier.addListener(_onControllerIndexChanged);
-    // 第一帧后测量并初始化位置
     WidgetsBinding.instance.addPostFrameCallback((_) => _measureItemWidths(isInitial: true));
   }
 
@@ -102,11 +114,19 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> {
     _widthManager.updateWidths(widths);
 
     int cur = widget.controller.selectedIndex;
+    double targetL = _calculateIndicatorLeft(cur);
+    double targetW = _calculateIndicatorWidth(cur);
+
+    // 优化点 2: 初始状态直接跳过动画
+    setState(() {
+      _lastLeft = targetL;
+      _lastWidth = targetW;
+      _leftAnimation = ConstantTween<double>(targetL).animate(_animationController);
+      _widthAnimation = ConstantTween<double>(targetW).animate(_animationController);
+      _isMeasured = true;
+    });
+
     if (isInitial) {
-      setState(() {
-        _targetLeft = _calculateIndicatorLeft(cur);
-        _targetWidth = _calculateIndicatorWidth(cur);
-      });
       _autoScroll(cur, animate: false);
     }
   }
@@ -127,11 +147,21 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> {
     final int pos = widget.controller.selectedIndex;
     if (!mounted || !_widthManager.isReady) return;
 
-    // 修改点：直接更新目标状态，AnimatedPositioned 会处理时长为 300ms 的平滑过渡
-    setState(() {
-      _targetLeft = _calculateIndicatorLeft(pos);
-      _targetWidth = _calculateIndicatorWidth(pos);
-    });
+    double newLeft = _calculateIndicatorLeft(pos);
+    double newWidth = _calculateIndicatorWidth(pos);
+
+    // 优化点 3: 使用平滑动画曲线，并只在目标变化时启动动画
+    _leftAnimation = Tween<double>(begin: _lastLeft, end: newLeft).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.fastOutSlowIn),
+    );
+    _widthAnimation = Tween<double>(begin: _lastWidth, end: newWidth).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.fastOutSlowIn),
+    );
+
+    _lastLeft = newLeft;
+    _lastWidth = newWidth;
+
+    _animationController.forward(from: 0);
 
     widget.onSelectChanged(pos);
     _autoScroll(pos);
@@ -148,11 +178,13 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> {
     double itemOffset = _widthManager.getOffsetAt(pos);
 
     double target = itemOffset - (viewportWidth / 2) + (itemWidth / 2);
-    double maxScroll = _scrollController.position.maxScrollExtent;
-    target = target.clamp(0.0, maxScroll);
+    // 检查 maxScrollExtent 是否有效
+    if (_scrollController.position.hasContentDimensions) {
+      double maxScroll = _scrollController.position.maxScrollExtent;
+      target = target.clamp(0.0, maxScroll);
+    }
 
     if (animate) {
-      // 关键：滚动曲线必须与指示器动画曲线一致
       _scrollController.animateTo(
         target,
         duration: const Duration(milliseconds: 300),
@@ -172,6 +204,7 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> {
     }
     if (widget.size != oldWidget.size) {
       _updateKeys();
+      _isMeasured = false;
       WidgetsBinding.instance.addPostFrameCallback((_) => _measureItemWidths(isInitial: true));
     }
   }
@@ -179,6 +212,7 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> {
   @override
   void dispose() {
     widget.controller.selectedIndexNotifier.removeListener(_onControllerIndexChanged);
+    _animationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -187,6 +221,7 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> {
   Widget build(BuildContext context) {
     return Container(
       height: widget.height,
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: widget.bgColor,
         image: widget.bgImgPath != null
@@ -200,42 +235,42 @@ class _HorizontalIndicatorTabState extends State<HorizontalIndicatorTab> {
         child: Stack(
           alignment: Alignment.bottomLeft,
           children: [
-            // Tab 列表
-            ValueListenableBuilder<int>(
-              valueListenable: widget.controller.selectedIndexNotifier,
-              builder: (context, selectedIndex, _) {
-                return Row(
-                  children: List.generate(widget.size, (i) {
-                    return GestureDetector(
-                      key: _itemKeys[i],
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => widget.controller.select(i),
-                      child: widget.itemBuilder(context, i, i == selectedIndex),
-                    );
-                  }),
-                );
-              },
+            RepaintBoundary(
+              child: ValueListenableBuilder<int>(
+                valueListenable: widget.controller.selectedIndexNotifier,
+                builder: (context, selectedIndex, _) {
+                  return Row(
+                    children: List.generate(widget.size, (i) {
+                      return GestureDetector(
+                        key: _itemKeys[i],
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => widget.controller.select(i),
+                        child: widget.itemBuilder(context, i, i == selectedIndex),
+                      );
+                    }),
+                  );
+                },
+              ),
             ),
-            // 修改点：使用 AnimatedPositioned 代替手动 AnimationController
-            // 它能完美处理宽度变化与位移变化的同步
-            if (_widthManager.isReady)
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.fastOutSlowIn,
-                left: _targetLeft,
-                bottom: widget.indicatorAttr.bottomPadding,
-                child: IgnorePointer(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.fastOutSlowIn,
-                    width: _targetWidth,
-                    height: widget.indicatorAttr.height,
-                    decoration: BoxDecoration(
-                      color: widget.indicatorAttr.color,
-                      borderRadius: BorderRadius.circular(widget.indicatorAttr.height / 2),
+            // 优化点 4: 使用 AnimatedBuilder + Positioned，配合 Transform.translate 性能更佳
+            // 这里为了保持原有逻辑清晰，采用 Positioned 配合动画变量
+            if (_isMeasured)
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Positioned(
+                    left: _leftAnimation.value,
+                    bottom: widget.indicatorAttr.bottomPadding,
+                    child: Container(
+                      width: _widthAnimation.value,
+                      height: widget.indicatorAttr.height,
+                      decoration: BoxDecoration(
+                        color: widget.indicatorAttr.color,
+                        borderRadius: BorderRadius.circular(widget.indicatorAttr.height / 2),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
           ],
         ),
@@ -257,6 +292,7 @@ class HorizontalTabController {
 
   void select(int index) {
     if (selectedIndexNotifier.value == index) return;
+    if (_history.length > 20) _history.removeAt(0);
     _history.add(index);
     selectedIndexNotifier.value = index;
   }
@@ -268,6 +304,7 @@ class HorizontalTabController {
     }
   }
 
+  // 外部销毁
   void dispose() {
     selectedIndexNotifier.dispose();
   }
