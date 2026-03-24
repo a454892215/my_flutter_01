@@ -49,6 +49,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   String _memoryUsage = "0 MB";
   Timer? _timer;
   double imageMb = 0;
+  int cacheImageCount = 0;
   @override
   void initState() {
     super.initState();
@@ -96,8 +97,11 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   void _updateMemoryUsage() {
     if (!mounted) return;
     double rssMb = ProcessInfo.currentRss / (1024 * 1024);
-    imageMb = PaintingBinding.instance.imageCache.currentSizeBytes / (1024 * 1024);
-    setState(() => _memoryUsage = "${rssMb.toStringAsFixed(0)} MB");
+    setState((){
+      _memoryUsage = "${rssMb.toStringAsFixed(0)} MB";
+      imageMb = PaintingBinding.instance.imageCache.currentSizeBytes / (1024 * 1024);
+      cacheImageCount = PaintingBinding.instance.imageCache.currentSize;
+    });
   }
 
   @override
@@ -107,7 +111,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     // 使用抽取的包装容器
     return DraggableFloatingWidget(
       width: 110,
-      height: 130,
+      height: 140,
       child: RepaintBoundary(
         child: Material(
           elevation: 10,
@@ -127,6 +131,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
                 _buildInfoRow("FPS", _fps.toStringAsFixed(0), color: _fps < (refreshRate * 0.8) ? Colors.redAccent : Colors.greenAccent),
                 _buildInfoRow("RSS", _memoryUsage),
                 _buildInfoRow("imageMb", imageMb.toStringAsFixed(1)),
+                _buildInfoRow("imgCount", cacheImageCount.toStringAsFixed(0)),
                 const Divider(color: Colors.white10, height: 8),
               ],
             ),
