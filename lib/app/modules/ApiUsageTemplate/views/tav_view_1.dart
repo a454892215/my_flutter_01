@@ -110,9 +110,9 @@ class _TabView1State extends State<TabView1> {
               text: '中心弹窗-不允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, tag: dialogTag, isForceShow: true);
-                // Future.delayed(Duration(seconds: 5), (){
-                //   DialogUtil.dismiss(tag: dialogTag);
-                // });
+                Future.delayed(Duration(seconds: 5), (){
+                  GetxDialogUtil.dismiss(tag: dialogTag);
+                });
               },
             ),
             AppButton(
