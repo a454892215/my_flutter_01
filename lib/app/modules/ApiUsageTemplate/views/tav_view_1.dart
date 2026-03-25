@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../skin/app_skin.dart';
 import '../../../../skin/skin_factory.dart';
 import '../../../../skin/skin_manager.dart';
-import '../../../../util/dialog_util.dart';
+import '../../../../util/getx_dialog_util.dart';
 import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../component/app_button.dart';
 import '../../../component/text/text_def.dart';
@@ -47,7 +47,6 @@ class _TabView1State extends State<TabView1> {
       decoration: BoxDecoration(
         color: const Color(0xffffcccc),
         borderRadius: BorderRadius.circular(12.w),
-        border: Border.all(color: const Color(0xff000000), width: 1.w),
       ),
       child: Text(
         "弹窗1的内容",
@@ -103,14 +102,14 @@ class _TabView1State extends State<TabView1> {
               padding: EdgeInsets.all(10),
               text: '弹窗-允许用户关闭',
               onClick: () {
-                DialogUtil.show(dialogWidget, clickMaskDismiss: true);
+                GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag);
               },
             ),
             AppButton(
               padding: EdgeInsets.all(10),
               text: '弹窗-不允许用户关闭',
               onClick: () {
-                DialogUtil.show(dialogWidget, tag: dialogTag, clickMaskDismiss: false);
+                GetxDialogUtil.show(dialogWidget, tag: dialogTag, isForceShow: true);
                 // Future.delayed(Duration(seconds: 5), (){
                 //   DialogUtil.dismiss(tag: dialogTag);
                 // });

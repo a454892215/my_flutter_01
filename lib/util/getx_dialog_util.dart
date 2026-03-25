@@ -40,12 +40,16 @@ class GetxDialogUtil {
           // 生产环境建议加上 Material 保证文本样式不丢失
           child: Material(
             color: Colors.transparent,
+            elevation: 0, // 关键点：强制去掉阴影
             child: dialogWidget,
           ),
         ),
       ),
       barrierDismissible: isForceShow ? false : clickMaskDismiss,
       useSafeArea: true,
+      barrierColor: Color(0xaa000000),
+      transitionDuration: Duration(milliseconds: 250),
+      transitionCurve: Curves.easeInOut,
       // 生产环境务必保证 id 唯一，如果涉及多层 GetRouterOutlet
     );
 
