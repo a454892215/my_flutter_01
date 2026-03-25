@@ -13,6 +13,7 @@ class GetxDialogUtil {
         bool isBackAllowDismiss = true,
         bool clickMaskDismiss = true,
         bool isForceShow = false,
+        Alignment alignment = Alignment.center,
         String? tag,
       }) async {
     // 1. 规避重复弹出逻辑
@@ -35,7 +36,8 @@ class GetxDialogUtil {
             _activeDialogs.remove(tag);
           }
         },
-        child: Center(
+        child: Align(
+          alignment: alignment,
           child: Material(
             color: Colors.transparent,
             elevation: 0,

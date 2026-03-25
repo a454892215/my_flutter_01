@@ -100,19 +100,26 @@ class _TabView1State extends State<TabView1> {
             ),
             AppButton(
               padding: EdgeInsets.all(10),
-              text: '弹窗-允许用户关闭',
+              text: '中心弹窗-允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag);
               },
             ),
             AppButton(
               padding: EdgeInsets.all(10),
-              text: '弹窗-不允许用户关闭',
+              text: '中心弹窗-不允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, tag: dialogTag, isForceShow: true);
                 // Future.delayed(Duration(seconds: 5), (){
                 //   DialogUtil.dismiss(tag: dialogTag);
                 // });
+              },
+            ),
+            AppButton(
+              padding: EdgeInsets.all(10),
+              text: '底部弹窗-允许用户关闭',
+              onClick: () {
+                GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.bottomCenter);
               },
             ),
             HorizontalIndicatorTab(
