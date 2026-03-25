@@ -103,17 +103,17 @@ class _TabView1State extends State<TabView1> {
               padding: EdgeInsets.all(10),
               text: '弹窗-允许用户关闭',
               onClick: () {
-                DialogUtil.show(dialogWidget, isForceShow: false);
+                DialogUtil.show(dialogWidget, clickMaskDismiss: true);
               },
             ),
             AppButton(
               padding: EdgeInsets.all(10),
               text: '弹窗-不允许用户关闭',
               onClick: () {
-                DialogUtil.show(dialogWidget, tag: dialogTag, isForceShow: true);
-                Future.delayed(Duration(seconds: 5), (){
-                  DialogUtil.dismiss(tag: dialogTag);
-                });
+                DialogUtil.show(dialogWidget, tag: dialogTag, clickMaskDismiss: false);
+                // Future.delayed(Duration(seconds: 5), (){
+                //   DialogUtil.dismiss(tag: dialogTag);
+                // });
               },
             ),
             HorizontalIndicatorTab(
