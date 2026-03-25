@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
 
+import '../../../../widget/asset_image.dart';
+import '../../../../widget/banner.dart';
 import '../../../component/text/text_def.dart';
 import '../controllers/api_usage_template_drawer_controller.dart';
 
@@ -21,7 +23,15 @@ class TabView5 extends GetView<TemplateDrawerController> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          AppText(text: "TabView5",)
+          AppText(text: "TabView5"),
+          CommonBanner(
+            width: 1.sw,
+            height: 1.sw * 0.4,
+            itemCount: 4,
+            itemBuilder: (BuildContext context, int index) {
+              return AppAssetImage("assets/images/test/banner${index + 1}.webp", width: 1.sw);
+            },
+          ),
         ],
       ),
     );
