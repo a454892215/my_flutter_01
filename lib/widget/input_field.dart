@@ -4,229 +4,162 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+/// 抽离样式配置，减少 Widget 构造函数的臃肿
+class AppInputStyle {
+  final double? width;
+  final double? height;
+  final BoxDecoration? decoration;
+  final TextStyle? style;
+  final TextStyle? hintStyle;
+  final EdgeInsetsGeometry? contentPadding;
 
-//RegExp usernameRegExp = RegExp(r"^[a-zA-Z][a-zA-Z0-9]{4,13}$");
-RegExp usernameRegExp = RegExp(r"^[a-zA-Z0-9!#$@%&'*+/=?^_`{|}~.-]{4,64}$");
-RegExp pswRegExp = RegExp(r"^[0-9A-Za-z]{4,12}$");
-final phoneNumExp = RegExp(r"^[0-9]{8,20}$");
-RegExp inviteCodeRegExp = RegExp(r"^[A-Za-z0-9]{6,9}$");
-RegExp codeRegExp = RegExp(r"^[0-9]{4}$");
-RegExp telegramUsernameRegExp = RegExp(r"^@[a-zA-Z][a-zA-Z0-9_]{3,30}$");
-RegExp emailExp = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
-final upperCaseCharExp = RegExp(r"^[A-Z]$");
-
-List<TextInputFormatter>? userNameFormatterList = [
-  LengthLimitingTextInputFormatter(64),
-  // FilteringTextInputFormatter.allow(RegExp(r'[0-9a-zA-Z]')),
-];
-
-List<TextInputFormatter>? telegramUsernameFormatterList = [
-  LengthLimitingTextInputFormatter(32),
-  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_@]')),
-];
-
-List<TextInputFormatter>? passwordFormatterList = [
-  LengthLimitingTextInputFormatter(20),
-  FilteringTextInputFormatter.allow(RegExp(r'[0-9a-zA-Z]')),
-];
-
-List<TextInputFormatter>? phoneFormatterList = [
-  LengthLimitingTextInputFormatter(20),
-
-  /// 手机号输入格式化后带有空格，故正则限制中加入空格，如果不加入空格，光标位置会忽略空格
-  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-];
-
-List<TextInputFormatter>? codeFormatterList = [
-  LengthLimitingTextInputFormatter(6),
-  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-];
-
-List<TextInputFormatter>? emailFormatterList = [
-  LengthLimitingTextInputFormatter(64),
-];
-
-List<TextInputFormatter>? aliaFormatterList = [
-  LengthLimitingTextInputFormatter(20),
-  FilteringTextInputFormatter.allow(RegExp(r'[0-9A-Za-z ]')),
-];
-
-List<TextInputFormatter>? usdtAddressFormatterList = [
-  LengthLimitingTextInputFormatter(40),
-];
-
-List<TextInputFormatter>? verifyCodeFormatterList = [
-  LengthLimitingTextInputFormatter(4),
-];
-
-final FilteringTextInputFormatter pureNumFormatter = FilteringTextInputFormatter.allow(RegExp("[0-9]"));
-
-/// 手机号输入格式化后带有空格，故正则限制中加入空格，如果不加入空格，光标位置会忽略空格
-final FilteringTextInputFormatter phoneInputFormatter = FilteringTextInputFormatter.allow(RegExp("[0-9 ]"));
-
-class EditNode {
-  late FocusNode focusNode;
-  final hasFocus = false.obs;
-  late TextEditingController editController;
-  late final text = "".obs;
-  final enable = false.obs;
-  final obscureTextEnable = true.obs;
-  final isDisplayErrHint = false.obs;
-  final eyeIsOPen = false.obs;
-  RegExp? regExp;
-  /// 当错误的时候 不再主动校验，确认密码需要设置，因为这两个校验有连带关系，这里简化了校验规则, 否则确认密码和密码不一致也会通过
-  final bool isNotVerifyOnErr;
-
-  EditNode({this.regExp, this.isNotVerifyOnErr = false});
-
-  /// 返回输入是否OK
-  bool checkInput() {
-    /// 如果已经是错误状态，则不再主动校验
-    if (isNotVerifyOnErr && isDisplayErrHint.value) {
-      return false;
-    }
-    if (regExp != null) {
-      isDisplayErrHint.value = !regExp!.hasMatch(text.value);
-    }
-    return !isDisplayErrHint.value;
-  }
-
-  void reset() {
-    text.value = "";
-    isDisplayErrHint.value = false;
-    eyeIsOPen.value = false;
-    hasFocus.value = false;
-  }
-
-  _addeventHasFocus() {
-    hasFocus.value = focusNode.hasFocus;
-  }
-
-  initState() {
-    focusNode = FocusNode();
-    focusNode.addListener(_addeventHasFocus);
-    editController = TextEditingController(text: text.value);
-  }
-
-  dispose() {
-    focusNode.removeListener(_addeventHasFocus);
-    focusNode.dispose();
-    editController.dispose();
-  }
+  const AppInputStyle({
+    this.width,
+    this.height,
+    this.decoration,
+    this.style,
+    this.hintStyle,
+    this.contentPadding,
+  });
 }
 
-class MyInputFiled extends StatefulWidget {
-  const MyInputFiled({
-    super.key,
-    required this.width,
-    required this.height,
-    required this.hint,
-    this.prefix,
-    this.suffix,
-    required this.editNode,
-    this.inputFormatters,
-    this.keyboardType = TextInputType.text,
-    this.onTextChanged,
-    this.bgColor = Colors.black,
-    this.radius = 50,
-    this.hintStyle,
-    this.textStyle,
-    this.obscureText = false,
-    this.textDirection,
-    this.border,
-    this.editEnable = true,
-  });
-
-  final double width;
-  final double height;
-  final String hint;
-  final TextStyle? hintStyle;
-  final TextStyle? textStyle;
+class AppTextField extends StatelessWidget {
+  final AppInputController controller;
+  final String? hintText;
   final Widget? prefix;
   final Widget? suffix;
-  final double radius;
-  final Color? bgColor;
-  final BoxBorder? border;
-  final EditNode editNode;
-  final List<TextInputFormatter>? inputFormatters;
-  final TextInputType? keyboardType;
-  final ValueChanged<String>? onTextChanged;
-  final bool obscureText;
-  final TextDirection? textDirection;
-  final bool editEnable;
+  final bool isPassword;
+  final bool enabled; // 控制业务逻辑上的启用
+  final TextInputType keyboardType;
+  final List<TextInputFormatter>? formatters;
+  final ValueChanged<String>? onChanged;
+  final AppInputStyle? customStyle;
 
-  @override
-  State<MyInputFiled> createState() => _MyInputFiledState();
-}
-
-class _MyInputFiledState extends State<MyInputFiled> {
-  _addListener() {
-    widget.editNode.text.value = widget.editNode.editController.text;
-
-    if (widget.onTextChanged != null) {
-      widget.onTextChanged!(widget.editNode.text.value);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    //  Log.d('============初始化==============');
-    widget.editNode.initState();
-    widget.editNode.editController.addListener(_addListener);
-  }
-
-  @override
-  void dispose() {
-    widget.editNode.editController.removeListener(_addListener);
-    widget.editNode.dispose();
-    // Log.d('==============销毁====================');
-    super.dispose();
-  }
+  const AppTextField({
+    super.key,
+    required this.controller,
+    this.hintText,
+    this.prefix,
+    this.suffix,
+    this.isPassword = false,
+    this.enabled = true,
+    this.keyboardType = TextInputType.text,
+    this.formatters,
+    this.onChanged,
+    this.customStyle,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      // borderRadius: BorderRadius.circular(widget.radius),
-      child: Stack(
-        children: [
-          Container(
-            width: widget.width,
-            height: widget.height,
-            decoration: BoxDecoration(color: widget.bgColor, borderRadius: BorderRadius.circular(widget.radius), border: widget.border),
-            alignment: Alignment.center,
-            padding: EdgeInsets.only(left: 8.w),
-            child: CupertinoTextField(
-              controller: widget.editNode.editController,
-              focusNode: widget.editNode.focusNode,
-              textDirection: widget.textDirection,
-              style: widget.textStyle ?? TextStyle(color: Colors.white, fontSize: 28.w),
-              keyboardType: widget.keyboardType,
-              decoration: const BoxDecoration(color: Colors.transparent),
-              placeholder: widget.hint,
-              textAlignVertical: TextAlignVertical.center,
-              textAlign: TextAlign.start,
-              placeholderStyle: widget.hintStyle ?? TextStyle(color: const Color.fromRGBO(255, 255, 255, 0.4), fontSize: 28.w),
-              cursorColor: Colors.white,
-              cursorHeight: 32.w,
-              maxLines: 1,
-              obscureText: widget.obscureText,
-              maxLength: 32,
-              prefix: widget.prefix,
-              suffix: widget.suffix,
-              padding: EdgeInsets.only(left: 10.w),
-              // suffix: delView(),
-              inputFormatters: widget.inputFormatters,
-            ),
+    // 性能优化：使用 IgnorePointer 替代 Opacity 层的 Stack 遮盖
+    // 禁用时通过颜色变灰，避免使用 Opacity 组件触发 saveLayer
+    return IgnorePointer(
+      ignoring: !enabled,
+      child: Obx(() {
+        final bool isErr = controller.isError.value;
+        final bool obscure = isPassword && controller.isObscure.value;
+
+        // 动态计算颜色，避免离屏渲染
+        final Color bgColor = (customStyle?.decoration?.color ?? const Color(0xFFF5F5F5));
+        final Color displayBgColor = enabled ? bgColor : bgColor.withValues(alpha: 0.6);
+        final Color displayTextColor = (customStyle?.style?.color ?? Colors.black).withValues(alpha: enabled ? 1.0 : 0.5);
+
+        return Container(
+          width: customStyle?.width ?? double.infinity,
+          height: customStyle?.height ?? 88.h,
+          decoration: (customStyle?.decoration ?? BoxDecoration(
+            borderRadius: BorderRadius.circular(44.w),
+          )).copyWith(
+            color: displayBgColor,
+            // 错误逻辑合并到内部，保持外观统一
+            border: isErr
+                ? Border.all(color: Colors.red, width: 1.w)
+                : customStyle?.decoration?.border,
           ),
-          if (!widget.editEnable)
-            Container(
-              width: widget.width,
-              height: widget.height,
-              color: Colors.transparent,
-            ),
-        ],
-      ),
+          alignment: Alignment.center,
+          child: CupertinoTextField(
+            controller: controller.textController,
+            focusNode: controller.focusNode,
+            enabled: enabled,
+            obscureText: obscure,
+            keyboardType: keyboardType,
+            inputFormatters: formatters,
+            onChanged: (val) {
+              // 修改点：输入时自动清除错误状态，提升用户体验
+              if (controller.isError.value) controller.isError.value = false;
+              onChanged?.call(val);
+            },
+            style: (customStyle?.style ?? TextStyle(fontSize: 28.sp)).copyWith(color: displayTextColor),
+            placeholder: hintText,
+            placeholderStyle: customStyle?.hintStyle ?? TextStyle(color: Colors.grey, fontSize: 28.sp),
+            cursorColor: Theme.of(context).primaryColor,
+            // 修改点：垂直对齐优化，解决部分机型文字偏移问题
+            textAlignVertical: TextAlignVertical.center,
+            padding: customStyle?.contentPadding ?? EdgeInsets.symmetric(horizontal: 20.w),
+            decoration: const BoxDecoration(color: Colors.transparent),
+            prefix: prefix,
+            suffix: _buildSuffix(),
+          ),
+        );
+      }),
     );
+  }
+
+  Widget? _buildSuffix() {
+    if (isPassword) {
+      return GestureDetector(
+        // 增加点击区域
+        behavior: HitTestBehavior.opaque,
+        onTap: controller.toggleObscure,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+          child: Icon(
+            controller.isObscure.value ? Icons.visibility_off : Icons.visibility,
+            size: 36.w,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+    return suffix;
+  }
+}
+
+/// 控制器逻辑保持纯粹
+class AppInputController {
+  final TextEditingController textController;
+  final FocusNode focusNode;
+  final RegExp? regExp;
+
+  final text = "".obs;
+  final isError = false.obs;
+  final isObscure = true.obs;
+
+  AppInputController({
+    String? initialText,
+    this.regExp,
+    FocusNode? focusNode,
+    TextEditingController? controller,
+  })  : textController = controller ?? TextEditingController(text: initialText),
+        focusNode = focusNode ?? FocusNode() {
+    textController.addListener(_handleTextChange);
+  }
+
+  void _handleTextChange() {
+    text.value = textController.text;
+  }
+
+  bool validate() {
+    if (regExp == null) return true;
+    isError.value = !regExp!.hasMatch(text.value);
+    return !isError.value;
+  }
+
+  void toggleObscure() => isObscure.value = !isObscure.value;
+
+  void dispose() {
+    textController.removeListener(_handleTextChange);
+    textController.dispose();
+    focusNode.dispose();
   }
 }
