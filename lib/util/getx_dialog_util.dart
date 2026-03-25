@@ -51,15 +51,7 @@ class GetxDialogUtil {
                   parent: animation,
                   curve: const Interval(0.0, 0.8, curve: Curves.easeInOut), // 透明度先完成
                 ),
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.5, end: 1.0).animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeInOut,
-                    ),
-                  ),
-                  child: dialogWidget,
-                ),
+                child: _buildTransition(animation, alignment, dialogWidget),
               );
             }),
           ),
@@ -74,12 +66,40 @@ class GetxDialogUtil {
       transitionCurve: Curves.easeOut,
     );
 
-    // 3. 执行到这里 弹窗已经触发关闭了，确保任何路径关闭弹窗后都能清理 tag
+    /// 3. 执行到这里 弹窗已经触发关闭了，确保任何路径关闭弹窗后都能清理 tag
     if (tag != null) {
       _activeDialogs.remove(tag);
     }
 
     return result;
+  }
+
+  /// 内部私有方法：根据位置选择最合适的动画
+  static Widget _buildTransition(Animation<double> animation, Alignment alignment, Widget child) {
+    // 如果位置在底部，执行位移动画
+    if (alignment == Alignment.bottomCenter || alignment == Alignment.bottomLeft || alignment == Alignment.bottomRight) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 1), // 从屏幕外底部开始 (y=1)
+          end: Offset.zero,          // 移动到原始位置 (y=0)
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOut, // 底部弹出通常使用减速曲线，手感更丝滑
+        )),
+        child: child,
+      );
+    }
+
+    // 默认（中间弹出）执行缩放动画
+    return ScaleTransition(
+      scale: Tween<double>(begin: 0.5, end: 1.0).animate(
+        CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOut,
+        ),
+      ),
+      child: child,
+    );
   }
 
   /// 关闭弹窗
