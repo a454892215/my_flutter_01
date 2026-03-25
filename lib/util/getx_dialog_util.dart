@@ -17,43 +17,62 @@ class GetxDialogUtil {
       }) async {
     // 1. 规避重复弹出逻辑
     if (tag != null && _activeDialogs.containsKey(tag)) {
-      // 如果已存在相同 tag，视业务而定：是直接返回还是关闭旧的弹出新的
-      // 这里建议直接返回，防止 UI 闪烁
       debugPrint('GetxDialogUtil: Tag [$tag] is already showing.');
       return null;
     }
 
     if (tag != null) _activeDialogs[tag] = true;
-
     // 确定拦截逻辑
     final bool canPop = isForceShow ? false : isBackAllowDismiss;
 
-    // 2. 使用 Get.dialog 的返回结果作为清理时机
+    // 2. 使用 Get.dialog
+    // 注意：通过 navigator 中的 route.animation 来驱动内部组件动画，性能最优
     final T? result = await Get.dialog<T>(
       PopScope(
         canPop: canPop,
         onPopInvokedWithResult: (didPop, result) {
-          // 仅用于物理返回键触发后的状态清理尝试
-          if (didPop && tag != null) _activeDialogs.remove(tag);
+          if (didPop && tag != null) {
+            _activeDialogs.remove(tag);
+          }
         },
         child: Center(
-          // 生产环境建议加上 Material 保证文本样式不丢失
           child: Material(
             color: Colors.transparent,
-            elevation: 0, // 关键点：强制去掉阴影
-            child: dialogWidget,
+            elevation: 0,
+            // 使用 Get.dialog 提供的 Transition 构建器
+            // 这种方式直接复用路由动画的 AnimationController，无需额外创建 Builder
+            child: Builder(builder: (context) {
+              // 获取当前路由的动画对象
+              final Animation<double> animation = ModalRoute.of(context)!.animation!;
+              return FadeTransition(
+                opacity: CurvedAnimation(
+                  parent: animation,
+                  curve: const Interval(0.0, 0.8, curve: Curves.easeInOut), // 透明度先完成
+                ),
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.5, end: 1.0).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOut,
+                    ),
+                  ),
+                  child: dialogWidget,
+                ),
+              );
+            }),
           ),
         ),
       ),
       barrierDismissible: isForceShow ? false : clickMaskDismiss,
       useSafeArea: true,
-      barrierColor: Color(0xaa000000),
-      transitionDuration: Duration(milliseconds: 250),
-      transitionCurve: Curves.easeInOut,
-      // 生产环境务必保证 id 唯一，如果涉及多层 GetRouterOutlet
+      barrierColor: const Color(0xaa000000),
+      // 适当延长动画时间以体现过渡效果
+      transitionDuration: const Duration(milliseconds: 300),
+      // 这里的 transitionCurve 是背景遮罩的动画曲线
+      transitionCurve: Curves.easeOut,
     );
 
-    // 3. 确保任何路径关闭弹窗后都能清理 tag
+    // 3. 执行到这里 弹窗已经触发关闭了，确保任何路径关闭弹窗后都能清理 tag
     if (tag != null) {
       _activeDialogs.remove(tag);
     }
