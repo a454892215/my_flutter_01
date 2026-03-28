@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter_comm/util/performance_monitor/ui_perf_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
+
 /// flutter devTools 的memory监控中的关键指标及其含义
 /// RSS(Resident Set Size):这是操作系统分配给该进程的实际物理内存总量.
 ///                        它包含了应用运行所需的所有资源：Dart堆内存、Flutter引擎内存、原生平台（Android/iOS）内存、加载的动态库、字体、以及正在解码的图片等
@@ -25,12 +25,14 @@ class PerfMonitor {
 
   static void start(BuildContext context) {
     if (_entry != null) return;
+    UIRenderPerfProvider().start();
     _entry = OverlayEntry(builder: (context) => const PerfMonitorWidget());
     Overlay.of(context).insert(_entry!);
   }
 
   static void stop() {
     _entry?.remove();
+    UIRenderPerfProvider().stop();
     _entry = null;
   }
 }
@@ -43,64 +45,48 @@ class PerfMonitorWidget extends StatefulWidget {
 }
 
 class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
-  // 性能采样配置
-  final int _sampleSize = 25;
-  final ListQueue<FrameTiming> _timingsWindow = ListQueue();
-
-  double _fps = 60.0;
   String _memoryUsage = "0 MB";
   Timer? _timer;
   double imageMb = 0;
   int cacheImageCount = 0;
+  UIRenderMetrics? metrics;
+
   @override
   void initState() {
     super.initState();
-    // 如果页面静止，没有刷新addTimingsCallback不会回调
-    SchedulerBinding.instance.addTimingsCallback(_onFrameTimings);
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _updateMemoryUsage();
-      if (_timingsWindow.isEmpty) {
-        setState(() => _fps = _getDeviceRefreshRate());
-      }
     });
+    UIRenderPerfProvider().addListener(_onFrameFinished);
+  }
+// 修改点 1: 增加节流控制。FPS/耗时不需要每帧都 setState，否则 UI 线程会一直忙于刷新监控文字
+  DateTime _lastUiUpdateTime = DateTime.now();
+  final Duration _uiUpdateInterval = const Duration(milliseconds: 500);
+
+  void _onFrameFinished(UIRenderMetrics newMetrics) {
+    if (!mounted) return;
+    // 修改点 2: 节流逻辑。每 500ms 刷新一次面板数据，避免监控组件自身的 build 占用过多 UI 耗时
+    final now = DateTime.now();
+    if (now.difference(_lastUiUpdateTime) > _uiUpdateInterval) {
+      setState(() {
+        metrics = newMetrics;
+        _lastUiUpdateTime = now;
+      });
+    }
   }
 
   @override
   void dispose() {
-    SchedulerBinding.instance.removeTimingsCallback(_onFrameTimings);
+    UIRenderPerfProvider().removeListener(_onFrameFinished);
     _timer?.cancel();
     super.dispose();
-  }
-
-  double _getDeviceRefreshRate() => PlatformDispatcher.instance.views.first.display.refreshRate;
-
-  /// 计算屏幕刷新率
-  void _onFrameTimings(List<FrameTiming> timings) {
-    if (!mounted) return;
-    for (var timing in timings) {
-      _timingsWindow.addLast(timing);
-      if (_timingsWindow.length > _sampleSize) _timingsWindow.removeFirst();
-    }
-    if (_timingsWindow.isEmpty) return;
-
-    double avgUs = _timingsWindow.fold(0.0, (sum, t) => sum + t.totalSpan.inMicroseconds) / _timingsWindow.length;
-    int maxUs = _timingsWindow.map((t) => t.totalSpan.inMicroseconds).reduce((a, b) => a > b ? a : b);
-
-    // 70% 平均 + 30% 最差帧混合算法，兼顾平滑与卡顿监测
-    double blendedMs = (avgUs * 0.7 + maxUs * 0.3) / 1000.0;
-    double currentFps = 1000.0 / blendedMs;
-    double deviceMax = _getDeviceRefreshRate();
-
-    setState(() {
-      _fps = currentFps.clamp(0.0, deviceMax);
-    });
   }
 
   /// 更新 rssMb 内存信息
   void _updateMemoryUsage() {
     if (!mounted) return;
     double rssMb = ProcessInfo.currentRss / (1024 * 1024);
-    setState((){
+    setState(() {
       _memoryUsage = "${rssMb.toStringAsFixed(0)} MB";
       imageMb = PaintingBinding.instance.imageCache.currentSizeBytes / (1024 * 1024);
       cacheImageCount = PaintingBinding.instance.imageCache.currentSize;
@@ -109,18 +95,16 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final refreshRate = _getDeviceRefreshRate();
-
     // 使用抽取的包装容器
     return DraggableFloatingWidget(
-      width: 110,
-      height: 150,
+      width: 180,
+      height: 180,
       child: RepaintBoundary(
         child: Material(
           elevation: 10,
           color: Colors.transparent,
           child: Container(
-            width: 110,
+            width: 180,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: const Color(0xFF1E1E1E).withAlpha(188),
@@ -133,19 +117,17 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
               children: [
                 Center(
                   child: Text(
-                      getEnvironmentName(),
-                      style: TextStyle(
-                        fontSize: 24.w,
-                        color: const Color(0xffcccccc),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+                    getEnvironmentName(),
+                    style: TextStyle(fontSize: 24.w, color: const Color(0xffcccccc), fontWeight: FontWeight.w400),
+                  ),
                 ),
                 const Divider(color: Colors.white10, height: 8),
-                _buildInfoRow("FPS", _fps.toStringAsFixed(0), color: _fps < (refreshRate * 0.8) ? Colors.redAccent : Colors.greenAccent),
                 _buildInfoRow("RSS", _memoryUsage),
                 _buildInfoRow("imageMb", imageMb.toStringAsFixed(1)),
                 _buildInfoRow("imgCount", cacheImageCount.toStringAsFixed(0)),
+                _buildInfoRow("UI Thread", "${metrics?.uiDurationMs.toStringAsFixed(1)}ms"),
+                _buildInfoRow("Raster Thread", "${metrics?.rasterDurationMs.toStringAsFixed(1)}ms"),
+                _buildInfoRow(metrics?.isJank ?? false ? "JANKING" : "STABLE", "--"),
                 const Divider(color: Colors.white10, height: 8),
               ],
             ),

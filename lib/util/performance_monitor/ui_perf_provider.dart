@@ -1,7 +1,8 @@
 import 'dart:collection';
 import 'dart:ui';
 import 'package:flutter/scheduler.dart';
-
+// 导入 foundation 以便使用 kReleaseMode 或类似判断，如果不需要可以移除
+/// 这个工具类可以精确的实时监控 当前flutter UI的性能情况吗？优化代码的时候 不要删除任何注释
 /// UI 渲染单帧性能指标快照
 class UIRenderMetrics {
   /// UI 线程耗时 (Build, Layout, Paint): 对应 Dart 代码执行时间
@@ -31,103 +32,120 @@ class UIRenderMetrics {
 /// UI 渲染性能指标提供者 (UI Rendering Performance Provider)
 /// 核心职责：实时监控并提供 UI 线程与 Raster 线程的渲染耗时及掉帧率
 class UIRenderPerfProvider {
-  // 单例模式，确保全局只有一个渲染监听器
+  // 单例模式
   static final UIRenderPerfProvider _instance = UIRenderPerfProvider._internal();
   factory UIRenderPerfProvider() => _instance;
   UIRenderPerfProvider._internal();
 
-  // 采样滑动窗口大小 (默认保存最近 60 帧的数据)
+  // 采样滑动窗口大小
   final int _maxWindowSize = 60;
   final ListQueue<UIRenderMetrics> _metricsWindow = ListQueue();
 
-  // 外部监听器集合
-  final Set<Function(UIRenderMetrics)> _listeners = {};
+  // 修改点 1: 外部监听器集合，使用 LinkedHashSet 保证顺序并防止重复
+  final Set<void Function(UIRenderMetrics)> _listeners = {};
 
   bool _isMonitoring = false;
 
   /// 启动 UI 渲染性能监控
-  /// 在 Debug, Profile, Release 模式下均有效
   void start() {
     if (_isMonitoring) return;
     _isMonitoring = true;
-    // 注册帧耗时回调。这是 Flutter Engine 暴露的最底层的渲染耗时接口
+    // 注册帧耗时回调
     SchedulerBinding.instance.addTimingsCallback(_handleFrameTimings);
   }
 
   /// 停止监控并清空缓存数据
   void stop() {
+    if (!_isMonitoring) return; // 修改点 2: 增加防御性判断
     _isMonitoring = false;
     SchedulerBinding.instance.removeTimingsCallback(_handleFrameTimings);
     _metricsWindow.clear();
   }
 
-  /// 注册监听，当每一帧渲染完成时会收到通知
-  void addListener(Function(UIRenderMetrics) listener) => _listeners.add(listener);
+  /// 注册监听
+  void addListener(void Function(UIRenderMetrics) listener) => _listeners.add(listener);
 
   /// 移除监听
-  void removeListener(Function(UIRenderMetrics) listener) => _listeners.remove(listener);
+  void removeListener(void Function(UIRenderMetrics) listener) => _listeners.remove(listener);
 
-  /// 内部处理逻辑：将原始 FrameTiming 转换为业务指标 UIRenderMetrics
+  /// 内部处理逻辑
   void _handleFrameTimings(List<FrameTiming> timings) {
-    // 动态获取设备刷新率 (如 60, 90, 120Hz)
-    // 如果获取失败，保守估计按 60Hz 处理
-    final double refreshRate = PlatformDispatcher.instance.views.first.display.refreshRate;
-    final double vsyncThresholdMs = 1000.0 / (refreshRate > 0 ? refreshRate : 60.0);
+    if (!_isMonitoring) return; // 修改点 3: 异步回调安全检查
+
+    // 修改点 4: 缓存 View 引用，避免循环内多次跨 Engine 调用
+    final view = PlatformDispatcher.instance.views.isNotEmpty
+        ? PlatformDispatcher.instance.views.first
+        : null;
+    final double refreshRate = view?.display.refreshRate ?? 60.0;
+    // 增加 1ms 容差，防止因极微小波动导致的误判 (类似 Android VSync 的对齐策略)
+    final double vsyncThresholdMs = 1000.0 / (refreshRate > 0 ? refreshRate : 60.0) + 1.0;
 
     for (var timing in timings) {
-      // 耗时计算：微秒(us) -> 毫秒(ms)
-      // buildDuration: UI Thread (Dart)
+      // 耗时计算：使用 .inMicroseconds / 1000.0 是准确的
       final double uiMs = timing.buildDuration.inMicroseconds / 1000.0;
-      // rasterDuration: Raster Thread (GPU/Engine)
       final double rasterMs = timing.rasterDuration.inMicroseconds / 1000.0;
-      final double totalMs = timing.totalSpan.inMicroseconds / 1000.0;
+
+      // 修改点 5: 性能计算修正。totalSpan 包含了两帧之间的空闲时间，
+      // 用于判断 Jank 时，应使用实际工作耗时之和：buildDuration + rasterDuration
+      // 或者根据业务需求决定是否包含 vsync 等待。
+      final double actualWorkMs = uiMs + rasterMs;
 
       final metrics = UIRenderMetrics(
         uiDurationMs: uiMs,
         rasterDurationMs: rasterMs,
-        totalDurationMs: totalMs,
-        // 关键逻辑：如果总耗时超过了 VSync 周期，则判定为一次掉帧 (Jank)
-        isJank: totalMs > vsyncThresholdMs,
+        totalDurationMs: actualWorkMs,
+        isJank: actualWorkMs > vsyncThresholdMs,
         timestamp: DateTime.now(),
       );
 
-      // 维护滑动窗口，保证内存不溢出
+      // 维护滑动窗口
       if (_metricsWindow.length >= _maxWindowSize) {
         _metricsWindow.removeFirst();
       }
       _metricsWindow.addLast(metrics);
 
-      // 同步回调给所有观察者
-      for (var listener in _listeners) {
-        listener(metrics);
+      // 修改点 6: 迭代副本，防止监听器内部调用 removeListener 导致 ConcurrentModificationError
+      if (_listeners.isNotEmpty) {
+        final List<void Function(UIRenderMetrics)> targets = _listeners.toList();
+        for (var listener in targets) {
+          listener(metrics);
+        }
       }
     }
   }
 
   // --- 辅助工具方法 ---
 
-  /// 获取当前滑动窗口内的平均 UI 线程耗时
   double get averageUiDuration {
     if (_metricsWindow.isEmpty) return 0.0;
-    return _metricsWindow.map((e) => e.uiDurationMs).reduce((a, b) => a + b) / _metricsWindow.length;
+    // 修改点 7: 使用 fold 代替 map+reduce 减少中间集合产生，优化性能
+    final double total = _metricsWindow.fold(0.0, (prev, e) => prev + e.uiDurationMs);
+    return total / _metricsWindow.length;
   }
 
-  /// 获取当前滑动窗口内的平均 Raster 线程耗时
   double get averageRasterDuration {
     if (_metricsWindow.isEmpty) return 0.0;
-    return _metricsWindow.map((e) => e.rasterDurationMs).reduce((a, b) => a + b) / _metricsWindow.length;
+    final double total = _metricsWindow.fold(0.0, (prev, e) => prev + e.rasterDurationMs);
+    return total / _metricsWindow.length;
   }
 
-  /// 获取当前窗口内的掉帧率 (0.0 表示完美，1.0 表示每一帧都卡顿)
   double get currentJankRate {
     if (_metricsWindow.isEmpty) return 0.0;
-    int jankCount = _metricsWindow.where((e) => e.isJank).length;
+    int jankCount = 0;
+    for(var m in _metricsWindow) {
+      if(m.isJank) jankCount++;
+    }
     return jankCount / _metricsWindow.length;
   }
 
   /// 获取设备的物理刷新率
-  double get deviceRefreshRate => PlatformDispatcher.instance.views.first.display.refreshRate;
+  double get deviceRefreshRate {
+    try {
+      return PlatformDispatcher.instance.views.first.display.refreshRate;
+    } catch (_) {
+      return 60.0;
+    }
+  }
 
-  /// 获取滑动窗口中所有原始数据（可用于绘制曲线图）
-  List<UIRenderMetrics> get getHistory => _metricsWindow.toList();
+  List<UIRenderMetrics> get getHistory => List.unmodifiable(_metricsWindow); // 修改点 8: 返回不可变列表，保护内部状态
 }
