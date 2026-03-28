@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../widget/perf_monitor.dart';
+import '../../../../util/performance_monitor/perf_monitor.dart';
 import '../../../base/base_controller.dart';
 
 class ApiUsageTemplateController extends BaseController

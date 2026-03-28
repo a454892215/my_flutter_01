@@ -55,6 +55,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   @override
   void initState() {
     super.initState();
+    // 如果页面静止，没有刷新addTimingsCallback不会回调
     SchedulerBinding.instance.addTimingsCallback(_onFrameTimings);
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _updateMemoryUsage();

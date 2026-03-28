@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 
-import '../../../../widget/perf_monitor.dart';
+import '../../../../util/performance_monitor/perf_monitor.dart';
 import '../../../base/base_controller.dart';
 
 class HomeController extends BaseController {
