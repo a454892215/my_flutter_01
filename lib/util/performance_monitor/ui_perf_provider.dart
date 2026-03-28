@@ -21,6 +21,22 @@ class UIRenderMetrics {
   final DateTime timestamp;
 
   UIRenderMetrics({
+    /// UI 线程耗时 (Build, Layout, Paint): 对应 Dart 代码执行时间
+    ///
+    /// [定义]: UI Isolate 在被 VSync 信号唤醒后，执行一次完整“渲染流水线” (Rendering Pipeline) 的同步耗时。
+    /// 包含: 动画(Animate)、构建(Build)、布局(Layout)、绘制指令录制(Paint)。
+    ///
+    /// [注意]:
+    /// 1. 此指标仅记录 UI 线程任务，不包含 Raster (GPU) 线程耗时。
+    /// 2. 必须在 Profile 或 Release 模式下评估，Debug 模式因 JIT 编译会导致数值异常偏大。
+    /// 3. 如果 UI 线程被非渲染任务(如复杂计算)阻塞，会导致 VSync 延迟处理，此值可能表现正常但 totalSpan 会激增。
+    /// totalSpan：指从 VSync 信号唤醒 UI 线程起，直到 Raster 线程完成渲染并通知系统显示（第 N 帧任务结束）的总物理时间跨度
+    /// [性能基准参照表]:
+    /// 屏幕刷新率 | VSync 周期 | 性能优异 (Green) | 性能一般 (Yellow) | 性能危险 (Red)
+    /// -----------------------------------------------------------------------
+    ///   60Hz    |   16.6ms   |      < 8ms      |    8ms ~ 13ms   |    > 14ms
+    ///   90Hz    |   11.1ms   |      < 5ms      |    5ms ~ 8ms    |    > 9ms
+    ///   120Hz   |   8.3ms    |      < 4ms      |    4ms ~ 6ms    |    > 7ms
     required this.uiDurationMs,
     required this.rasterDurationMs,
     required this.totalDurationMs,
