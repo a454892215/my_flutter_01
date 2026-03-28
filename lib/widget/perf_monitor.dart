@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 /// flutter devTools 的memory监控中的关键指标及其含义
 /// RSS(Resident Set Size):这是操作系统分配给该进程的实际物理内存总量.
@@ -18,6 +19,7 @@ import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 ///               Raster Layer： 指合成渲染层（Layers）时消耗的内存。
 ///               Raster Picture： 指被缓存的绘制指令（Display Lists）或录制好的图片。
 ///当前 flutter sdk 版本：3.38.8， profile模式下 无法获取Dart/Flutter内存
+/// flutter sdk 版本：3.38.8 新建的空项目 内存消耗情况： debug:354M, profile:226M, release:192
 class PerfMonitor {
   static OverlayEntry? _entry;
 
@@ -111,7 +113,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     // 使用抽取的包装容器
     return DraggableFloatingWidget(
       width: 110,
-      height: 140,
+      height: 150,
       child: RepaintBoundary(
         child: Material(
           elevation: 10,
@@ -128,6 +130,17 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(
+                  child: Text(
+                      getEnvironmentName(),
+                      style: TextStyle(
+                        fontSize: 24.w,
+                        color: const Color(0xffcccccc),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                ),
+                const Divider(color: Colors.white10, height: 8),
                 _buildInfoRow("FPS", _fps.toStringAsFixed(0), color: _fps < (refreshRate * 0.8) ? Colors.redAccent : Colors.greenAccent),
                 _buildInfoRow("RSS", _memoryUsage),
                 _buildInfoRow("imageMb", imageMb.toStringAsFixed(1)),
@@ -152,5 +165,16 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
         ),
       ],
     );
+  }
+
+  static String getEnvironmentName() {
+    if (kReleaseMode) {
+      return "Release";
+    } else if (kProfileMode) {
+      return "Profile";
+    } else if (kDebugMode) {
+      return "Debug";
+    }
+    return "unknown";
   }
 }
