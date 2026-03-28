@@ -22,7 +22,7 @@ class PerfMonitor {
   static OverlayEntry? _entry;
 
   static void start(BuildContext context) {
-    if (_entry != null || kReleaseMode) return;
+    if (_entry != null) return;
     _entry = OverlayEntry(builder: (context) => const PerfMonitorWidget());
     Overlay.of(context).insert(_entry!);
   }
