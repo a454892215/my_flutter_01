@@ -95,8 +95,6 @@ class UIRenderPerfProvider {
   final int _maxWindowSize = 60;
   final ListQueue<UIRenderMetrics> _metricsWindow = ListQueue();
 
-  // 外部监听器集合，使用 LinkedHashSet 保证顺序并防止重复
-  final Set<void Function(UIRenderMetrics)> _listeners = {};
 
   bool _isMonitoring = false;
 
@@ -104,7 +102,9 @@ class UIRenderPerfProvider {
   void start() {
     if (_isMonitoring) return;
     _isMonitoring = true;
-    // 注册帧耗时回调
+    /// 注册帧耗时回调
+    /// lutter 引擎为了减少 Dart 与 Native 层的通信开销（Context Switch），会将多帧的 FrameTiming 数据攒在一起，在一个微任务（Microtask）
+    /// 中批量回调,如果屏幕完全静止（没有动画，没有手势，没有输入），Flutter 不会触发重绘，也就不会产生 FrameTiming，此时该方法调用次数为 0
     SchedulerBinding.instance.addTimingsCallback(_handleFrameTimings);
   }
 
@@ -115,12 +115,6 @@ class UIRenderPerfProvider {
     SchedulerBinding.instance.removeTimingsCallback(_handleFrameTimings);
     _metricsWindow.clear();
   }
-
-  /// 注册监听
-  void addListener(void Function(UIRenderMetrics) listener) => _listeners.add(listener);
-
-  /// 移除监听
-  void removeListener(void Function(UIRenderMetrics) listener) => _listeners.remove(listener);
 
   /// 内部处理逻辑
   void _handleFrameTimings(List<FrameTiming> timings) {
@@ -156,14 +150,6 @@ class UIRenderPerfProvider {
         _metricsWindow.removeFirst();
       }
       _metricsWindow.addLast(metrics);
-
-      // 修改点 6: 迭代副本，防止监听器内部调用 removeListener 导致 ConcurrentModificationError
-      if (_listeners.isNotEmpty) {
-        final List<void Function(UIRenderMetrics)> targets = _listeners.toList();
-        for (var listener in targets) {
-          listener(metrics);
-        }
-      }
     }
   }
 
@@ -201,4 +187,8 @@ class UIRenderPerfProvider {
   }
 
   List<UIRenderMetrics> get getHistory => List.unmodifiable(_metricsWindow); // 修改点 8: 返回不可变列表，保护内部状态
+
+  UIRenderMetrics? getLastUIRenderMetrics(){
+    return _metricsWindow.lastOrNull;
+  }
 }

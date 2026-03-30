@@ -30,14 +30,12 @@ class PerfMonitor {
 
   static void start(BuildContext context) {
     if (_entry != null) return;
-    UIRenderPerfProvider().start();
     _entry = OverlayEntry(builder: (context) => const PerfMonitorWidget());
     Overlay.of(context).insert(_entry!);
   }
 
   static void stop() {
     _entry?.remove();
-    UIRenderPerfProvider().stop();
     _entry = null;
   }
 }
@@ -54,7 +52,6 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   Timer? _timer;
   double imageMb = 0;
   int cacheImageCount = 0;
-  UIRenderMetrics? metrics;
 
   late ExecutionTimer executionTimer;
 
@@ -62,47 +59,30 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   void initState() {
     super.initState();
     executionTimer = ExecutionTimer();
+    UIRenderPerfProvider().start();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       executionTimer.start();
     });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _updateMemoryUsage();
+      _updateInfo();
     });
-    UIRenderPerfProvider().addListener(_onFrameFinished);
     // 开启常亮
     WakelockPlus.enable();
     Log.d("=====性能监控组件初始化完毕======initState====");
   }
 
-  // 修改点 1: 增加节流控制。FPS/耗时不需要每帧都 setState，否则 UI 线程会一直忙于刷新监控文字
-  DateTime _lastUiUpdateTime = DateTime.now();
-  final Duration _uiUpdateInterval = const Duration(milliseconds: 500);
-
-  void _onFrameFinished(UIRenderMetrics newMetrics) {
-    if (!mounted) return;
-    // 修改点 2: 节流逻辑。每 500ms 刷新一次面板数据，避免监控组件自身的 build 占用过多 UI 耗时
-    final now = DateTime.now();
-    if (now.difference(_lastUiUpdateTime) > _uiUpdateInterval) {
-      setState(() {
-        metrics = newMetrics;
-        _lastUiUpdateTime = now;
-      });
-    }
-  }
-
   @override
   void dispose() {
-    UIRenderPerfProvider().removeListener(_onFrameFinished);
     _timer?.cancel();
     _timer = null;
     executionTimer.stop();
+    UIRenderPerfProvider().stop();
     super.dispose();
     WakelockPlus.disable();
     Log.d("=====性能监控组件被销毁？======dispose====");
   }
 
-  /// 更新 rssMb 内存信息
-  void _updateMemoryUsage() {
+  void _updateInfo() {
     if (!mounted) return;
     double rssMb = ProcessInfo.currentRss / (1024 * 1024);
     setState(() {
@@ -115,6 +95,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   @override
   Widget build(BuildContext context) {
     // 使用抽取的包装容器
+    UIRenderMetrics? metrics = UIRenderPerfProvider().getLastUIRenderMetrics();
     return DraggableFloatingWidget(
       width: 180,
       height: 180,
