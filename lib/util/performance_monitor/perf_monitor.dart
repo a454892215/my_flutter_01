@@ -21,7 +21,7 @@ import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 ///当前 flutter sdk 版本：3.38.8， profile模式下 无法获取Dart/Flutter内存
 /// flutter sdk 版本：3.38.8
 ///       新建的空项目 RSS内存消耗情况：debug:354M,  profile:226M,  release:192
-///当前项目（空页面首页RSS内存消耗情况）：debug:400M->430M,  profile:250M->266M,  release:212
+///当前项目（空页面首页RSS内存消耗情况）：debug:400M->430M,  profile:250M->272M,  release:212
 class PerfMonitor {
   static OverlayEntry? _entry;
 
@@ -83,8 +83,9 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   void dispose() {
     UIRenderPerfProvider().removeListener(_onFrameFinished);
     _timer?.cancel();
-    Log.d("=====性能监控组件被销毁？======dispose====");
+    _timer = null;
     super.dispose();
+    Log.d("=====性能监控组件被销毁？======dispose====");
   }
 
   /// 更新 rssMb 内存信息

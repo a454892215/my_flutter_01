@@ -95,7 +95,7 @@ class UIRenderPerfProvider {
   final int _maxWindowSize = 60;
   final ListQueue<UIRenderMetrics> _metricsWindow = ListQueue();
 
-  // 修改点 1: 外部监听器集合，使用 LinkedHashSet 保证顺序并防止重复
+  // 外部监听器集合，使用 LinkedHashSet 保证顺序并防止重复
   final Set<void Function(UIRenderMetrics)> _listeners = {};
 
   bool _isMonitoring = false;
