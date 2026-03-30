@@ -19,9 +19,6 @@ class UIRenderMetrics {
   /// 是否发生掉帧 (Jank): 总耗时是否超过了当前设备的刷新周期
   bool isJank;
 
-  /// 帧产生的时间戳
-  DateTime timestamp;
-
   double? refreshRate;
   double? vsyncThresholdMs;
 
@@ -63,7 +60,6 @@ class UIRenderMetrics {
     required this.rasterDurationMs,
     required this.totalDurationMs,
     required this.isJank,
-    required this.timestamp,
     this.refreshRate,
     this.vsyncThresholdMs,
   });
@@ -92,7 +88,6 @@ class UIRenderMetrics {
     this.rasterDurationMs = rasterDurationMs;
     this.totalDurationMs = totalDurationMs;
     this.isJank = isJank;
-    timestamp = DateTime.now();
     this.refreshRate = refreshRate;
     this.vsyncThresholdMs = vsyncThresholdMs;
   }
@@ -170,7 +165,6 @@ class UIRenderPerfProvider {
           rasterDurationMs: rasterMs,
           totalDurationMs: actualWorkMs,
           isJank: actualWorkMs > vsyncThresholdMs,
-          timestamp: DateTime.now(),
           refreshRate: refreshRate,
           vsyncThresholdMs: vsyncThresholdMs,
         );
@@ -211,7 +205,7 @@ class UIRenderPerfProvider {
   }
 
   // 在 UIRenderPerfProvider 内部维护一个单例级的聚合对象
-  final UIRenderMetrics _internalAverage = UIRenderMetrics(uiDurationMs: 0, rasterDurationMs: 0, totalDurationMs: 0, isJank: false, timestamp: DateTime.now());
+  final UIRenderMetrics _internalAverage = UIRenderMetrics(uiDurationMs: 0, rasterDurationMs: 0, totalDurationMs: 0, isJank: false);
 
   UIRenderMetrics getAveUIRenderMetrics() {
     final uiDurationMs = averageUiDuration;
