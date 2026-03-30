@@ -8,19 +8,19 @@ import 'package:flutter/scheduler.dart';
 /// UI 渲染单帧性能指标快照
 class UIRenderMetrics {
   /// UI 线程耗时 (Build, Layout, Paint): 对应 Dart 代码执行时间
-  final double uiDurationMs;
+  double uiDurationMs;
 
   /// Raster 线程耗时 (GPU 渲染): 对应引擎将 Layer 转换为像素的时间
-  final double rasterDurationMs;
+  double rasterDurationMs;
 
   /// 单帧总耗时 (uiDuration + rasterDuration)
-  final double totalDurationMs;
+  double totalDurationMs;
 
   /// 是否发生掉帧 (Jank): 总耗时是否超过了当前设备的刷新周期
-  final bool isJank;
+  bool isJank;
 
   /// 帧产生的时间戳
-  final DateTime timestamp;
+  DateTime timestamp;
 
   double? refreshRate;
   double? vsyncThresholdMs;
@@ -78,6 +78,23 @@ class UIRenderMetrics {
 
   Color getStateColor() {
     return isJank ? Colors.red : Colors.green;
+  }
+
+  void update({
+    required double uiDurationMs,
+    required double rasterDurationMs,
+    required double totalDurationMs,
+    required bool isJank,
+    required double refreshRate,
+    required double vsyncThresholdMs,
+  }) {
+    this.uiDurationMs = uiDurationMs;
+    this.rasterDurationMs = rasterDurationMs;
+    this.totalDurationMs = totalDurationMs;
+    this.isJank = isJank;
+    timestamp = DateTime.now();
+    this.refreshRate = refreshRate;
+    this.vsyncThresholdMs = vsyncThresholdMs;
   }
 }
 
@@ -183,20 +200,23 @@ class UIRenderPerfProvider {
       return 60.0;
     }
   }
+  // 在 UIRenderPerfProvider 内部维护一个单例级的聚合对象
+  final UIRenderMetrics _internalAverage = UIRenderMetrics(uiDurationMs: 0, rasterDurationMs: 0, totalDurationMs: 0, isJank: false, timestamp: DateTime.now());
 
-  UIRenderMetrics? getAveUIRenderMetrics() {
+  UIRenderMetrics getAveUIRenderMetrics() {
     final uiDurationMs = averageUiDuration;
     final rasterDurationMs = averageRasterDuration;
     final totalDurationMs = uiDurationMs + rasterDurationMs;
     final vsyncThresholdMs = this.vsyncThresholdMs;
-    return UIRenderMetrics(
+
+    _internalAverage.update(
       uiDurationMs: uiDurationMs,
       rasterDurationMs: rasterDurationMs,
       totalDurationMs: totalDurationMs,
       isJank: totalDurationMs > vsyncThresholdMs,
-      timestamp: DateTime.now(),
       refreshRate: deviceRefreshRate,
       vsyncThresholdMs: vsyncThresholdMs,
     );
+    return _internalAverage;
   }
 }
