@@ -151,22 +151,31 @@ class UIRenderPerfProvider {
       // 用于判断 Jank 时，应使用实际工作耗时之和：buildDuration + rasterDuration
       // 或者根据业务需求决定是否包含 vsync 等待。
       final double actualWorkMs = uiMs + rasterMs;
-
-      final metrics = UIRenderMetrics(
-        uiDurationMs: uiMs,
-        rasterDurationMs: rasterMs,
-        totalDurationMs: actualWorkMs,
-        isJank: actualWorkMs > vsyncThresholdMs,
-        timestamp: DateTime.now(),
-        refreshRate: refreshRate,
-        vsyncThresholdMs: vsyncThresholdMs,
-      );
-
+      final UIRenderMetrics newUIRenderMetrics;
       // 维护滑动窗口
       if (_metricsWindow.length >= _maxWindowSize) {
-        _metricsWindow.removeFirst();
+        UIRenderMetrics old = _metricsWindow.removeFirst();
+        old.update(
+          uiDurationMs: uiMs,
+          rasterDurationMs: rasterMs,
+          totalDurationMs: actualWorkMs,
+          isJank: actualWorkMs > vsyncThresholdMs,
+          refreshRate: deviceRefreshRate,
+          vsyncThresholdMs: vsyncThresholdMs,
+        );
+        newUIRenderMetrics = old;
+      } else {
+        newUIRenderMetrics = UIRenderMetrics(
+          uiDurationMs: uiMs,
+          rasterDurationMs: rasterMs,
+          totalDurationMs: actualWorkMs,
+          isJank: actualWorkMs > vsyncThresholdMs,
+          timestamp: DateTime.now(),
+          refreshRate: refreshRate,
+          vsyncThresholdMs: vsyncThresholdMs,
+        );
       }
-      _metricsWindow.addLast(metrics);
+      _metricsWindow.addLast(newUIRenderMetrics);
     }
   }
 
@@ -200,6 +209,7 @@ class UIRenderPerfProvider {
       return 60.0;
     }
   }
+
   // 在 UIRenderPerfProvider 内部维护一个单例级的聚合对象
   final UIRenderMetrics _internalAverage = UIRenderMetrics(uiDurationMs: 0, rasterDurationMs: 0, totalDurationMs: 0, isJank: false, timestamp: DateTime.now());
 
