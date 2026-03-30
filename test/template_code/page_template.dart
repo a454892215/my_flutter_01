@@ -135,3 +135,27 @@ Widget getPageView() {
     },
   );
 }
+
+Widget getSliverVariedExtentList(){
+  // 这种方式依然保持了 O(1) 的坐标计算性能，因为它不需要测量子 Widget
+ return SliverVariedExtentList(
+    delegate: SliverChildBuilderDelegate(
+          (context, index) => Container(
+              width: 100.w,
+              height: 100.w,
+              padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
+              decoration: BoxDecoration(
+                color: const Color(0xffcccccc),
+                borderRadius: BorderRadius.circular(12.w),
+                border: Border.all(color: const Color(0xff000000), width: 1.w),
+              ),
+              child: const SizedBox(),
+            ),
+      childCount: 8,
+    ),
+    itemExtentBuilder: (index, constraints) {
+      // 逻辑判断：直接返回高度，不进行实际 Layout
+      return index % 2 == 0 ? 60.0 : 80.0;
+    },
+  );
+}
