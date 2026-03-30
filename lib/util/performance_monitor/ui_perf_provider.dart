@@ -38,6 +38,22 @@ class UIRenderMetrics {
     ///   90Hz    |   11.1ms   |      < 5ms      |    5ms ~ 8ms    |    > 9ms
     ///   120Hz   |   8.3ms    |      < 4ms      |    4ms ~ 6ms    |    > 7ms
     required this.uiDurationMs,
+    /// Raster 线程耗时 (GPU 渲染): 对应引擎将 Layer 转换为像素的时间
+    ///
+    /// [定义]: Raster 线程（原 GPU 线程）将 UI 线程生成的图层树 (Layer Tree) 转换为 GPU 指令，
+    /// 并最终由 GPU 完成像素填充的时间。包含：着色器编译 (Shader Compilation)、纹理上传、Skia/Impeller 渲染。
+    ///
+    /// [注意]:
+    /// 1. **着色器编译预热**: 第一次进入某个页面发生的 Raster 耗时激增通常是因为 Shader 编译，建议使用 Impeller (iOS/Android) 缓解。
+    /// 2. **离屏渲染**: 频繁使用 Opacity (非 0/1)、Clip.antiAlias、SaveLayer 等会导致 Raster 耗时翻倍。
+    /// 3. **GPU 瓶颈**: 若 UI 耗时低但 Raster 耗时持续走高，说明 UI 结构过于复杂或图片分辨率过大。
+    /// 4. **异步性**: Raster 线程通常滞后 UI 线程一帧执行 (Pipelining)。
+    ///
+    /// [性能基准参照表]: (同 UI 线程，需严格控制在 VSync 周期内)
+    ///   60Hz    |   16.6ms   |      < 8ms      |    8ms ~ 13ms   |    > 14ms
+    ///   UI 线程是生产者 Raster 线程是消费者，如果Raster 线程压力过大，导致不能及时处理UI线程的绘制需求，也会导致UI卡顿的
+    ///   如果Raster 线程不能及时处理UI线程产生的渲染任务，UI线程机会积累任务，积累到一定程度，就会丢弃任务，必然导致卡顿
+    ///   Flutter 默认的 Pipeline 深度通常为 2。如果 Raster 线程落后 UI 线程超过 2 帧，UI 线程在尝试提交新帧时会被阻塞
     required this.rasterDurationMs,
     required this.totalDurationMs,
     required this.isJank,
