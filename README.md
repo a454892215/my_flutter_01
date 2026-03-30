@@ -23,18 +23,19 @@ samples, guidance on mobile development, and a full API reference.
    get create page:splash
    get create page:home
 
-替换启动图： /Users/llpp/development/flutter_3_38_8/bin/flutter pub run flutter_native_splash:create
+替换启动图： ./flutterw pub run flutter_native_splash:create
 
-打包命令： /Users/llpp/development/flutter_3_38_8/bin/flutter build apk --release
+打包命令： ./flutterw build apk --release
+
 // 打包出arm平台的包：包含 arm64-v8a:2, armeabi-v7a:2  (26.3MB)
-/Users/llpp/development/flutter_3_38_8/bin/flutter build apk --release --target-platform android-arm,android-arm64
+./flutterw build apk --release --target-platform android-arm,android-arm64
 
 // 打包出arm平台的包：包含 arm64-v8a， 而不包含armeabi-v7a， (14.8MB)
-/Users/llpp/development/flutter_3_38_8/bin/flutter build apk --release --target-platform android-arm64 --split-per-abi
+./flutterw build apk --release --target-platform android-arm64 --split-per-abi
 
 /Users/llpp/Library/Android/sdk/cmdline-tools/latest/bin/apkanalyzer
 
-/Users/llpp/development/flutter_3_38_8/bin/flutter pub run build_runner build --delete-conflicting-outputs
+./flutterw pub run build_runner build --delete-conflicting-outputs
 
 jadx-gui 打开apk分析工具
 

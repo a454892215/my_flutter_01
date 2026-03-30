@@ -19,7 +19,9 @@ import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 ///               Raster Layer： 指合成渲染层（Layers）时消耗的内存。
 ///               Raster Picture： 指被缓存的绘制指令（Display Lists）或录制好的图片。
 ///当前 flutter sdk 版本：3.38.8， profile模式下 无法获取Dart/Flutter内存
-/// flutter sdk 版本：3.38.8 新建的空项目 内存消耗情况： debug:354M, profile:226M, release:192
+/// flutter sdk 版本：3.38.8
+/// 新建的空项目 内存消耗情况：debug:354M,  profile:226M,  release:192
+///   当前项目（空页面首页）：debug:354M,  profile:250M,  release:212
 class PerfMonitor {
   static OverlayEntry? _entry;
 
