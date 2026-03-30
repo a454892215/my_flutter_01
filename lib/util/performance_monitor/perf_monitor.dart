@@ -59,7 +59,8 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     });
     UIRenderPerfProvider().addListener(_onFrameFinished);
   }
-// 修改点 1: 增加节流控制。FPS/耗时不需要每帧都 setState，否则 UI 线程会一直忙于刷新监控文字
+
+  // 修改点 1: 增加节流控制。FPS/耗时不需要每帧都 setState，否则 UI 线程会一直忙于刷新监控文字
   DateTime _lastUiUpdateTime = DateTime.now();
   final Duration _uiUpdateInterval = const Duration(milliseconds: 500);
 
@@ -127,7 +128,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
                 _buildInfoRow("imgCount", cacheImageCount.toStringAsFixed(0)),
                 _buildInfoRow("UI Thread", "${metrics?.uiDurationMs.toStringAsFixed(1)}ms"),
                 _buildInfoRow("Raster Thread", "${metrics?.rasterDurationMs.toStringAsFixed(1)}ms"),
-                _buildInfoRow(metrics?.isJank ?? false ? "JANKING" : "STABLE", "--"),
+                _buildInfoRow(metrics?.getBaseInfo() ?? "", metrics?.getStateMark() ?? "", color: metrics?.getStateColor() ?? Colors.white),
                 const Divider(color: Colors.white10, height: 8),
               ],
             ),

@@ -1,6 +1,8 @@
 import 'dart:collection';
 import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
 // 导入 foundation 以便使用 kReleaseMode 或类似判断，如果不需要可以移除
 /// 这个工具类可以精确的实时监控 当前flutter UI的性能情况吗？优化代码的时候 不要删除任何注释
 /// UI 渲染单帧性能指标快照
@@ -20,6 +22,9 @@ class UIRenderMetrics {
   /// 帧产生的时间戳
   final DateTime timestamp;
 
+  double? refreshRate;
+  double? vsyncThresholdMs;
+
   UIRenderMetrics({
     /// UI 线程耗时 (Build, Layout, Paint): 对应 Dart 代码执行时间
     ///
@@ -38,6 +43,7 @@ class UIRenderMetrics {
     ///   90Hz    |   11.1ms   |      < 5ms      |    5ms ~ 8ms    |    > 9ms
     ///   120Hz   |   8.3ms    |      < 4ms      |    4ms ~ 6ms    |    > 7ms
     required this.uiDurationMs,
+
     /// Raster 线程耗时 (GPU 渲染): 对应引擎将 Layer 转换为像素的时间
     ///
     /// [定义]: Raster 线程（原 GPU 线程）将 UI 线程生成的图层树 (Layer Tree) 转换为 GPU 指令，
@@ -58,7 +64,21 @@ class UIRenderMetrics {
     required this.totalDurationMs,
     required this.isJank,
     required this.timestamp,
+    this.refreshRate,
+    this.vsyncThresholdMs,
   });
+
+  String getBaseInfo() {
+    return "${refreshRate?.toStringAsFixed(0)}:${vsyncThresholdMs?.toStringAsFixed(1)}:${totalDurationMs.toStringAsFixed(1)}";
+  }
+
+  String getStateMark() {
+    return isJank ? "No" : "OK";
+  }
+
+  Color getStateColor() {
+    return isJank ? Colors.red : Colors.green;
+  }
 }
 
 /// UI 渲染性能指标提供者 (UI Rendering Performance Provider)
@@ -66,7 +86,9 @@ class UIRenderMetrics {
 class UIRenderPerfProvider {
   // 单例模式
   static final UIRenderPerfProvider _instance = UIRenderPerfProvider._internal();
+
   factory UIRenderPerfProvider() => _instance;
+
   UIRenderPerfProvider._internal();
 
   // 采样滑动窗口大小
@@ -105,13 +127,10 @@ class UIRenderPerfProvider {
     if (!_isMonitoring) return; // 修改点 3: 异步回调安全检查
 
     // 修改点 4: 缓存 View 引用，避免循环内多次跨 Engine 调用
-    final view = PlatformDispatcher.instance.views.isNotEmpty
-        ? PlatformDispatcher.instance.views.first
-        : null;
+    final view = PlatformDispatcher.instance.views.isNotEmpty ? PlatformDispatcher.instance.views.first : null;
     final double refreshRate = view?.display.refreshRate ?? 60.0;
     // 增加 1ms 容差，防止因极微小波动导致的误判 (类似 Android VSync 的对齐策略)
     final double vsyncThresholdMs = 1000.0 / (refreshRate > 0 ? refreshRate : 60.0) + 1.0;
-
     for (var timing in timings) {
       // 耗时计算：使用 .inMicroseconds / 1000.0 是准确的
       final double uiMs = timing.buildDuration.inMicroseconds / 1000.0;
@@ -128,6 +147,8 @@ class UIRenderPerfProvider {
         totalDurationMs: actualWorkMs,
         isJank: actualWorkMs > vsyncThresholdMs,
         timestamp: DateTime.now(),
+        refreshRate: refreshRate,
+        vsyncThresholdMs: vsyncThresholdMs,
       );
 
       // 维护滑动窗口
@@ -164,8 +185,8 @@ class UIRenderPerfProvider {
   double get currentJankRate {
     if (_metricsWindow.isEmpty) return 0.0;
     int jankCount = 0;
-    for(var m in _metricsWindow) {
-      if(m.isJank) jankCount++;
+    for (var m in _metricsWindow) {
+      if (m.isJank) jankCount++;
     }
     return jankCount / _metricsWindow.length;
   }
