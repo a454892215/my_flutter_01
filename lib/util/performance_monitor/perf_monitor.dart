@@ -54,7 +54,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   int cacheImageCount = 0;
 
   late ExecutionTimer executionTimer;
-
+  UIRenderMetrics? metrics;
   @override
   void initState() {
     super.initState();
@@ -85,17 +85,19 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   void _updateInfo() {
     if (!mounted) return;
     double rssMb = ProcessInfo.currentRss / (1024 * 1024);
+    // 这里的计算包含循环，属于 O(n) 操作，放在外部
+    final currentMetrics = UIRenderPerfProvider().getAveUIRenderMetrics();
     setState(() {
       _memoryUsage = "${rssMb.toStringAsFixed(0)} MB";
       imageMb = PaintingBinding.instance.imageCache.currentSizeBytes / (1024 * 1024);
       cacheImageCount = PaintingBinding.instance.imageCache.currentSize;
+      metrics = currentMetrics;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     // 使用抽取的包装容器
-    UIRenderMetrics? metrics = UIRenderPerfProvider().getAveUIRenderMetrics();
     return DraggableFloatingWidget(
       width: 180,
       height: 180,

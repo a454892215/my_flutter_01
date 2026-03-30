@@ -95,7 +95,6 @@ class UIRenderPerfProvider {
   final int _maxWindowSize = 60;
   final ListQueue<UIRenderMetrics> _metricsWindow = ListQueue();
 
-
   bool _isMonitoring = false;
   double vsyncThresholdMs = 17;
 
@@ -104,6 +103,7 @@ class UIRenderPerfProvider {
     if (_isMonitoring) return;
     _isMonitoring = true;
     _metricsWindow.clear();
+
     /// 注册帧耗时回调
     /// lutter 引擎为了减少 Dart 与 Native 层的通信开销（Context Switch），会将多帧的 FrameTiming 数据攒在一起，在一个微任务（Microtask）
     /// 中批量回调,如果屏幕完全静止（没有动画，没有手势，没有输入），Flutter 不会触发重绘，也就不会产生 FrameTiming，此时该方法调用次数为 0
@@ -153,7 +153,6 @@ class UIRenderPerfProvider {
     }
   }
 
-
   double get averageUiDuration {
     if (_metricsWindow.isEmpty) return 0.0;
     // 修改点 7: 使用 fold 代替 map+reduce 减少中间集合产生，优化性能
@@ -185,12 +184,11 @@ class UIRenderPerfProvider {
     }
   }
 
-
-  UIRenderMetrics? getAveUIRenderMetrics(){
-     final uiDurationMs = averageUiDuration;
-     final rasterDurationMs = averageRasterDuration;
-     final totalDurationMs = uiDurationMs + rasterDurationMs;
-     final vsyncThresholdMs = this.vsyncThresholdMs;
+  UIRenderMetrics? getAveUIRenderMetrics() {
+    final uiDurationMs = averageUiDuration;
+    final rasterDurationMs = averageRasterDuration;
+    final totalDurationMs = uiDurationMs + rasterDurationMs;
+    final vsyncThresholdMs = this.vsyncThresholdMs;
     return UIRenderMetrics(
       uiDurationMs: uiDurationMs,
       rasterDurationMs: rasterDurationMs,
