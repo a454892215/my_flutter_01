@@ -6,6 +6,7 @@ import 'package:flutter_comm/util/performance_monitor/ui_perf_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../Log.dart';
+import '../exe_timer.dart';
 import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 
 /// flutter devTools 的memory监控中的关键指标及其含义
@@ -23,6 +24,7 @@ import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 /// flutter sdk 版本：3.38.8
 ///       新建的空项目 RSS内存消耗情况：debug:354M,  profile:226M,  release:192
 ///当前项目（空页面首页RSS内存消耗情况）：debug:400M->430M,  profile:250M->275M,  release:212
+/// flutter 正常的预热与碎片消耗 RSS (物理内存)波动范围是:	5% ~ 12%
 class PerfMonitor {
   static OverlayEntry? _entry;
 
@@ -54,9 +56,15 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   int cacheImageCount = 0;
   UIRenderMetrics? metrics;
 
+  late ExecutionTimer executionTimer;
+
   @override
   void initState() {
     super.initState();
+    executionTimer = ExecutionTimer();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      executionTimer.start();
+    });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _updateMemoryUsage();
     });
@@ -87,6 +95,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     UIRenderPerfProvider().removeListener(_onFrameFinished);
     _timer?.cancel();
     _timer = null;
+    executionTimer.stop();
     super.dispose();
     WakelockPlus.disable();
     Log.d("=====性能监控组件被销毁？======dispose====");
@@ -125,9 +134,10 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
+                Align(
+                  alignment: Alignment.centerLeft,
                   child: Text(
-                    getEnvironmentName(),
+                    "${getEnvironmentName()}-${executionTimer.formattedTime}",
                     style: TextStyle(fontSize: 24.w, color: const Color(0xffcccccc), fontWeight: FontWeight.w400),
                   ),
                 ),
