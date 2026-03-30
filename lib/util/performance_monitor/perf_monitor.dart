@@ -95,7 +95,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   @override
   Widget build(BuildContext context) {
     // 使用抽取的包装容器
-    UIRenderMetrics? metrics = UIRenderPerfProvider().getLastUIRenderMetrics();
+    UIRenderMetrics? metrics = UIRenderPerfProvider().getAveUIRenderMetrics();
     return DraggableFloatingWidget(
       width: 180,
       height: 180,

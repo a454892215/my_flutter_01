@@ -97,11 +97,13 @@ class UIRenderPerfProvider {
 
 
   bool _isMonitoring = false;
+  double vsyncThresholdMs = 17;
 
   /// 启动 UI 渲染性能监控
   void start() {
     if (_isMonitoring) return;
     _isMonitoring = true;
+    _metricsWindow.clear();
     /// 注册帧耗时回调
     /// lutter 引擎为了减少 Dart 与 Native 层的通信开销（Context Switch），会将多帧的 FrameTiming 数据攒在一起，在一个微任务（Microtask）
     /// 中批量回调,如果屏幕完全静止（没有动画，没有手势，没有输入），Flutter 不会触发重绘，也就不会产生 FrameTiming，此时该方法调用次数为 0
@@ -119,12 +121,10 @@ class UIRenderPerfProvider {
   /// 内部处理逻辑
   void _handleFrameTimings(List<FrameTiming> timings) {
     if (!_isMonitoring) return; // 修改点 3: 异步回调安全检查
-
-    // 修改点 4: 缓存 View 引用，避免循环内多次跨 Engine 调用
-    final view = PlatformDispatcher.instance.views.isNotEmpty ? PlatformDispatcher.instance.views.first : null;
-    final double refreshRate = view?.display.refreshRate ?? 60.0;
+    final double refreshRate = deviceRefreshRate;
     // 增加 1ms 容差，防止因极微小波动导致的误判 (类似 Android VSync 的对齐策略)
     final double vsyncThresholdMs = 1000.0 / (refreshRate > 0 ? refreshRate : 60.0) + 1.0;
+    this.vsyncThresholdMs = vsyncThresholdMs;
     for (var timing in timings) {
       // 耗时计算：使用 .inMicroseconds / 1000.0 是准确的
       final double uiMs = timing.buildDuration.inMicroseconds / 1000.0;
@@ -153,7 +153,6 @@ class UIRenderPerfProvider {
     }
   }
 
-  // --- 辅助工具方法 ---
 
   double get averageUiDuration {
     if (_metricsWindow.isEmpty) return 0.0;
@@ -186,9 +185,20 @@ class UIRenderPerfProvider {
     }
   }
 
-  List<UIRenderMetrics> get getHistory => List.unmodifiable(_metricsWindow); // 修改点 8: 返回不可变列表，保护内部状态
 
-  UIRenderMetrics? getLastUIRenderMetrics(){
-    return _metricsWindow.lastOrNull;
+  UIRenderMetrics? getAveUIRenderMetrics(){
+     final uiDurationMs = averageUiDuration;
+     final rasterDurationMs = averageRasterDuration;
+     final totalDurationMs = uiDurationMs + rasterDurationMs;
+     final vsyncThresholdMs = this.vsyncThresholdMs;
+    return UIRenderMetrics(
+      uiDurationMs: uiDurationMs,
+      rasterDurationMs: rasterDurationMs,
+      totalDurationMs: totalDurationMs,
+      isJank: totalDurationMs > vsyncThresholdMs,
+      timestamp: DateTime.now(),
+      refreshRate: deviceRefreshRate,
+      vsyncThresholdMs: vsyncThresholdMs,
+    );
   }
 }
