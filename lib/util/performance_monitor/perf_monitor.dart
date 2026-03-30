@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/performance_monitor/ui_perf_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../Log.dart';
 import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 
@@ -21,7 +22,7 @@ import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 ///当前 flutter sdk 版本：3.38.8， profile模式下 无法获取Dart/Flutter内存
 /// flutter sdk 版本：3.38.8
 ///       新建的空项目 RSS内存消耗情况：debug:354M,  profile:226M,  release:192
-///当前项目（空页面首页RSS内存消耗情况）：debug:400M->430M,  profile:250M->272M,  release:212
+///当前项目（空页面首页RSS内存消耗情况）：debug:400M->430M,  profile:250M->275M,  release:212
 class PerfMonitor {
   static OverlayEntry? _entry;
 
@@ -60,6 +61,8 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
       _updateMemoryUsage();
     });
     UIRenderPerfProvider().addListener(_onFrameFinished);
+    // 开启常亮
+    WakelockPlus.enable();
     Log.d("=====性能监控组件初始化完毕======initState====");
   }
 
@@ -85,6 +88,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     _timer?.cancel();
     _timer = null;
     super.dispose();
+    WakelockPlus.disable();
     Log.d("=====性能监控组件被销毁？======dispose====");
   }
 

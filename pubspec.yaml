@@ -46,7 +46,7 @@ dependencies:
   # 系统与路径（确保 package_info_plus 足够新来解决 win32 冲突）
   path_provider: ^2.1.5
   path: ^1.9.0
-  package_info_plus: ^8.1.0
+  package_info_plus: ^9.0.0
   shared_preferences: ^2.3.5
 
   # UI 组件
@@ -86,6 +86,7 @@ dependencies:
   pull_to_refresh_flutter3: ^2.0.2
   cbor: ^6.1.1  # 这是目前适配 Dart 3 强类型且性能最好的版本
   flutter_inappwebview: ^6.1.5
+  wakelock_plus: ^1.5.1 # 禁止自动息屏
 
 # 这一段是关键：强制将冲突的底层库指向兼容版本
 dependency_overrides:
