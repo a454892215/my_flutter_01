@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/performance_monitor/ui_perf_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../Log.dart';
 import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 
 /// flutter devTools 的memory监控中的关键指标及其含义
@@ -20,8 +20,8 @@ import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 ///               Raster Picture： 指被缓存的绘制指令（Display Lists）或录制好的图片。
 ///当前 flutter sdk 版本：3.38.8， profile模式下 无法获取Dart/Flutter内存
 /// flutter sdk 版本：3.38.8
-/// 新建的空项目 内存消耗情况：debug:354M,  profile:226M,  release:192
-///   当前项目（空页面首页）：debug:354M,  profile:250M,  release:212
+///       新建的空项目 RSS内存消耗情况：debug:354M,  profile:226M,  release:192
+///当前项目（空页面首页RSS内存消耗情况）：debug:400M->430M,  profile:250M->266M,  release:212
 class PerfMonitor {
   static OverlayEntry? _entry;
 
@@ -60,6 +60,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
       _updateMemoryUsage();
     });
     UIRenderPerfProvider().addListener(_onFrameFinished);
+    Log.d("=====性能监控组件初始化完毕======initState====");
   }
 
   // 修改点 1: 增加节流控制。FPS/耗时不需要每帧都 setState，否则 UI 线程会一直忙于刷新监控文字
@@ -82,6 +83,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   void dispose() {
     UIRenderPerfProvider().removeListener(_onFrameFinished);
     _timer?.cancel();
+    Log.d("=====性能监控组件被销毁？======dispose====");
     super.dispose();
   }
 
