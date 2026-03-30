@@ -39,6 +39,12 @@ samples, guidance on mobile development, and a full API reference.
 
 jadx-gui 打开apk分析工具
 
+flutter 升级相关第三方类库后 编译失败 报找不到符号 清空编译缓存：
+./flutterw clean
+./flutterw pub get
+cd android
+./gradlew clean
+
 项目结构：
 lib下面的app模块是本app业务相关的模块
 lib 下面除了app之外的其他模块，是所有项目的通用框架模块
