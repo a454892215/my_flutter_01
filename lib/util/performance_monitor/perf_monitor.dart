@@ -8,7 +8,6 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../Log.dart';
 import '../exe_timer.dart';
-import 'dart_flutter_memory_util.dart';
 import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 
 /// flutter devTools 的memory监控中的关键指标及其含义
@@ -80,7 +79,6 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
   void dispose() {
     _timer?.cancel();
     _timer = null;
-    FlutterMemoryUtil().dispose();
     executionTimer.stop();
     UIRenderPerfProvider().stop();
     super.dispose();
@@ -93,13 +91,13 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
     double rssMb = ProcessInfo.currentRss / (1024 * 1024);
     // 这里的计算包含循环，属于 O(n) 操作，放在外部
     final currentMetrics = UIRenderPerfProvider().getAveUIRenderMetrics();
-    final List<double> mem = await FlutterMemoryUtil().getMemoryUsage();
+   // final List<double> mem = await FlutterMemoryUtil().getMemoryUsage();
     setState(() {
       _memoryUsage = "${rssMb.toStringAsFixed(0)} MB";
       imageMb = PaintingBinding.instance.imageCache.currentSizeBytes / (1024 * 1024);
       cacheImageCount = PaintingBinding.instance.imageCache.currentSize;
       metrics = currentMetrics;
-      flutterMemoryInfo = "${mem[0].toStringAsFixed(1)}(${mem[1].toStringAsFixed(0)}|${mem[2].toStringAsFixed(0)})";
+    //  flutterMemoryInfo = "${mem[0].toStringAsFixed(1)}(${mem[1].toStringAsFixed(0)}|${mem[2].toStringAsFixed(0)})";
     });
   }
 
@@ -134,7 +132,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
                 ),
                 const Divider(color: Colors.white10, height: 8),
                 _buildInfoRow("RSS", _memoryUsage),
-                _buildInfoRow("flutter", flutterMemoryInfo?? "?"),
+                if(flutterMemoryInfo!=null) _buildInfoRow("flutter", flutterMemoryInfo?? "?"),
                 _buildInfoRow("imageMb", imageMb.toStringAsFixed(1)),
                 _buildInfoRow("imgCount", cacheImageCount.toStringAsFixed(0)),
                 _buildInfoRow("UI Thread", "${metrics?.uiDurationMs.toStringAsFixed(1)}ms"),
