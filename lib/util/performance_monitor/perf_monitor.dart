@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/performance_monitor/ui_perf_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'dart:developer' as dev;
+import 'package:vm_service/vm_service.dart' as vm;
+import 'package:vm_service/vm_service_io.dart';
+
 import '../Log.dart';
 import '../exe_timer.dart';
 import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
@@ -55,6 +59,7 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
 
   late ExecutionTimer executionTimer;
   UIRenderMetrics? metrics;
+
   @override
   void initState() {
     super.initState();
@@ -93,6 +98,41 @@ class _PerfMonitorWidgetState extends State<PerfMonitorWidget> {
       cacheImageCount = PaintingBinding.instance.imageCache.currentSize;
       metrics = currentMetrics;
     });
+  }
+
+  Future<void> getAdvancedMemoryUsage() async {
+    // 1. 获取本地 VM Service 的 URI
+    if (!kReleaseMode) {
+      final dev.ServiceProtocolInfo info = await dev.Service.getInfo();
+      final Uri? uri = info.serverUri;
+      if (uri == null) {
+        print('VM Service 未启动，请确保在 Debug 或 Profile 模式下运行');
+        return;
+      }
+      // 2. 将 ws:// 转换为直连协议并建立连接
+      final String path = uri.path.endsWith('/') ? uri.path : '${uri.path}/';
+      final String wsUri = 'ws://${uri.host}:${uri.port}${path}ws';
+      final vm.VmService service = await vmServiceConnectUri(wsUri);
+      // 3. 获取主 Isolate
+      final vm.VM vmInstance = await service.getVM();
+      final String? mainIsolateId = vmInstance.isolates?.first.id;
+      if (mainIsolateId != null) {
+        // 4. 获取该 Isolate 的内存详情
+        // 这个返回的对象包含 HeapUsage, HeapCapacity, ExternalUsage 等
+        final vm.MemoryUsage memory = await service.getMemoryUsage(mainIsolateId);
+        /// 这是由 Dart 虚拟机直接管理的内存。你代码里 new 出来的所有对象（例如 String, Map, 你的自定义 Model 类）都存在这里
+        double dartHeapMB = memory.heapUsage! / 1024 / 1024;
+        /// External Usage (外部内存): 这部分内存不在 Dart 堆中，但被 Dart 对象持有。
+        /// 典型场景： 图片数据（Image pixels）、TypedData（如 Uint8List）。
+        double externalMB = memory.externalUsage! / 1024 / 1024;
+        double totalDartMB = dartHeapMB + externalMB;
+        print('--- VM Service 内存上报 ---');
+        print('Dart Heap Usage: ${dartHeapMB.toStringAsFixed(1)} MB');
+        print('External Usage: ${externalMB.toStringAsFixed(1)} MB');
+        print('Total (Dart+External): ${totalDartMB.toStringAsFixed(1)} MB');
+      }
+      await service.dispose();
+    }
   }
 
   @override

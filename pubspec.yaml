@@ -87,6 +87,7 @@ dependencies:
   cbor: ^6.1.1  # 这是目前适配 Dart 3 强类型且性能最好的版本
   flutter_inappwebview: ^6.1.5
   wakelock_plus: ^1.5.1 # 禁止自动息屏
+  vm_service: ^11.0.0 # 请根据你的 SDK 版本选择兼容版本
 
 # 这一段是关键：强制将冲突的底层库指向兼容版本
 dependency_overrides:

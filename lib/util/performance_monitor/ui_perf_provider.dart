@@ -155,7 +155,7 @@ class UIRenderPerfProvider {
           rasterDurationMs: rasterMs,
           totalDurationMs: actualWorkMs,
           isJank: actualWorkMs > vsyncThresholdMs,
-          refreshRate: deviceRefreshRate,
+          refreshRate: refreshRate,
           vsyncThresholdMs: vsyncThresholdMs,
         );
         newUIRenderMetrics = old;
