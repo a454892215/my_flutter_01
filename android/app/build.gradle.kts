@@ -10,6 +10,9 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    project.logger.lifecycle("========Current Android compileSdk: ${this.compileSdk}")
+    project.logger.lifecycle("========Current Android targetSdkVersion: ${flutter.targetSdkVersion}")
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

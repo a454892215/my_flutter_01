@@ -62,7 +62,7 @@ dependencies:
   intl: any
   logger: ^2.5.0
   easy_debounce: ^2.0.3
-  back_button_interceptor: ^7.0.3
+  back_button_interceptor: ^8.0.4
   stack_trace: ^1.11.1
 
   # 列表

@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../skin/app_skin.dart';
 import '../../../../skin/skin_factory.dart';
 import '../../../../skin/skin_manager.dart';
+import '../../../../util/Log.dart';
+import '../../../../widget/back_event_interceptor.dart';
 import '../../../../widget/getx_dialog_util.dart';
 import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../component/app_button.dart';
@@ -135,6 +137,18 @@ class _TabView1State extends State<TabView1> {
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.centerRight);
               },
+            ),
+            BackInterceptorWidget(
+              onInterceptBack: (info){
+                Log.d("返回键事件========");
+                return false;
+              },
+              child: AppButton(
+                padding: EdgeInsets.all(10),
+                text: '返回键拦截测试',
+                onClick: () {
+                },
+              )
             ),
             HorizontalIndicatorTab(
               size: _titles.length,

@@ -1,0 +1,7 @@
+#!/bin/bash
+# 指向你本地存放该版本的绝对路径
+# chmod +x .cleanw
+./flutterw clean
+./flutterw pub get
+cd android
+./gradlew clean

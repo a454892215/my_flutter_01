@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: back_button_interceptor
-      sha256: "8354b03320043db546e3f446af171faaa71384100486444113628f7db1e7fe9b"
+      sha256: b85977faabf4aeb95164b3b8bf81784bed4c54ea1aef90a036ab6927ecf80c5a
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "7.0.3"
+    version: "8.0.4"
   boolean_selector:
     dependency: transitive
     description:
