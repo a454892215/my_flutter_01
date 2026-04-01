@@ -10,6 +10,7 @@ import '../../../../widget/getx_dialog_util.dart';
 import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../component/app_button.dart';
 import '../../../component/text/text_def.dart';
+import 'Center_dialog.dart';
 
 /// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller
 class TabView1 extends StatefulWidget {
@@ -53,6 +54,8 @@ class _TabView1State extends State<TabView1> {
       ),
     );
   }
+
+  CenterDialog centerDialog = CenterDialog();
 
   @override
   Widget build(BuildContext context) {
@@ -140,6 +143,13 @@ class _TabView1State extends State<TabView1> {
               text: '右侧边弹窗-允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.centerRight);
+              },
+            ),
+            AppButton(
+              padding: EdgeInsets.all(10),
+              text: '自定义中心弹窗',
+              onClick: () {
+                centerDialog.show(context);
               },
             ),
             // BackInterceptorWidget(
