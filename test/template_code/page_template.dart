@@ -4,21 +4,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Widget getListView() {
   return ListView.builder(
-      itemCount: 20,
-      padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
-      physics: const BouncingScrollPhysics(),
-      controller: ScrollController(),
-      shrinkWrap: true,
-      cacheExtent: 600,
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-          width: double.infinity,
-          height: 50,
-          color: index % 2 == 0 ? Colors.blue : Colors.amberAccent,
-        );
-      });
+    itemCount: 20,
+    padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
+    physics: const BouncingScrollPhysics(),
+    controller: ScrollController(),
+    shrinkWrap: true,
+    cacheExtent: 600,
+    itemExtent: 100,
+    itemBuilder: (BuildContext context, int index) {
+      return Container(width: double.infinity, height: 50, color: index % 2 == 0 ? Colors.blue : Colors.amberAccent);
+    },
+  );
 }
 
+/// SliverGridDelegateWithFixedCrossAxisCount 特点：固定列数。
+/// crossAxisCount 列数
+/// childAspectRatio = crossAxisExtent / mainAxisExtent
+/// mainAxisExtent： 主轴item的高度
 Widget getGridView() {
   return GridView.builder(
     itemCount: 20,
@@ -27,13 +29,15 @@ Widget getGridView() {
     controller: ScrollController(),
     shrinkWrap: true,
     cacheExtent: 600,
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.2),
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      childAspectRatio: 1.2,
+      mainAxisExtent: 100,
+      mainAxisSpacing: 0,
+      crossAxisSpacing: 0,
+    ),
     itemBuilder: (BuildContext context, int index) {
-      return Container(
-        width: double.infinity,
-        height: 50,
-        color: index % 2 == 0 ? Colors.blue : Colors.amberAccent,
-      );
+      return Container(width: double.infinity, height: 50, color: index % 2 == 0 ? Colors.blue : Colors.amberAccent);
     },
   );
 }
@@ -46,12 +50,8 @@ Widget getColumn() {
     children: [
       Text(
         "",
-        style: TextStyle(
-          fontSize: 24.w,
-          color: const Color(0xffcccccc),
-          fontWeight: FontWeight.w400,
-        ),
-      )
+        style: TextStyle(fontSize: 24.w, color: const Color(0xffcccccc), fontWeight: FontWeight.w400),
+      ),
     ],
   );
 }
@@ -64,12 +64,8 @@ Widget getRow() {
     children: [
       Text(
         "",
-        style: TextStyle(
-          fontSize: 24.w,
-          color: const Color(0xffcccccc),
-          fontWeight: FontWeight.w400,
-        ),
-      )
+        style: TextStyle(fontSize: 24.w, color: const Color(0xffcccccc), fontWeight: FontWeight.w400),
+      ),
     ],
   );
 }
@@ -92,7 +88,7 @@ Widget getCupertinoButton() {
   return CupertinoButton(
     padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
     minSize: 0,
-    onPressed: () {  },
+    onPressed: () {},
     child: const SizedBox(),
   );
 }
@@ -100,11 +96,7 @@ Widget getCupertinoButton() {
 Widget getText() {
   return Text(
     "",
-    style: TextStyle(
-      fontSize: 24.w,
-      color: const Color(0xffcccccc),
-      fontWeight: FontWeight.w400,
-    ),
+    style: TextStyle(fontSize: 24.w, color: const Color(0xffcccccc), fontWeight: FontWeight.w400),
   );
 }
 
@@ -113,11 +105,7 @@ Widget getImage() {
 }
 
 Widget getPositioned() {
-  return Positioned(
-    right: 0.w,
-    left: 0.w,
-    child: const SizedBox(),
-  );
+  return Positioned(right: 0.w, left: 0.w, child: const SizedBox());
 }
 
 Widget getPageView() {
@@ -136,21 +124,21 @@ Widget getPageView() {
   );
 }
 
-Widget getSliverVariedExtentList(){
+Widget getSliverVariedExtentList() {
   // 这种方式依然保持了 O(1) 的坐标计算性能，因为它不需要测量子 Widget
- return SliverVariedExtentList(
+  return SliverVariedExtentList(
     delegate: SliverChildBuilderDelegate(
-          (context, index) => Container(
-              width: 100.w,
-              height: 100.w,
-              padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
-              decoration: BoxDecoration(
-                color: const Color(0xffcccccc),
-                borderRadius: BorderRadius.circular(12.w),
-                border: Border.all(color: const Color(0xff000000), width: 1.w),
-              ),
-              child: const SizedBox(),
-            ),
+      (context, index) => Container(
+        width: 100.w,
+        height: 100.w,
+        padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
+        decoration: BoxDecoration(
+          color: const Color(0xffcccccc),
+          borderRadius: BorderRadius.circular(12.w),
+          border: Border.all(color: const Color(0xff000000), width: 1.w),
+        ),
+        child: const SizedBox(),
+      ),
       childCount: 8,
     ),
     itemExtentBuilder: (index, constraints) {
