@@ -3,7 +3,7 @@ import 'package:flutter_comm/app/component/app_button.dart';
 
 import 'package:get/get.dart';
 
-import '../../../app_style.dart';
+import '../../../../app_style.dart';
 import '../../../component/app_header.dart';
 import '../../../component/my_app_bar.dart';
 import '../../../routes/app_pages.dart';

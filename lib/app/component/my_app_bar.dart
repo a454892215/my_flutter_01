@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../skin/app_skin.dart';
+import '../../app_style.dart';
 import 'app_header.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -8,7 +9,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     required this.title,
     this.isNeedLeftBackArrow = true,
-    this.toolbarHeight = 50,
+    this.toolbarHeight = appHeaderHeight,
   });
 
   final String title;

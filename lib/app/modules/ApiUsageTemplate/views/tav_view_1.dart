@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../screnn_info.dart';
 import '../../../../skin/app_skin.dart';
 import '../../../../skin/skin_factory.dart';
 import '../../../../skin/skin_manager.dart';
@@ -34,16 +35,12 @@ class _TabView1State extends State<TabView1> {
     _controller.dispose(); // 记得释放
     super.dispose();
   }
+  Widget get dialogWidget => getDialogWidget(height: 300.w);
 
-
-  @override
-  Widget build(BuildContext context) {
-    // 只要第一次打开时请求过，数据就会一直保存在这个内存对象中
-    // 获取当前皮肤的数据对象
-    final skin = context.skinData;
-    final dialogWidget = Container(
+  Widget getDialogWidget({required double height}){
+   return Container(
       width: 300.w,
-      height: 300.w,
+      height: height ?? 300.w,
       alignment: Alignment.center,
       padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
       decoration: BoxDecoration(
@@ -55,6 +52,13 @@ class _TabView1State extends State<TabView1> {
         style: TextStyle(fontSize: 24.w, color: const Color(0xff333333), fontWeight: FontWeight.w400),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 只要第一次打开时请求过，数据就会一直保存在这个内存对象中
+    // 获取当前皮肤的数据对象
+    final skin = context.skinData;
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -128,7 +132,7 @@ class _TabView1State extends State<TabView1> {
               padding: EdgeInsets.all(10),
               text: '左侧边弹窗-允许用户关闭',
               onClick: () {
-                GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.centerLeft);
+                GetxDialogUtil.show(getDialogWidget(height: ScreenInfo.contentHeight), isForceShow: false, tag: dialogTag, alignment: Alignment.bottomLeft);
               },
             ),
             AppButton(

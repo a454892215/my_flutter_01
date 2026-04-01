@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import '../app_style.dart';
+import '../../app_style.dart';
 import 'app_header.dart';
 
 enum ProgressIndicatorType { circular, linear }
@@ -91,7 +91,7 @@ class _AppWebViewState extends State<AppWebView> {
             ? AppBar(
           titleSpacing: 0,
           leadingWidth: 0,
-          backgroundColor: headerBgColor,
+          backgroundColor: appStyle.headerBgColor,
           title: AppHeader(title: widget.title),
           // 如果需要高度动画，保留 PreferredSize，否则直接使用 AppBar
         )

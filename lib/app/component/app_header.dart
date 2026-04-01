@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../skin/app_skin.dart';
-import '../app_style.dart';
+import '../../app_style.dart';
 
 class AppHeader extends StatelessWidget {
   const AppHeader({

@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_comm/screnn_info.dart';
 import 'package:flutter_comm/skin/skin_factory.dart';
 import 'package:flutter_comm/skin/skin_manager.dart';
 import 'package:flutter_comm/util/Log.dart';
@@ -138,6 +138,7 @@ class GetMaterialAppConfig extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScreenInfo.init(context);
     AppLoading.initLoading();
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,

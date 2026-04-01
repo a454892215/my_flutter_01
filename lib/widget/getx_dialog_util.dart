@@ -77,7 +77,7 @@ class GetxDialogUtil {
   /// 内部私有方法：根据位置选择最合适的动画
   static Widget _buildTransition(Animation<double> animation, Alignment alignment, Widget child) {
     // 如果位置在底部，执行位移动画
-    if (alignment == Alignment.bottomCenter || alignment == Alignment.bottomLeft || alignment == Alignment.bottomRight) {
+    if (alignment == Alignment.bottomCenter) {
       return SlideTransition(
         position: Tween<Offset>(
           begin: const Offset(0, 1), // 从屏幕外底部开始 (y=1)
