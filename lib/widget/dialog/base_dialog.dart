@@ -13,13 +13,12 @@ abstract class BaseDialog {
   /// 背景遮罩颜色
   static const Color barrierColor = Color(0xaa000000);
   static const Color transparent = Color(0x00000000);
-  final bgColor = transparent.obs;
 
-  /// 内部显示状态控制
-  final RxBool _visible = true.obs;
+  /// 保证动画触发和transparent的值做区别
+  static const Color closedBarrierColor = Color(0x00000001);
+  final bgColor = closedBarrierColor.obs;
 
   final RxBool _isMounted = false.obs;
-
 
   /// 已经关闭状态
   static final int closedState = 0;
@@ -34,57 +33,73 @@ abstract class BaseDialog {
   static final int hidingState = 3;
 
   /// 已经隐藏状态
-  static final int dismissedState = 4;
+  static final int hiddenState = 4;
 
   /// 正在关闭状态
   static final int closingState = 5;
 
   int _state = closedState;
 
-  int  targetState = closedState;
+  int targetState = closedState;
 
   String get key => runtimeType.toString();
 
   Widget? widget;
 
   void show(BuildContext context) {
-    if(_state == showingState || _state == showedState){
+    if (_state == showingState || _state == showedState) {
       return;
     }
-    _isMounted.value = true; // 【修改】立即挂载，Visibility 变为 true
+    toShowedState(context);
+  }
+
+  void toShowedState(BuildContext context) {
+    _isMounted.value = true;
     widget ??= createWidget();
+
+    /// 内部已经做了去除 overlayState.insert(entry); 重复 处理
+    _state = showingState;
     OverlayHelper().show(key, widget!, context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       targetState = showedState;
+      bgColor.value = barrierColor;
     });
   }
 
   void hide() {
-    if (_state == hidingState || _state == dismissedState || _state == closedState) return;
-    bgColor.value = transparent; // 【修改】仅改变颜色，触发动画，不直接改 _isMounted
-    targetState = dismissedState;
+    if (_state == hidingState || _state == hiddenState || _state == closedState) return;
+    toHiddenState();
+  }
+
+  void toHiddenState() {
+    _state = hidingState;
+    targetState = hiddenState;
+    bgColor.value = transparent;
   }
 
   void close() {
     if (_state == closingState || _state == closedState) return;
-    _isMounted.value = false;
     targetState = closedState;
+    toCloseState();
   }
 
-  void updateUIState(bool visible) {
-    if (visible) {
-      bgColor.value = barrierColor;
-    } else {
-      bgColor.value = transparent;
-    }
-    Future.delayed(Duration(milliseconds: visible ? 0 : 280), () => _visible.value = visible);
+  void toCloseState() {
+    _state = closingState;
+    targetState = closedState;
+    bgColor.value = closedBarrierColor;
   }
 
   Widget createWidget() {
     return BackInterceptorWidget(
       onInterceptBack: (RouteInfo info) {
-        hide();
-        return true;
+        /// 只在showedState 状态才拦截
+        if (_state == showedState) {
+          hide();
+          return true;
+        }
+
+        /// 其他状态 不拦截处理
+        return false;
       },
       child: Obx(() {
         return Visibility(
@@ -97,7 +112,7 @@ abstract class BaseDialog {
             onTap: () {
               hide();
             },
-            child: Obx((){
+            child: Obx(() {
               return AnimatedContainer(
                 width: double.infinity,
                 height: double.infinity,
@@ -106,8 +121,12 @@ abstract class BaseDialog {
                 duration: Duration(milliseconds: 250),
                 onEnd: () {
                   _state = targetState;
+                  if (targetState == hiddenState || targetState == closedState) {
+                    _isMounted.value = false;
+                  }
                   if (targetState == closedState) {
                     OverlayHelper().close(key);
+                    widget = null;
                   }
                 },
 
