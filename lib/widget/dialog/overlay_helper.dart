@@ -14,7 +14,7 @@ class OverlayHelper {
   /// 显示 Overlay
   void show(String key, Widget widget, BuildContext context) {
     if (_contentMap.containsKey(key)) {
-      close(key);
+      return ;
     }
     final entry = OverlayEntry(builder: (context) => widget);
     try {
