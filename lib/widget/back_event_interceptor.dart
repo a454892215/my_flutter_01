@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 
 typedef BackInterceptCallback = bool Function(RouteInfo info);
-
+///  back_button_interceptor 组件 要求 必须给 Android 13以上设置 android:enableOnBackInvokedCallback="false"
 class BackInterceptorWidget extends StatefulWidget {
   const BackInterceptorWidget({
     super.key,

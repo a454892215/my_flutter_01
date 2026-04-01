@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -35,6 +36,7 @@ class _TabView1State extends State<TabView1> {
     _controller.dispose(); // 记得释放
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -140,8 +142,8 @@ class _TabView1State extends State<TabView1> {
             ),
             BackInterceptorWidget(
               onInterceptBack: (info){
-                Log.d("返回键事件========");
-                return false;
+                Log.d("返回键事件====被拦截====");
+                return true;
               },
               child: AppButton(
                 padding: EdgeInsets.all(10),
