@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../skin/app_skin.dart';
 import '../../../../skin/skin_factory.dart';
 import '../../../../skin/skin_manager.dart';
-import '../../../../util/getx_dialog_util.dart';
+import '../../../../widget/getx_dialog_util.dart';
 import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../component/app_button.dart';
 import '../../../component/text/text_def.dart';
@@ -120,6 +120,20 @@ class _TabView1State extends State<TabView1> {
               text: '底部弹窗-允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.bottomCenter);
+              },
+            ),
+            AppButton(
+              padding: EdgeInsets.all(10),
+              text: '左侧边弹窗-允许用户关闭',
+              onClick: () {
+                GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.centerLeft);
+              },
+            ),
+            AppButton(
+              padding: EdgeInsets.all(10),
+              text: '右侧边弹窗-允许用户关闭',
+              onClick: () {
+                GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.centerRight);
               },
             ),
             HorizontalIndicatorTab(

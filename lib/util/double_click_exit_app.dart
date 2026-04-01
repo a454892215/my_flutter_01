@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_comm/util/toast_util.dart';
+import 'package:flutter_comm/widget/toast_util.dart';
 
 class DoubleClickExitApp {
   int lastClickBackTime = 0;

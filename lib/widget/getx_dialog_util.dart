@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'Log.dart';
+import '../util/Log.dart';
 
 class GetxDialogUtil {
   /// 记录当前正在显示的 dialog tag
@@ -82,6 +82,34 @@ class GetxDialogUtil {
         position: Tween<Offset>(
           begin: const Offset(0, 1), // 从屏幕外底部开始 (y=1)
           end: Offset.zero,          // 移动到原始位置 (y=0)
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOut, // 底部弹出通常使用减速曲线，手感更丝滑
+        )),
+        child: child,
+      );
+    }
+
+    // 左边侧滑出来的菜单
+    if (alignment == Alignment.centerLeft || alignment == Alignment.bottomLeft || alignment == Alignment.topLeft) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(-1, 0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOut, // 底部弹出通常使用减速曲线，手感更丝滑
+        )),
+        child: child,
+      );
+    }
+
+    // 右边侧滑出来的菜单
+    if (alignment == Alignment.centerRight || alignment == Alignment.bottomRight || alignment == Alignment.topRight) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
         ).animate(CurvedAnimation(
           parent: animation,
           curve: Curves.easeInOut, // 底部弹出通常使用减速曲线，手感更丝滑
