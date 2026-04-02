@@ -25,6 +25,8 @@ class TabView6ControllerController extends BaseController {
   @mustCallSuper
   @override
   void onClose() {
+    accountCtrl.dispose();
+    passwordCtrl.dispose();
     super.onClose();
   }
 }

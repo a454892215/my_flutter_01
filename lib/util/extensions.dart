@@ -5,18 +5,6 @@ import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 
 extension StringExtension on String {
-  /// 获取Token，拼接到url后面
-  String addToken() {
-    String token = spUtil.getString(keyLoginToken) ?? "";
-    if (token.isNotEmpty) {
-      if (contains("?")) {
-        return "$this&t=$token";
-      } else {
-        return "$this?t=$token";
-      }
-    }
-    return this;
-  }
 
   String capitalizeFirstLetter() {
     if (isEmpty) {
@@ -24,28 +12,13 @@ extension StringExtension on String {
     }
     return this[0].toUpperCase() + substring(1).toLowerCase();
   }
-
-  String capitalizeFirstLetterOfEachWord() {
-    List<String> words = split(" ");
-    List<String> capitalizedWords = [];
-
-    for (String word in words) {
-      if (word.isNotEmpty) {
-        capitalizedWords.add(
-          word[0].toUpperCase() + word.substring(1).toLowerCase(),
-        );
-      }
-    }
-
-    return capitalizedWords.join(" ");
-  }
 }
 
 class AppRxList<T> extends RxList<T> {
   dynamic other;
   String? strExt;
 
-  AppRxList([super.initial]);
+  AppRxList([List<T>? initial]) : super(initial ?? <T>[]);
 }
 
 class AppScrollController extends ScrollController {
@@ -54,23 +27,49 @@ class AppScrollController extends ScrollController {
     super.keepScrollOffset = true,
   });
 
-  Callback? callback;
+  // 修改：将 Callback 设为可空，便于销毁
+  VoidCallback? _bottomCallback;
 
-  void addScrollToBottomListener(Callback callback) {
-    this.callback = callback;
+  // 修改：增加标记位，防止重复触发（针对异步操作）
+  bool _isLoading = false;
+
+  /// 设置触底监听
+  /// [callback] 触底后的业务逻辑
+  void setScrollToBottomListener(VoidCallback callback) {
+    _bottomCallback = callback;
+    // 修改：避免重复添加同一个监听器
+    removeListener(_scrollListener);
     addListener(_scrollListener);
   }
 
-  //  滚动监听回调
-  Future<void> _scrollListener() async {
-    if (offset >= position.maxScrollExtent && !position.outOfRange) {
-      if (callback != null) {
-        callback!();
-      }
+  void _scrollListener() {
+    // 优化 1：使用更严谨的触底判断逻辑
+    // pixels >= maxScrollExtent 是标准的触底判断
+    if (position.pixels >= position.maxScrollExtent && !position.outOfRange) {
+      _triggerCallback();
     }
   }
 
-  void release() {
+  void _triggerCallback() {
+    if (_bottomCallback != null && !_isLoading) {
+      _isLoading = true;
+      _bottomCallback!();
+
+      // 注意：这里 _isLoading 的重置通常需要配合业务逻辑（如请求结束）
+      // 如果是简单的回调，可以直接重置，或由外部控制
+    }
+  }
+
+  /// 修改：重置加载状态，供外部在数据加载完成后调用
+  void resetLoadingState() {
+    _isLoading = false;
+  }
+
+  // 修改：重写 dispose 而不是自定义 release，符合 Flutter 生命周期规范
+  @override
+  void dispose() {
     removeListener(_scrollListener);
+    _bottomCallback = null; // 释放引用，防止内存泄漏
+    super.dispose();
   }
 }
