@@ -11,6 +11,8 @@ import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../component/app_button.dart';
 import '../../../component/text/text_def.dart';
 import 'Center_dialog.dart';
+import 'dialog/left_sliding_dialog.dart';
+import 'dialog/right_sliding_dialog.dart';
 
 /// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller
 class TabView1 extends StatefulWidget {
@@ -56,6 +58,8 @@ class _TabView1State extends State<TabView1> {
   }
 
   CenterDialog centerDialog = CenterDialog();
+  LeftSlidingDialog leftSlidingDialog = LeftSlidingDialog();
+  RightSlidingDialog rightSlidingDialog = RightSlidingDialog();
 
   @override
   Widget build(BuildContext context) {
@@ -109,14 +113,14 @@ class _TabView1State extends State<TabView1> {
             ),
             AppButton(
               padding: EdgeInsets.all(10),
-              text: '中心弹窗-允许用户关闭',
+              text: 'getx中心弹窗-允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag);
               },
             ),
             AppButton(
               padding: EdgeInsets.all(10),
-              text: '中心弹窗-不允许用户关闭',
+              text: 'getx中心弹窗-不允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, tag: dialogTag, isForceShow: true);
                 Future.delayed(Duration(seconds: 5), (){
@@ -126,32 +130,40 @@ class _TabView1State extends State<TabView1> {
             ),
             AppButton(
               padding: EdgeInsets.all(10),
-              text: '底部弹窗-允许用户关闭',
+              text: 'getx底部弹窗-允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.bottomCenter);
               },
             ),
             AppButton(
               padding: EdgeInsets.all(10),
-              text: '左侧边弹窗-允许用户关闭',
+              text: 'getx左侧边弹窗-允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(getDialogWidget(height: ScreenInfo.contentHeight), isForceShow: false, tag: dialogTag, alignment: Alignment.bottomLeft);
               },
             ),
             AppButton(
               padding: EdgeInsets.all(10),
-              text: '右侧边弹窗-允许用户关闭',
+              text: 'getx右侧边弹窗-允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.centerRight);
               },
             ),
             AppButton(
               padding: EdgeInsets.all(10),
-              text: '自定义中心弹窗',
+              text: '状态缓存中心弹窗',
               onClick: () {
                 centerDialog.show(context);
               },
             ),
+            AppButton(
+              padding: EdgeInsets.all(10),
+              text: '状态缓存右滑弹窗',
+              onClick: () {
+                rightSlidingDialog.show(context);
+              },
+            ),
+
             // BackInterceptorWidget(
             //   onInterceptBack: (info){
             //     Log.d("返回键事件====被拦截====");

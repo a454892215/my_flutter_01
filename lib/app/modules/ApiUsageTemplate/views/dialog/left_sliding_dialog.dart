@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../widget/dialog/base_dialog.dart';
+import '../../../../../widget/dialog/base_dialog.dart';
 
-class CenterDialog extends BaseDialog {
+class LeftSlidingDialog extends BaseDialog {
   @override
-  Alignment get alignment => Alignment.center;
+  Alignment get alignment => Alignment.centerLeft;
 
   @override
   Widget buildWidget() {
     return Container(
-      width: 150.w,
-      height: 150.w,
+      width: 300.w,
+      height: 300.w,
       padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -19,7 +19,7 @@ class CenterDialog extends BaseDialog {
         border: Border.all(color: const Color(0xff000000), width: 1.w),
       ),
       child: Text(
-        "CenterDialog",
+        "LeftDialog",
         style: TextStyle(fontSize: 24.w, color: Color(0xffa84242), fontWeight: FontWeight.w400),
       ),
     );

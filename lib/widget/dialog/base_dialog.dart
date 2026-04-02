@@ -136,13 +136,52 @@ abstract class BaseDialog {
                   }
                 },
 
-                /// 避免 buildWidget点击也被关闭
-                child: GestureDetector(onTap: () {}, child: buildWidget()),
+
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: (targetState == showedState) ? 1.0 : 0.0),
+                  duration: Duration(milliseconds: 250),
+                  builder: (context, value, child) {
+                    // 将 0.0-1.0 的 value 封装成 Animation 对象传给动画函数
+                    return _buildContentAnimation(child!, AlwaysStoppedAnimation(value));
+                  },
+                  /// 避免 buildWidget点击也被关闭
+                  child: GestureDetector(onTap: () {}, child: buildWidget()),
+                ),
               );
             }),
           ),
         );
       }),
+    );
+  }
+
+  // --- 修改点 1: 抽取动画构建逻辑，直接复用 GetxDialogUtil 的位置判断逻辑 ---
+  Widget _buildContentAnimation(Widget child, Animation<double> animation) {
+    // 底部弹出
+    if (alignment == Alignment.bottomCenter) {
+      return SlideTransition(
+        position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(animation),
+        child: child,
+      );
+    }
+    // 左侧弹出
+    if (alignment == Alignment.centerLeft || alignment == Alignment.bottomLeft || alignment == Alignment.topLeft) {
+      return SlideTransition(
+        position: Tween<Offset>(begin: const Offset(-1, 0), end: Offset.zero).animate(animation),
+        child: child,
+      );
+    }
+    // 右侧弹出
+    if (alignment == Alignment.centerRight || alignment == Alignment.bottomRight || alignment == Alignment.topRight) {
+      return SlideTransition(
+        position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
+        child: child,
+      );
+    }
+    // 默认中间缩放
+    return ScaleTransition(
+      scale: Tween<double>(begin: 0.8, end: 1.0).animate(animation),
+      child: FadeTransition(opacity: animation, child: child),
     );
   }
 
