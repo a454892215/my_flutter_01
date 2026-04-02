@@ -113,42 +113,46 @@ abstract class BaseDialog {
           maintainAnimation: true,
           maintainState: true,
           maintainSize: true,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              hide();
-            },
-            child: Obx(() {
-              return AnimatedContainer(
-                width: double.infinity,
-                height: double.infinity,
-                color: bgColor.value,
-                alignment: alignment,
-                duration: Duration(milliseconds: 250),
-                onEnd: () {
-                  _state = targetState;
-                  if (targetState == hiddenState || targetState == closedState) {
-                    _isMounted.value = false;
-                  }
-                  if (targetState == closedState) {
-                    OverlayHelper().close(key);
-                    widget = null;
-                  }
-                },
-
-
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.0, end: (targetState == showedState) ? 1.0 : 0.0),
+          child: Scaffold(
+            resizeToAvoidBottomInset: true, /// 使软键盘定出输入框
+            backgroundColor: Colors.transparent, // 设置为透明
+            body: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                hide();
+              },
+              child: Obx(() {
+                return AnimatedContainer(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: bgColor.value,
+                  alignment: alignment,
                   duration: Duration(milliseconds: 250),
-                  builder: (context, value, child) {
-                    // 将 0.0-1.0 的 value 封装成 Animation 对象传给动画函数
-                    return _buildContentAnimation(child!, AlwaysStoppedAnimation(value));
+                  onEnd: () {
+                    _state = targetState;
+                    if (targetState == hiddenState || targetState == closedState) {
+                      _isMounted.value = false;
+                    }
+                    if (targetState == closedState) {
+                      OverlayHelper().close(key);
+                      widget = null;
+                    }
                   },
-                  /// 避免 buildWidget点击也被关闭
-                  child: GestureDetector(onTap: () {}, child: buildWidget()),
-                ),
-              );
-            }),
+
+
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: (targetState == showedState) ? 1.0 : 0.0),
+                    duration: Duration(milliseconds: 250),
+                    builder: (context, value, child) {
+                      // 将 0.0-1.0 的 value 封装成 Animation 对象传给动画函数
+                      return _buildContentAnimation(child!, AlwaysStoppedAnimation(value));
+                    },
+                    /// 避免 buildWidget点击也被关闭
+                    child: GestureDetector(onTap: () {}, child: buildWidget()),
+                  ),
+                );
+              }),
+            ),
           ),
         );
       }),
