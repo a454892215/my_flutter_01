@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -11,6 +10,7 @@ import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../component/app_button.dart';
 import '../../../component/text/text_def.dart';
 
+import 'dialog/bottom_sliding_dialog.dart';
 import 'dialog/center_dialog.dart';
 import 'dialog/left_sliding_dialog.dart';
 import 'dialog/right_sliding_dialog.dart';
@@ -30,27 +30,27 @@ class _TabView1State extends State<TabView1> {
   final List<String> _titles = ["精选", "双11大促", "手机", "电脑办公设备", "美妆", "运动"];
 
   static String dialogTag = "dialogTag001";
+
   @override
   void initState() {
     super.initState();
   }
+
   @override
   void dispose() {
     _controller.dispose(); // 记得释放
     super.dispose();
   }
+
   Widget get dialogWidget => getDialogWidget(height: 300.w);
 
-  Widget getDialogWidget({required double height}){
-   return Container(
+  Widget getDialogWidget({required double height}) {
+    return Container(
       width: 300.w,
       height: height,
       alignment: Alignment.center,
       padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
-      decoration: BoxDecoration(
-        color: const Color(0xffffcccc),
-        borderRadius: BorderRadius.circular(12.w),
-      ),
+      decoration: BoxDecoration(color: const Color(0xffffcccc), borderRadius: BorderRadius.circular(12.w)),
       child: Text(
         "弹窗1的内容",
         style: TextStyle(fontSize: 24.w, color: const Color(0xff333333), fontWeight: FontWeight.w400),
@@ -61,6 +61,7 @@ class _TabView1State extends State<TabView1> {
   CenterDialog centerDialog = CenterDialog();
   LeftSlidingDialog leftSlidingDialog = LeftSlidingDialog();
   RightSlidingDialog rightSlidingDialog = RightSlidingDialog();
+  BottomSlidingDialog bottomSlidingDialog = BottomSlidingDialog();
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +125,7 @@ class _TabView1State extends State<TabView1> {
               text: 'getx中心弹窗-不允许用户关闭',
               onClick: () {
                 GetxDialogUtil.show(dialogWidget, tag: dialogTag, isForceShow: true);
-                Future.delayed(Duration(seconds: 5), (){
+                Future.delayed(Duration(seconds: 5), () {
                   GetxDialogUtil.dismiss(tag: dialogTag);
                 });
               },
@@ -133,14 +134,24 @@ class _TabView1State extends State<TabView1> {
               padding: EdgeInsets.all(10),
               text: 'getx底部弹窗-允许用户关闭',
               onClick: () {
-                GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.bottomCenter);
+                GetxDialogUtil.show(
+                  dialogWidget,
+                  isForceShow: false,
+                  tag: dialogTag,
+                  alignment: Alignment.bottomCenter,
+                );
               },
             ),
             AppButton(
               padding: EdgeInsets.all(10),
               text: 'getx左侧边弹窗-允许用户关闭',
               onClick: () {
-                GetxDialogUtil.show(getDialogWidget(height: ScreenInfo.contentHeight), isForceShow: false, tag: dialogTag, alignment: Alignment.bottomLeft);
+                GetxDialogUtil.show(
+                  getDialogWidget(height: ScreenInfo.contentHeight),
+                  isForceShow: false,
+                  tag: dialogTag,
+                  alignment: Alignment.bottomLeft,
+                );
               },
             ),
             AppButton(
@@ -171,6 +182,13 @@ class _TabView1State extends State<TabView1> {
                 rightSlidingDialog.show(context);
               },
             ),
+            AppButton(
+              padding: EdgeInsets.all(10),
+              text: '状态缓存底部滑入弹窗',
+              onClick: () {
+                bottomSlidingDialog.show(context);
+              },
+            ),
 
             // BackInterceptorWidget(
             //   onInterceptBack: (info){
@@ -197,7 +215,10 @@ class _TabView1State extends State<TabView1> {
                   padding: EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     _titles[index],
-                    style: TextStyle(color: isSelected ? Colors.deepPurple : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+                    style: TextStyle(
+                      color: isSelected ? Colors.deepPurple : Colors.black87,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
                 );
               },
