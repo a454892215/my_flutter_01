@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../util/Log.dart';
 import '../back_event_interceptor.dart';
 import 'overlay_helper.dart';
 
@@ -93,10 +94,15 @@ abstract class BaseDialog {
     return BackInterceptorWidget(
       onInterceptBack: (RouteInfo info) {
         /// 只在showedState 状态才拦截
-        if (_state == showedState) {
+        if (_state == showedState || _state == showingState) {
           hide();
           return true;
         }
+        if (_state == hidingState || _state == closingState) {
+          Log.d("======hidingState||closingState====返回事件被拦截===");
+          return true;
+        }
+        if (_state == hiddenState || _state == closedState) return false;
 
         /// 其他状态 不拦截处理
         return false;
