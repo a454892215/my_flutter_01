@@ -22,7 +22,6 @@ class DialogWidget extends StatefulWidget {
 }
 
 class _DialogWidgetState extends State<DialogWidget> {
-
   final accountCtrl = AppInputController(regExp: InputRules.usernameReg);
 
   @override
@@ -30,12 +29,20 @@ class _DialogWidgetState extends State<DialogWidget> {
     super.dispose();
     accountCtrl.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    /// 获取当前上下文的键盘高度
+    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    double bottom = 0;
+    if (keyboardHeight > 50.w) {
+      bottom = keyboardHeight - 50.w;
+    }
+    return AnimatedContainer(
       width: 600.w,
       height: 300.w,
-      padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
+      margin: EdgeInsets.only(bottom: bottom),
+      duration: Duration(milliseconds: 250),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: const Color(0xffcccccc),

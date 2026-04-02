@@ -114,7 +114,7 @@ abstract class BaseDialog {
           maintainState: true,
           maintainSize: true,
           child: Scaffold(
-            resizeToAvoidBottomInset: true, /// 使软键盘定出输入框
+            resizeToAvoidBottomInset: false, ///  true 使软键盘定顶出布局
             backgroundColor: Colors.transparent, // 设置为透明
             body: GestureDetector(
               behavior: HitTestBehavior.opaque,
