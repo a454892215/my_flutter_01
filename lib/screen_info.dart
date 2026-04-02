@@ -32,6 +32,14 @@ class ScreenInfo {
 
   static void init(BuildContext context, {designWidth = 750}) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
+    // 2. 增加防抖/性能优化：如果数据没变，直接返回
+    if (width == mediaQuery.size.shortestSide &&
+        height == mediaQuery.size.longestSide &&
+        statusBarHeight == mediaQuery.viewPadding.top &&
+        mediaQuery.orientation == (width == mediaQuery.size.width ? Orientation.portrait : Orientation.landscape)) {
+      return;
+    }
+
     width = mediaQuery.size.shortestSide;
     height = mediaQuery.size.longestSide;
 
@@ -51,8 +59,8 @@ class ScreenInfo {
       bottomBarHeight = mediaQuery.viewPadding.bottom;
       usableHeight = height - statusBarHeight - bottomBarHeight;
       contentHeight = usableHeight - appHeaderHeight;
-      unit = width / designWidth;
     }
+    unit = width / designWidth;
     Log.d("ScreenInfo 初始化完毕");
   }
 }
