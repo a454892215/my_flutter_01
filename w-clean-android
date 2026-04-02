@@ -1,5 +1,5 @@
 #!/bin/bash
-# 指向你本地存放该版本的绝对路径
+# 指向你本地存放该版本的绝对路径, 改变类路径后，或者改变本地资源后，如果报错 可以运行此脚本尝试解决
 # chmod +x .cleanw
 ./flutterw clean
 ./flutterw pub get

@@ -31,6 +31,7 @@ class OverlayHelper {
     if (entry != null) {
       /// 2. 将其从 Overlay 栈中移除 remove() 内部会触发 OverlayState 的重绘
       entry.remove();
+      Log.d('Overlay key=$key 被移除');
     }
   }
 

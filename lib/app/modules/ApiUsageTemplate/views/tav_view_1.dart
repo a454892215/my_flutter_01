@@ -10,7 +10,8 @@ import '../../../../widget/getx_dialog_util.dart';
 import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../component/app_button.dart';
 import '../../../component/text/text_def.dart';
-import 'Center_dialog.dart';
+
+import 'dialog/center_dialog.dart';
 import 'dialog/left_sliding_dialog.dart';
 import 'dialog/right_sliding_dialog.dart';
 
@@ -43,7 +44,7 @@ class _TabView1State extends State<TabView1> {
   Widget getDialogWidget({required double height}){
    return Container(
       width: 300.w,
-      height: height ?? 300.w,
+      height: height,
       alignment: Alignment.center,
       padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
       decoration: BoxDecoration(
@@ -154,6 +155,13 @@ class _TabView1State extends State<TabView1> {
               text: '状态缓存中心弹窗',
               onClick: () {
                 centerDialog.show(context);
+              },
+            ),
+            AppButton(
+              padding: EdgeInsets.all(10),
+              text: '状态缓存左滑弹窗',
+              onClick: () {
+                leftSlidingDialog.show(context);
               },
             ),
             AppButton(
