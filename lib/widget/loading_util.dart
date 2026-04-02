@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import '../screnn_info.dart';
+import '../screen_info.dart';
 
 
 class AppLoading {

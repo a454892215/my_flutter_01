@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../screnn_info.dart';
+import '../../../../screen_info.dart';
 import '../../../../util/input_rules.dart';
 import '../../../../widget/input_field.dart';
 import '../../../component/text/text_def.dart';

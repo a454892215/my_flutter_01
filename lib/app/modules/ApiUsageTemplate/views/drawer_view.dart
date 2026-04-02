@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import '../../../../screnn_info.dart';
+import '../../../../screen_info.dart';
 import '../../../component/text/text_def.dart';
 import '../controllers/api_usage_template_drawer_controller.dart';
 

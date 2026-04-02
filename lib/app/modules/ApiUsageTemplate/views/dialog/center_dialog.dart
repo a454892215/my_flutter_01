@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../../screnn_info.dart';
+import '../../../../../screen_info.dart';
 import '../../../../../widget/dialog/base_dialog.dart';
 
 class CenterDialog extends BaseDialog {

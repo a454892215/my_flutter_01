@@ -10,7 +10,7 @@ import 'package:flutter_comm/widget/keep_alive_widget.dart';
 
 import 'package:get/get.dart';
 
-import '../../../../screnn_info.dart';
+import '../../../../screen_info.dart';
 import '../../../component/app_tab_bar.dart';
 import '../../../component/my_app_bar.dart';
 import '../controllers/api_usage_template_controller.dart';

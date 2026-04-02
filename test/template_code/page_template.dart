@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_comm/screnn_info.dart';
+import 'package:flutter_comm/screen_info.dart';
 
 Widget getListView() {
   return ListView.builder(

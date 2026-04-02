@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_comm/screnn_info.dart';
+import 'package:flutter_comm/screen_info.dart';
 import 'package:flutter_comm/skin/skin_factory.dart';
 import 'package:flutter_comm/skin/skin_manager.dart';
 import 'package:flutter_comm/util/Log.dart';
@@ -120,8 +120,6 @@ class GetMaterialAppConfig extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenInfo.init(context);
-    AppLoading.initLoading();
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       /// 仅在非 Release 模式（即 Debug 或 Profile）下显示:!kReleaseMode
@@ -157,6 +155,8 @@ class GetMaterialAppConfig extends StatelessWidget {
       },
       builder: EasyLoading.init(
         builder: (context, widget) {
+          ScreenInfo.init(context);
+          AppLoading.initLoading();
           return RefreshConfigurationWidget(
             MediaQuery(
               ///设置文字大小不随系统设置改变

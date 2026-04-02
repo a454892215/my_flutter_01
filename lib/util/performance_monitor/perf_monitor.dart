@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/performance_monitor/ui_perf_provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../../screnn_info.dart';
+import '../../screen_info.dart';
 import '../Log.dart';
 import '../exe_timer.dart';
 import 'draggable_floating_widget.dart'; // 引入刚才定义的容器

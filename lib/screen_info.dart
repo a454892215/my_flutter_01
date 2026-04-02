@@ -2,6 +2,7 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_comm/util/Log.dart';
 
 import 'app_style.dart';
 
@@ -27,9 +28,9 @@ class ScreenInfo {
   /// 当 Android/iOS 软键盘弹出时，MediaQuery.of(context).viewInsets.bottom 会变成键盘高度。
   static double bottomBarHeight = 0;
 
-  static double unit  = 0;
+  static double unit = 0;
 
-  static void init(BuildContext context, {designWidth = 720}) {
+  static void init(BuildContext context, {designWidth = 750}) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     width = mediaQuery.size.shortestSide;
     height = mediaQuery.size.longestSide;
@@ -52,23 +53,20 @@ class ScreenInfo {
       contentHeight = usableHeight - appHeaderHeight;
       unit = width / designWidth;
     }
-
-
+    Log.d("ScreenInfo 初始化完毕");
   }
 }
 
 extension NumExtensions on num {
-
-  double get w{
+  double get w {
     return ScreenInfo.unit * this;
   }
 
-  double get sp{
+  double get sp {
     return ScreenInfo.unit * this;
   }
 
-  double get sw{
+  double get sw {
     return ScreenInfo.width * this;
   }
-
 }

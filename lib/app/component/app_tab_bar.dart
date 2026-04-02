@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-import '../../screnn_info.dart';
+import '../../screen_info.dart';
 
 /// 基于TabBar的水平tab 可以设置 indicatorWidth
 class AppTabBar extends StatefulWidget {

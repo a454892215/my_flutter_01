@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../screnn_info.dart';
+import '../screen_info.dart';
 
 /// 抽离样式配置
 class AppInputStyle {

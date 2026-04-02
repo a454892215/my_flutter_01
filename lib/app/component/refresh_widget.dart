@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
-import '../../screnn_info.dart';
+import '../../screen_info.dart';
 
 class RefreshWidget extends StatefulWidget {
   const RefreshWidget({

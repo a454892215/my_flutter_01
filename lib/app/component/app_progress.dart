@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../screnn_info.dart';
+import '../../screen_info.dart';
 import '../../util/math_util.dart';
 
 class AppProgress extends StatelessWidget {

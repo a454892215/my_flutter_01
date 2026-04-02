@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../screnn_info.dart';
+import '../../../../screen_info.dart';
 import '../../../../skin/app_skin.dart';
 import '../../../../skin/skin_factory.dart';
 import '../../../../skin/skin_manager.dart';
