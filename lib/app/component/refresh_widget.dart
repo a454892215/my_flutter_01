@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+
+import '../../screnn_info.dart';
 
 class RefreshWidget extends StatefulWidget {
   const RefreshWidget({
@@ -156,10 +157,10 @@ class _RefreshWidgetState extends State<RefreshWidget> {
             break;
         }
         return SizedBox(
-          height: 60.h,
+          height: 120.w,
           child: Center(
             child: DefaultTextStyle(
-              style: TextStyle(fontSize: 14.sp, color: Colors.grey[400]),
+              style: TextStyle(fontSize: 14.w, color: Colors.grey[400]),
               child: body,
             ),
           ),

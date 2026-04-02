@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../screnn_info.dart';
 
 /// 通用按钮
 class AppButton extends StatelessWidget {

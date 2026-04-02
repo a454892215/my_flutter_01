@@ -27,7 +27,9 @@ class ScreenInfo {
   /// 当 Android/iOS 软键盘弹出时，MediaQuery.of(context).viewInsets.bottom 会变成键盘高度。
   static double bottomBarHeight = 0;
 
-  static void init(BuildContext context) {
+  static double unit  = 0;
+
+  static void init(BuildContext context, {designWidth = 720}) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     width = mediaQuery.size.shortestSide;
     height = mediaQuery.size.longestSide;
@@ -48,6 +50,25 @@ class ScreenInfo {
       bottomBarHeight = mediaQuery.viewPadding.bottom;
       usableHeight = height - statusBarHeight - bottomBarHeight;
       contentHeight = usableHeight - appHeaderHeight;
+      unit = width / designWidth;
     }
+
+
   }
+}
+
+extension NumExtensions on num {
+
+  double get w{
+    return ScreenInfo.unit * this;
+  }
+
+  double get sp{
+    return ScreenInfo.unit * this;
+  }
+
+  double get sw{
+    return ScreenInfo.width * this;
+  }
+
 }

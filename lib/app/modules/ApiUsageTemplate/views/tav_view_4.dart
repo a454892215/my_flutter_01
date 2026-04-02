@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 
+import '../../../../screnn_info.dart';
 import '../../../../widget/asset_image.dart';
 import '../../../component/text/text_def.dart';
 import '../controllers/tab_view_4_controller.dart';

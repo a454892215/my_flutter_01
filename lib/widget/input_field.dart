@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
+import '../screnn_info.dart';
 
 /// 抽离样式配置
 class AppInputStyle {
@@ -54,7 +55,7 @@ class AppTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 预计算静态样式，避免在 Obx 内部重复计算
-    final double targetHeight = customStyle?.height ?? 88.h;
+    final double targetHeight = customStyle?.height ?? 1.sw * 0.15;
     final double targetWidth = customStyle?.width ?? double.infinity;
     final BoxDecoration baseDecoration = customStyle?.decoration ??
         BoxDecoration(

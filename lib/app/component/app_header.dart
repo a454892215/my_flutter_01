@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../screnn_info.dart';
 import '../../skin/app_skin.dart';
 import '../../app_style.dart';
 

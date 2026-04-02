@@ -13,7 +13,6 @@ import 'package:flutter_comm/util/system_util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/observers/route_observer.dart';
@@ -43,13 +42,11 @@ void main() async {
       );
     }
     runApp(
-      ScreenAdapterConfigurationWidget(
-        child: ListenableBuilder(
-          listenable: SkinManager.instance,
-          builder: (context, child) {
-            return GetMaterialAppConfig();
-          },
-        ),
+      ListenableBuilder(
+        listenable: SkinManager.instance,
+        builder: (context, child) {
+          return GetMaterialAppConfig();
+        },
       ),
     );
   });
@@ -114,21 +111,6 @@ class RefreshConfigurationWidget extends StatelessWidget {
           return child;
         },
       ),
-    );
-  }
-}
-
-class ScreenAdapterConfigurationWidget extends StatelessWidget {
-  const ScreenAdapterConfigurationWidget({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(750, 1334),
-      minTextAdapt: true,
-      builder: (context, widget) => child,
     );
   }
 }

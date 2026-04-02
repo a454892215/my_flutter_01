@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../../screnn_info.dart';
 import '../../../../../util/input_rules.dart';
 import '../../../../../widget/dialog/base_dialog.dart';
 import '../../../../../widget/input_field.dart';

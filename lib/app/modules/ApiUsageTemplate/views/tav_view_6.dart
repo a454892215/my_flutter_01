@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import '../../../../screnn_info.dart';
 import '../../../../util/input_rules.dart';
 import '../../../../widget/input_field.dart';
 import '../../../component/text/text_def.dart';
@@ -42,7 +42,7 @@ class _TabView6State extends State<TabView6> {
                 formatters: InputRules.usernameFormatters,
               ),
 
-              SizedBox(height: 32.h),
+              SizedBox(height: 1.sw * 0.1),
 
               // --- 示例 2: 密码输入框 (带眼睛切换) ---
               AppTextField(

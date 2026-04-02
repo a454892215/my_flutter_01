@@ -50,7 +50,6 @@ dependencies:
   shared_preferences: ^2.3.5
 
   # UI 组件
-  flutter_screenutil: ^5.9.3
   fluttertoast: ^8.2.8
   cupertino_icons: ^1.0.8
   flutter_picker: ^2.1.0

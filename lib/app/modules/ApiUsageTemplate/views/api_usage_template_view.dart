@@ -7,10 +7,10 @@ import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_5.dart'
 import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_6.dart';
 import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_7.dart';
 import 'package:flutter_comm/widget/keep_alive_widget.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
 
+import '../../../../screnn_info.dart';
 import '../../../component/app_tab_bar.dart';
 import '../../../component/my_app_bar.dart';
 import '../controllers/api_usage_template_controller.dart';

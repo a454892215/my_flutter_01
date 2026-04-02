@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/app/component/app_button.dart';
 import 'package:flutter_comm/widget/toast_util.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../screnn_info.dart';
 import '../../util/app_util.dart';
 
 
