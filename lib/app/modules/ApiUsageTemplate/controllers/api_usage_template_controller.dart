@@ -16,6 +16,7 @@ class ApiUsageTemplateController extends BaseController
     {'label': '4图片列表', 'value': '4'},
     {'label': '5轮播图', 'value': '5'},
     {'label': '6输入组件', 'value': '6'},
+    {'label': '7NestedScrollView', 'value': '7'},
   ];
    final selectedPageIndex = 0.obs;
 

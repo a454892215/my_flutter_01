@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 class VerticalNestedScrollWidget extends StatelessWidget {
   const VerticalNestedScrollWidget({
-    Key? key,
+    super.key,
     required this.expandedHeight,
     required this.headerWidget,
     required this.bodyWidget,
-  }) : super(key: key);
+  });
 
   final double expandedHeight;
   final Widget headerWidget;
-  final Widget bodyWidget;
+  final List<Widget> bodyWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class VerticalNestedScrollWidget extends StatelessWidget {
             SliverOverlapInjector(
               handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
             ),
-            bodyWidget,
+            ...bodyWidget,
           ],
         );
       }),

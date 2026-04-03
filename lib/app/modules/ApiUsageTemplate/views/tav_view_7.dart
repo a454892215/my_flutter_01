@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_comm/widget/vertical_nested_scroll_widget.dart';
 
-import 'package:get/get.dart';
 
+import '../../../../screen_info.dart';
 import '../../../component/text/text_def.dart';
-import '../controllers/api_usage_template_drawer_controller.dart';
 
-/// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller
-class TabView7 extends GetView<TemplateDrawerController> {
+/// NestedScrollView
+class TabView7 extends StatelessWidget {
   const TabView7({super.key});
 
   @override
   Widget build(BuildContext context) {
     // 只要第一次打开时请求过，数据就会一直保存在这个内存对象中
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: Color(0xf56ca1e8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          AppText(text: "TabView7",)
-        ],
-      ),
-    );
+    return VerticalNestedScrollWidget(expandedHeight: 60, headerWidget: Container(
+        width: 100.w,
+        height: 100.w,
+        padding: EdgeInsets.only(left: 0.w, right: 0.w, top: 0.w, bottom: 0.w),
+        decoration: BoxDecoration(
+          color: const Color(0xffcccccc),
+          borderRadius: BorderRadius.circular(12.w),
+          border: Border.all(color: const Color(0xff000000), width: 1.w),
+        ),
+        child: const SizedBox(),
+      ), bodyWidget: [],);
   }
 }
