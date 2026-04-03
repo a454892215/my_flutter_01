@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
-import 'dart:developer' as developer; // 必须导入
+import 'dart:developer' as developer;
+
+import 'app_util.dart'; // 必须导入
 
 class Log {
   static const String tag = "LLpp:";
@@ -100,12 +102,14 @@ class Log {
     if (kReleaseMode) return; // Release 模式彻底关闭，保护性能
 
     String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
-   // String timestamp = DateTime.now().toIso8601String().split('T').last;
     String text = "$tag$msg";
 
     // 1. 传统的打印（供终端/Logcat使用）
     // 注意：Profile模式下debugPrint可能在IDE控制台不显示，但在adb里有
-   // debugPrint("$timestamp $traceInfo $text");
+    if(AppUtil.isDesktop){
+      String timestamp = DateTime.now().toIso8601String().split('T').last;
+      debugPrint("$timestamp $traceInfo $text");
+    }
     // 2. 专门送往 DevTools 的日志
     developer.log(
       "$traceInfo $text",

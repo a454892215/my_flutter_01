@@ -29,6 +29,13 @@ class AppUtil {
   // 是否是 iOS
   static bool get isIOS => !kIsWeb && Platform.isIOS;
 
+
+
+  static bool get isDesktop {
+    if (kIsWeb) return false; // Web 端目前通常不视为原生 PC 桌面端
+    return Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+  }
+
   // 获取平台名称字符串
   static String get platformName {
     if (kIsWeb) return "H5";
