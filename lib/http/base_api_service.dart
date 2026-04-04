@@ -60,11 +60,13 @@ class BaseApiService extends BaseAbsApiService {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     T Function(dynamic json)? decoder,
-  }) => requestData(path, method: 'GET', queryParameters: queryParameters, headers: headers, decoder: decoder);
+    CancelToken? cancelToken,
+  }) => requestData(path, method: 'GET', queryParameters: queryParameters, headers: headers, decoder: decoder, cancelToken: cancelToken);
 
   Future<T?> post<T>(String path, {
     dynamic data,
     Map<String, dynamic>? headers,
     T Function(dynamic json)? decoder,
-  }) => requestData(path, method: 'POST', data: data, headers: headers, decoder: decoder);
+    CancelToken? cancelToken,
+  }) => requestData(path, method: 'POST', data: data, headers: headers, decoder: decoder, cancelToken: cancelToken);
 }
