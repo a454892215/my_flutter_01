@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -26,6 +28,8 @@ class ApiUsageTemplateController extends BaseController
   void onInit() {
     super.onInit();
     tabController = TabController(length: tabs.length, vsync: this);
+    // 全局忽略证书校验（仅限开发/测试环境！）
+    HttpOverrides.global = MyHttpOverrides();
     AppApiService().getUserInfo({});
   }
 
@@ -41,5 +45,14 @@ class ApiUsageTemplateController extends BaseController
     super.onClose();
     tabController.dispose();
     pageController.dispose();
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
