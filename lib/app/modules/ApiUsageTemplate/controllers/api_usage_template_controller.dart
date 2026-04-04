@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../http/app_api_service.dart';
+import '../../../../util/http_self_sign_util.dart';
 import '../../../../util/performance_monitor/perf_monitor.dart';
 import '../../../base/base_controller.dart';
 
@@ -28,8 +29,7 @@ class ApiUsageTemplateController extends BaseController
   void onInit() {
     super.onInit();
     tabController = TabController(length: tabs.length, vsync: this);
-    // 全局忽略证书校验（仅限开发/测试环境！）
-    HttpOverrides.global = MyHttpOverrides();
+    HttpSelfSignUtil.trustAll();
     AppApiService().getUserInfo({});
   }
 
@@ -48,11 +48,4 @@ class ApiUsageTemplateController extends BaseController
   }
 }
 
-class MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-  }
-}
+
