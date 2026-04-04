@@ -20,7 +20,7 @@ class TestApiService extends BaseApiService {
 
   Future<TestBaseEntity?> getUserInfo(dynamic data) {
     return get<TestBaseEntity>(
-      'userInfo',
+      'getUserInfo',
       queryParameters: {},
       decoder: (json) => TestBaseEntity.fromJson(json),
     );

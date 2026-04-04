@@ -10,7 +10,7 @@ import 'test_base_entity.dart';
 class HttpTest {
   static Future<void> test1() async {
     TestApiService apiService = TestApiService();
-    TestBaseEntity? entity = await apiService.test({'clientId': 'client77'});
+    TestBaseEntity? entity = await apiService.getUserInfo({});
     Log.d("====请求成功====：$entity type:${entity?.runtimeType}  msg:${entity?.msg}");
   }
 }
