@@ -9,11 +9,16 @@ import 'dio_client.dart';
 /// 把数据转成需要的Modal
 abstract class BaseAbsApiService {
   final DioClient client;
-  final String baseUrl;
+  String baseUrl;
   final bool isCborEnabled;
 
   BaseAbsApiService(this.baseUrl, {this.isCborEnabled = false})
-    : client = DioClient(baseUrl: baseUrl, isCborEnabled: isCborEnabled);
+    : client = DioClient(isCborEnabled: isCborEnabled);
+
+
+  void setBaseUrl(String baseUrl){
+    this.baseUrl = baseUrl;
+  }
 
   Future<NetworkResponse<T>> request<T>(
     String path, {
@@ -25,6 +30,10 @@ abstract class BaseAbsApiService {
     CancelToken? cancelToken,
     T Function(dynamic json)? decoder,
   }) async {
+
+    if(!path.startsWith("http:") && !path.startsWith("https:")){
+      path = baseUrl + path;
+    }
     // 1. 获取底层响应
     NetworkResponse<Uint8List> response = await client.request(
       path,

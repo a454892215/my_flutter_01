@@ -10,13 +10,13 @@ import 'response.dart';
 class DioClient {
   static final Map<String, DioClient> _instanceMap = {};
   late final Dio _dio;
-  final String baseUrl;
+ // final String baseUrl;
   final bool isCborEnabled;
 
-  DioClient._internal(this.baseUrl, this.isCborEnabled) {
+  DioClient._internal(this.isCborEnabled) {
     _dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl,
+       // baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
         sendTimeout: const Duration(seconds: 10),
@@ -37,15 +37,13 @@ class DioClient {
     _dio.interceptors.add(SingleLogInterceptor());
   }
 
-  factory DioClient({required String baseUrl, bool isCborEnabled = false}) {
-    return _instanceMap.putIfAbsent(
-      baseUrl,
-          () => DioClient._internal(baseUrl, isCborEnabled),
+  factory DioClient({String key = "default", bool isCborEnabled = false}) {
+    return _instanceMap.putIfAbsent(key, () => DioClient._internal(isCborEnabled),
     );
   }
 
   Future<NetworkResponse<Uint8List>> request(
-      String path, {
+      String url, {
         String method = 'GET',
         dynamic data,
         Map<String, dynamic>? queryParameters,
@@ -62,7 +60,7 @@ class DioClient {
         requestData = Uint8List.fromList(cbor.encode(CborValue(data)));
       }
       dioResponse = await _dio.request<Uint8List>(
-        path,
+        url,
         data: requestData,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
