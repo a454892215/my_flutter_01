@@ -14,8 +14,8 @@ class AppApiService extends BaseApiService {
   factory AppApiService() => _instance;
 
 
-  Future<UserInfo?> getUserInfo(dynamic queryParameters, {CancelToken? token}) {
-    return get<UserInfo>('api/login', queryParameters: queryParameters, decoder: UserInfo.fromJson, cancelToken: token);
+  Future<UserInfo?> getUserInfo(Map<String, dynamic>? queryParameters, {CancelToken? token}) {
+    return get<UserInfo>('getUserInfo', queryParameters: queryParameters, decoder: UserInfo.fromJson, cancelToken: token);
   }
 
 

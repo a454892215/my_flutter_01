@@ -76,7 +76,7 @@ class DioClient {
         Log.d("[Network] 请求手动取消: ${e.requestOptions.path}");
       } else {
         _logError(e);
-        errorMsg = e.message;
+        errorMsg = e.error?.toString() ?? e.message ?? "Unknown Dio Error";
         // 如果有响应体（如 500 错误带的 JSON），赋值给 dioResponse 以便后续返回
         if (e.response != null && e.response!.data is Uint8List) {
           dioResponse = e.response as Response<Uint8List>;
@@ -100,8 +100,12 @@ class DioClient {
   void _logError(DioException e) {
     final url = e.requestOptions.uri.toString();
     final code = e.response?.statusCode ?? "N/A";
+
+    // --- 修改处：确保日志输出包含具体错误对象 ---
+    final detail = e.message ?? e.error?.toString() ?? "N/A";
     Log.e(
-      "[Network Error] URL: $url, Code: $code, Type: ${e.type}, Msg: ${e.message}",
+      "[Network Error] URL: $url, Code: $code, Type: ${e.type}, Msg: $detail",
     );
+    // --------------------------------------
   }
 }

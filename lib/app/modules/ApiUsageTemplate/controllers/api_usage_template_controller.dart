@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../http/app_api_service.dart';
 import '../../../../util/performance_monitor/perf_monitor.dart';
 import '../../../base/base_controller.dart';
 
@@ -25,6 +26,7 @@ class ApiUsageTemplateController extends BaseController
   void onInit() {
     super.onInit();
     tabController = TabController(length: tabs.length, vsync: this);
+    AppApiService().getUserInfo({});
   }
 
   @mustCallSuper

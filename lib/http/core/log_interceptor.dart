@@ -65,7 +65,12 @@ class SingleLogInterceptor extends Interceptor {
     buffer.writeln('┌---------- ERROR ----------------------------------------------');
     buffer.writeln('| URL: ${err.requestOptions.uri}');
     buffer.writeln('| Method: ${err.requestOptions.method}');
-    buffer.writeln('| Message: ${err.message}');
+
+    // --- 修改处：增加对 err.error 的提取，解决 message 为 null 的问题 ---
+    final errorMessage = err.message ?? err.error?.toString() ?? "Unknown Error";
+    buffer.writeln('| Message: $errorMessage');
+    // -----------------------------------------------------------
+
     if (err.response?.data != null) {
       buffer.writeln('| Error Data: ${_parseData(err.response?.data)}');
     }
