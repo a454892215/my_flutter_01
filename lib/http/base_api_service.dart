@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import '../util/Log.dart';
 import 'core/base_abs_api_service.dart';
@@ -69,4 +71,42 @@ class BaseApiService extends BaseAbsApiService {
     T Function(dynamic json)? decoder,
     CancelToken? cancelToken,
   }) => requestData(path, method: 'POST', data: data, headers: headers, decoder: decoder, cancelToken: cancelToken);
+
+
+  Future<bool> setFastestBaseUrl(List<String> baseUrlList, String path) async {
+    if (baseUrlList.isEmpty) {
+      Log.e("baseUrlList isEmpty");
+      return false;
+    }
+    final completer = Completer<String>();
+    final List<CancelToken> tokens = [];
+    for (var baseUrl in baseUrlList) {
+      final token = CancelToken();
+      tokens.add(token);
+      final String fullUrl = baseUrl + path;
+      get<Map<String, dynamic>>(fullUrl, cancelToken: token)
+          .then((_) {
+        if (!completer.isCompleted) {
+          completer.complete(baseUrl);
+        }
+      })
+          .catchError((e) {
+        if (!CancelToken.isCancel(e)) {
+          Log.e("setFastestBaseUrl: $e");
+        }
+      });
+    }
+    try {
+      String fastest = await completer.future.timeout(Duration(seconds: 10));
+      setBaseUrl(fastest);
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      for (var t in tokens) {
+        if (!t.isCancelled) t.cancel("setFastestBaseUrl finished");
+      }
+    }
+  }
+
 }
