@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import '../../../component/app_button.dart';
-import '../../../component/my_app_bar.dart';
+import '../../../widget/app_button.dart';
+import '../../../widget/my_app_bar.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 

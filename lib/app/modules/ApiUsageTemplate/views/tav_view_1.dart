@@ -6,8 +6,8 @@ import '../../../../skin/skin_factory.dart';
 import '../../../../skin/skin_manager.dart';
 import '../../../../widget/getx_dialog_util.dart';
 import '../../../../widget/horizontal_indicator_tab.dart';
-import '../../../component/app_button.dart';
-import '../../../component/text/text_def.dart';
+import '../../../widget/app_button.dart';
+import '../../../widget/text/text_def.dart';
 
 import 'dialog/bottom_sliding_dialog.dart';
 import 'dialog/center_dialog.dart';

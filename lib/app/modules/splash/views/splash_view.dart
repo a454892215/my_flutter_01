@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_comm/app/component/app_button.dart';
 
 import 'package:get/get.dart';
 
-import '../../../../app_style.dart';
-import '../../../component/app_header.dart';
-import '../../../component/my_app_bar.dart';
 import '../../../routes/app_pages.dart';
+import '../../../widget/app_button.dart';
+import '../../../widget/my_app_bar.dart';
 import '../controllers/splash_controller.dart';
 
 class SplashView extends GetView<SplashController> {

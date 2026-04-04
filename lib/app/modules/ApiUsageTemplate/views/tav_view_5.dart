@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import '../../../../screen_info.dart';
 import '../../../../widget/asset_image.dart';
 import '../../../../widget/banner.dart';
-import '../../../component/text/text_def.dart';
+import '../../../widget/text/text_def.dart';
 import '../controllers/api_usage_template_drawer_controller.dart';
 
 /// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller

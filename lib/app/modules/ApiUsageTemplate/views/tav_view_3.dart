@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../../skin/app_skin.dart';
 import '../../../../widget/auto_scroll_listview.dart';
-import '../../../component/text/text_def.dart';
+import '../../../widget/text/text_def.dart';
 import '../controllers/api_usage_template_controller.dart';
 import '../controllers/tab_view_3_controller.dart';
 

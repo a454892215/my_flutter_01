@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../../screen_info.dart';
 import '../../../../widget/asset_image.dart';
-import '../../../component/text/text_def.dart';
+import '../../../widget/text/text_def.dart';
 import '../controllers/tab_view_4_controller.dart';
 import '../entity/entities.dart';
 

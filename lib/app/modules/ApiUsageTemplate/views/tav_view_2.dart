@@ -3,7 +3,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart'
     show RefreshController;
-import '../../../component/refresh_widget.dart';
+import '../../../widget/refresh_widget.dart';
 import '../controllers/tab_view_2_controller.dart';
 
 /// refresh sample
