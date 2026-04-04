@@ -25,7 +25,7 @@ class BaseController extends GetxController {
     // Controller 销毁时，遍历并取消所有注册在内的请求
     _cancelTokens.forEach((tag, token) {
       if (!token.isCancelled) {
-        token.cancel("Controller $runtimeType disposed");
+        token.cancel("请求取消  $tag disposed");
       }
     });
     _cancelTokens.clear();
@@ -37,6 +37,7 @@ class BaseController extends GetxController {
   /// [tag] 默认为 'default'，如果一个页面有多个独立请求，可以传入不同的 tag
   /// CancelToken 可以被多次调用 cancel()，但只有第一次生效，后续调用会被忽略。
   CancelToken getCancelToken([String tag = 'default']) {
+    tag = _getTag(tag);
     var token = _cancelTokens[tag];
     // 最小改动：如果 token 存在且没被取消，直接用；否则（不存在或已取消）就覆盖并返回新的
     if (token != null && !token.isCancelled) {
@@ -51,9 +52,14 @@ class BaseController extends GetxController {
 
   /// 手动取消特定的请求
   void cancelRequest(String tag) {
+    tag = _getTag(tag);
     if (_cancelTokens.containsKey(tag)) {
       _cancelTokens[tag]?.cancel("User manually cancelled: $tag");
       _cancelTokens.remove(tag);
     }
+  }
+
+  String _getTag(String tag){
+    return "$runtimeType-$tag";
   }
 }
