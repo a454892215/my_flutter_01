@@ -1,5 +1,6 @@
 #!/bin/bash
 # 指向你本地存放该版本的绝对路径
 # ./flutterw pub get
-SPECIFIC_FLUTTER_PATH="/Users/llpp/development/flutter_3_38_8/bin/flutter"
+# SPECIFIC_FLUTTER_PATH="/Users/llpp/development/flutter_3_38_8/bin/flutter"
+SPECIFIC_FLUTTER_PATH="/Users/web/fvm/versions/3.38.8"
 exec "$SPECIFIC_FLUTTER_PATH" "$@"

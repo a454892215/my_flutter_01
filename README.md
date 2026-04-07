@@ -31,7 +31,7 @@ samples, guidance on mobile development, and a full API reference.
 ./flutterw build apk --release --target-platform android-arm,android-arm64
 
 // 打包出arm平台的包：包含 arm64-v8a， 而不包含armeabi-v7a， (14.8MB)
-./flutterw build apk --release --target-platform android-arm64 --split-per-abi
+fvm flutter build apk --release --target-platform android-arm64 --split-per-abi
 
 /Users/llpp/Library/Android/sdk/cmdline-tools/latest/bin/apkanalyzer
 
