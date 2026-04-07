@@ -128,10 +128,14 @@ class GetMaterialAppConfig extends StatelessWidget {
       /// title 只对Android生效，ios种，任务视图名称取的是 Info.pList 文件中的CFBundleDisplayName或CFBundleName
       title: "LB88",
       /// 4. Theme.of方法可以获取当前的 ThemeData，MaterialDesign种有些样式不能自定义，比如导航栏高度
-// 始终将当前计算出的皮肤给 theme
+      /// 指定浅色模式下的样式：如果 themeMode 为 ThemeMode.light，或者系统处于浅色模式且 themeMode 为 ThemeMode.system，则生效。
       theme: SkinManager.instance.currentTheme,
-      // 只有在模式为 system 时，才需要提供暗色兜底，否则只看 theme 即可
+      /// 指定暗黑模式下的样式：如果系统开启了暗黑模式且 themeMode 为 ThemeMode.system，或者显式设置 themeMode 为 ThemeMode.dark，则生效
       darkTheme: SkinFactory.createTheme(SkinType.black),
+      /// 决定当前使用theme对应的主题样式还是darkTheme对应的主题样式
+      ///  ThemeMode.system: 默认值 根据手机系统设置的模式 自动切换 theme 和 darkTheme
+      ///  ThemeMode.light: 强制忽略系统设置，始终使用 theme
+      ///  ThemeMode.dark: 强制忽略系统设置，始终使用 darkTheme
       themeMode: SkinManager.instance.themeMode,
       // 自动同步系统主题或手动锁定
       // 将 Transition.noTransition 改为以下之一：
