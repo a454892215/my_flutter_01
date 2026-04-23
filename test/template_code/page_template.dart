@@ -147,3 +147,29 @@ Widget getSliverVariedExtentList() {
     },
   );
 }
+
+/// StatelessWidget 模版
+class MyWidget extends StatelessWidget{
+  const MyWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.shrink();
+  }
+}
+/// StatefulWidget 模版
+class MyWidget2 extends StatefulWidget{
+  const MyWidget2({super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+     return _State();
+  }
+}
+
+class _State extends State<MyWidget2> {
+  @override
+  Widget build(BuildContext context) {
+     return SizedBox.shrink();
+  }
+}
