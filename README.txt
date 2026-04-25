@@ -23,7 +23,10 @@ samples, guidance on mobile development, and a full API reference.
    get create page:splash
    get create page:home
 
-替换启动图： ./flutterw pub run flutter_native_splash:create
+替换splash图： ./flutterw pub run flutter_native_splash:create
+
+flutter_launcher_icons: ^0.14.4
+替换桌面图标： fvm dart run flutter_launcher_icons
 
 打包命令： ./flutterw build apk --release
 
