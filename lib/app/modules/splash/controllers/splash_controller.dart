@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:get/get.dart';
-
-import '../../../../util/Log.dart';
 import '../../../base/base_controller.dart';
 
 
 class SplashController extends BaseController {
+
+  String title = "splash 页面 66";
 
   @override
   void onInit() {
