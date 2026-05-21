@@ -14,10 +14,11 @@ class TabView7 extends StatelessWidget {
     return CustomScrollView(slivers: [
       SliverList(
         delegate: SliverChildBuilderDelegate(
-              (context, i) => ListTile(
-            leading: SizedBox(),
-            title: Text('=====List tile #$i', style: TextStyle(fontSize: 13, color: Color(0xff333333)),),
-          ),
+              (context, i) => Container(
+                color: Colors.green,
+                height: 40,
+                child: Text('=====List tile #$i', style: TextStyle(fontSize: 13, color: Color(0xff333333)),),
+              ),
           childCount: 5,
         ),
       ),
