@@ -43,6 +43,8 @@ class SliverStickyHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ///  header和第一个item widget 总是会渲染出来 无论是否可见，
+    ///  You can place one or multiple SliverStickyHeaders inside a CustomScrollView.
+    ///  SliverStickyHeader.builder 本质上就是 SliverStickyHeader，必须作为 Sliver 放在支持 Sliver 的滚动视图里（比如CustomScrollView）
     return SliverStickyHeader.builder(
       builder: (context, state) {
       //  Log.d("=builder==header==childIndex:$childIndex");
