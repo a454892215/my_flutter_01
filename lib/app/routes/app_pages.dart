@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/ApiUsageTemplate/bindings/api_usage_template_binding.dart';
 import '../modules/ApiUsageTemplate/views/api_usage_template_view.dart';
+import '../modules/english_learn/bindings/english_learn_binding.dart';
+import '../modules/english_learn/views/english_learn_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
@@ -27,8 +29,13 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.API_USAGE_TEMPLATE,
-      page: () =>  ApiUsageTemplateView(),
+      page: () => ApiUsageTemplateView(),
       binding: ApiUsageTemplateBinding(),
+    ),
+    GetPage(
+      name: _Paths.ENGLISH_LEARN,
+      page: () => const EnglishLearnView(),
+      binding: EnglishLearnBinding(),
     ),
   ];
 }

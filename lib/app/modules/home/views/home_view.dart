@@ -14,11 +14,18 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyAppBar(title: 'HomeView'),
-      body: Center(
-        child: AppButton(
-          padding: EdgeInsets.all(8),
-          text: "去API使用示列页面",
-          onClick: () => {Get.toNamed(Routes.API_USAGE_TEMPLATE)},
+      body: Container(
+        width: double.infinity,
+        color: Colors.green,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            AppButton(padding: EdgeInsets.all(12), text: "去API使用示列页面", onClick: () => {Get.toNamed(Routes.API_USAGE_TEMPLATE)}),
+            SizedBox(height: 10,),
+            AppButton(padding: EdgeInsets.all(12), text: "去英语学习页面", onClick: () => {Get.toNamed(Routes.ENGLISH_LEARN)}),
+
+          ],
         ),
       ),
     );

@@ -22,6 +22,8 @@ samples, guidance on mobile development, and a full API reference.
 3. 使用命令后创建模块
    get create page:splash
    get create page:home
+   如果使用fvm dart 安装了 get_cli：
+   fvm flutter pub global run get_cli:get create page:english_learn
 
 替换splash图： ./flutterw pub run flutter_native_splash:create
 
