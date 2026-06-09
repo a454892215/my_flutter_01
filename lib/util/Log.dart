@@ -11,6 +11,11 @@ class Log {
   // 1. 自动识别编译模式：Release 模式下不打印 Debug 级别日志
   static bool debugEnable = !kReleaseMode;
 
+  static final List<LogItem> _logList = [];
+
+  static List<LogItem> getLogList(){
+    return _logList;
+  }
   // 2. 配置 Logger 实例
   static final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -28,6 +33,16 @@ class Log {
       noBoxingByDefault: true, // 重要：设置为 true 彻底去掉边框
     ),
   );
+
+
+  static void _handleLogList(Level level, String log, String time) {
+    if (!kDebugMode) return;
+    final String cleanLog = log.replaceAll(RegExp(r'\x1B\[[0-9;]*m'), '');
+    _logList.add(LogItem(level, cleanLog, time));
+    if (_logList.length > 5000) {
+      _logList.removeRange(0, 1000);
+    }
+  }
 
   static void d(dynamic msg, {int traceDepth = 1}) {
     if (debugEnable) {
@@ -106,10 +121,11 @@ class Log {
 
     // 1. 传统的打印（供终端/Logcat使用）
     // 注意：Profile模式下debugPrint可能在IDE控制台不显示，但在adb里有
+    String timestamp = DateTime.now().toIso8601String().split('T').last;
     if(AppUtil.isDesktop){
-      String timestamp = DateTime.now().toIso8601String().split('T').last;
       debugPrint("$timestamp $traceInfo $text");
     }
+    _handleLogList(level, "$traceInfo $text", timestamp);
     // 2. 专门送往 DevTools 的日志
     developer.log(
       "$traceInfo $text",
@@ -193,4 +209,12 @@ class Log {
       return "error_key";
     }
   }
+}
+
+class LogItem{
+  Level level;
+  String log;
+  String? time;
+
+  LogItem(this.level, this.log, this.time);
 }
