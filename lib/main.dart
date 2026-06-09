@@ -7,6 +7,8 @@ import 'package:flutter_comm/screen_info.dart';
 import 'package:flutter_comm/skin/skin_factory.dart';
 import 'package:flutter_comm/skin/skin_manager.dart';
 import 'package:flutter_comm/util/Log.dart';
+import 'package:flutter_comm/util/build_info_manager.dart';
+import 'package:flutter_comm/util/debug/usb_dada_channel.dart';
 import 'package:flutter_comm/widget/loading_util.dart';
 import 'package:flutter_comm/util/sp/sp_util.dart';
 import 'package:flutter_comm/util/system_util.dart';
@@ -32,6 +34,10 @@ void main() async {
     await spUtil.init();
     await SkinManager.instance.init();
     await SysUtil.init();
+    if(BuildInfo.isUseChuker()){
+      UsbDataChannel().connect();
+      // ChuckerFlutter.configure(showNotification: false, showOnRelease: true);
+    }
     if (Platform.isAndroid) {
       /// 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
       SystemChrome.setSystemUIOverlayStyle(

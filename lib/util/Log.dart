@@ -12,7 +12,7 @@ class Log {
   static bool debugEnable = !kReleaseMode;
 
   static final List<LogItem> _logList = [];
-
+  static LogItem? firstLogItem;
   static List<LogItem> getLogList(){
     return _logList;
   }
@@ -38,9 +38,17 @@ class Log {
   static void _handleLogList(Level level, String log, String time) {
     if (!kDebugMode) return;
     final String cleanLog = log.replaceAll(RegExp(r'\x1B\[[0-9;]*m'), '');
-    _logList.add(LogItem(level, cleanLog, time));
+    final item = LogItem(level, cleanLog, time);
+    if(_logList.isNotEmpty){
+      _logList.last.next = item;
+    }else{
+      firstLogItem = item;
+    }
+    _logList.add(item);
     if (_logList.length > 5000) {
+      _logList[999].next = null;
       _logList.removeRange(0, 1000);
+      firstLogItem = _logList.first;
     }
   }
 
@@ -215,6 +223,6 @@ class LogItem{
   Level level;
   String log;
   String? time;
-
+  LogItem? next;
   LogItem(this.level, this.log, this.time);
 }

@@ -57,7 +57,7 @@ class AuthInterceptor extends Interceptor {
 
   String _getAppToken() {
     if (_token.isNotEmpty) return _token;
-    _token = spUtil.getString(spKeyToken, def: "");
+    _token = spUtil.getString(spKeyToken, def: "") ?? "";
     return _token;
   }
 

@@ -43,7 +43,7 @@ class SpUtil {
     return prefs.getDouble(key);
   }
 
-  String getString(String key, {def = ""}) {
+  String? getString(String key, {def = ""}) {
     return prefs.getString(key) ?? def;
   }
 
