@@ -2,15 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_comm/util/Log.dart';
+import 'package:logger/logger.dart';
 
-/// Android（App 为 WebSocket 客户端）:
-/// 1. adb reverse --remove-all && adb reverse tcp:8080 tcp:8080
-/// 2. wscat -l 8080
+/// Android
+/// 启动 scripts/android_debug_log_listener_console.sh 脚本接收app 日志
 ///
-/// iOS 真机无 adb reverse，改为 App 在手机上监听，Mac 通过 iproxy 连入:
-/// 1. 先启动 App（监听手机 localhost:8081）
-/// 2. 运行 scripts/ios_debug_log_listener_console.sh
-///    （iproxy 8081:8081 + wscat -c ws://127.0.0.1:8081）
+/// iOS
+/// 启动 scripts/ios_debug_log_listener_console.sh 脚本 接收app日志
+
 class UsbDataChannel {
   UsbDataChannel._internal();
 
@@ -19,6 +18,9 @@ class UsbDataChannel {
 
   static const int _androidPort = 8080;
   static const int _iosPort = 8081;
+  static const _red = '\x1B[31m';
+  static const _reset = '\x1B[0m';
+  static const _maxPushPerTick = 10;
 
   WebSocket? _socket;
   HttpServer? _iosServer;
@@ -71,26 +73,41 @@ class UsbDataChannel {
   }
 
   void _startPushTimer() {
-    _pushTimer ??= Timer.periodic(const Duration(milliseconds: 1000), (_) {
+    _pushTimer ??= Timer.periodic(const Duration(milliseconds: 600), (_) {
       if (_socket == null || _socket!.readyState != WebSocket.open) return;
-      if (lastSuccessOutputItem == null) {
-        final item = Log.firstLogItem;
-        if (item == null) return;
-        sendLiveData("${item.time} ${item.log}");
-        lastSuccessOutputItem = item;
-        return;
-      }
-      while (lastSuccessOutputItem!.next != null) {
-        final item = lastSuccessOutputItem!.next!;
-        sendLiveData("${item.time} ${item.log}");
-        lastSuccessOutputItem = item;
-      }
+      _flushPendingLogs();
     });
   }
 
+  /// 每 tick 限量推送，避免积压日志突发打满 iproxy/USB 导致 1005 断连。
+  void _flushPendingLogs() {
+    var pushed = 0;
+    while (pushed < _maxPushPerTick) {
+      final LogItem? item = lastSuccessOutputItem == null
+          ? Log.firstLogItem
+          : lastSuccessOutputItem!.next;
+      if (item == null) return;
+      _pushLogItem(item);
+      lastSuccessOutputItem = item;
+      pushed++;
+    }
+  }
+
+  void _pushLogItem(LogItem item) {
+    var line = '${item.time} ${item.log}';
+    if (item.level == Level.error) {
+      line = '$_red$line$_reset';
+    }
+    sendLiveData(line);
+  }
+
   void sendLiveData(String data) {
-    if (_socket != null && _socket!.readyState == WebSocket.open) {
-      _socket!.add(data);
+    final socket = _socket;
+    if (socket == null || socket.readyState != WebSocket.open) return;
+    try {
+      socket.add(data);
+    } catch (e) {
+      Log.e("USB 数据通道发送失败: $e");
     }
   }
 }
