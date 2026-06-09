@@ -24,7 +24,8 @@ class HomeView extends GetView<HomeController> {
             AppButton(padding: EdgeInsets.all(12), text: "去API使用示列页面", onClick: () => {Get.toNamed(Routes.API_USAGE_TEMPLATE)}),
             SizedBox(height: 10,),
             AppButton(padding: EdgeInsets.all(12), text: "去英语学习页面", onClick: () => {Get.toNamed(Routes.ENGLISH_LEARN)}),
-
+            SizedBox(height: 10,),
+            AppButton(padding: EdgeInsets.all(12), text: "去Debug Log", onClick: () => {Get.toNamed(Routes.LOG)}),
           ],
         ),
       ),

@@ -6,6 +6,8 @@ import '../modules/english_learn/bindings/english_learn_binding.dart';
 import '../modules/english_learn/views/english_learn_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/log/bindings/log_binding.dart';
+import '../modules/log/views/log_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 
@@ -36,6 +38,11 @@ class AppPages {
       name: _Paths.ENGLISH_LEARN,
       page: () => const EnglishLearnView(),
       binding: EnglishLearnBinding(),
+    ),
+    GetPage(
+      name: _Paths.LOG,
+      page: () => const LogView(),
+      binding: LogBinding(),
     ),
   ];
 }
