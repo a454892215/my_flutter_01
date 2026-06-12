@@ -35,11 +35,22 @@ class UsbDataChannel {
     try {
       if (Platform.isIOS) {
         await _startIosServer();
-      } else {
-        await _connectAsClient(_androidPort);
+      } else if (Platform.isAndroid) {
+        unawaited(_connectAndroidWithRetry());
       }
     } catch (e) {
       Log.e("连接失败: $e");
+    }
+  }
+
+  Future<void> _connectAndroidWithRetry() async {
+    while (_socket?.readyState != WebSocket.open) {
+      try {
+        await _connectAsClient(_androidPort);
+        return;
+      } catch (e) {
+        await Future.delayed(const Duration(seconds: 5));
+      }
     }
   }
 
@@ -81,11 +92,17 @@ class UsbDataChannel {
       onDone: () {
         if (identical(_socket, socket)) {
           _socket = null;
+          if (Platform.isAndroid) {
+            unawaited(_connectAndroidWithRetry());
+          }
         }
       },
       onError: (_) {
         if (identical(_socket, socket)) {
           _socket = null;
+          if (Platform.isAndroid) {
+            unawaited(_connectAndroidWithRetry());
+          }
         }
       },
       cancelOnError: true,
@@ -93,6 +110,8 @@ class UsbDataChannel {
   }
 
   void _startPushTimer() {
+    /// 每次重新连接 都重置log 输出位置
+    lastSuccessOutputItem = null;
     _pushTimer ??= Timer.periodic(const Duration(milliseconds: 600), (_) {
       if (_socket == null || _socket!.readyState != WebSocket.open) return;
       _flushPendingLogs();
@@ -141,8 +160,8 @@ class UsbDataChannel {
       socket.add(data);
       _lastOutboundAt = DateTime.now();
     } catch (e) {
-      // 勿用 Log.e，避免发送失败→写日志→再发送的循环
-      print('USB 数据通道发送失败: $e');
+      /// 需要知道 发送失败
+      Log.e('USB 数据通道发送失败: $e');
     }
   }
 }
