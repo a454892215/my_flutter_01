@@ -129,7 +129,7 @@ PY
 }
 
 # --- 配置变量 ---
-APP_NAME="WmPay"
+APP_NAME="Pay"
 TIMESTAMP="$(date +%Y_%m_%d_%H_%M_%S)"
 EXPORT_DIR="/Users/app/Documents/ipa"
 TEMP_OUTPUT="$HOME/Desktop/${APP_NAME}_Temp"

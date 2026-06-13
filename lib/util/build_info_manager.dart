@@ -28,7 +28,7 @@ final class BuildInfo {
 
   static String _curEnvOfDev = _currentUseEnv;
   static void switchTestEnv(){
-    if(!isTestMode()){
+    if(!isTestBuildMode()){
       Log.e("非法调用，当前不是测试环境，不能切换baseUrl");
       return;
     }
@@ -42,12 +42,12 @@ final class BuildInfo {
     Toast.show("测试模式下，环境已切换为：$_curEnvOfDev, 请重新启动app 生效");
   }
 
-   static String getCurUseEnv(){
-     if(isTestMode()){
-     return spUtil.getString(curEnvKeyOfDev) ?? _currentUseEnv;
-     }
-     return _currentUseEnv;
-   }
+  static String getCurUseEnv(){
+    if(isTestBuildMode()){
+      return spUtil.getString(curEnvKeyOfDev) ?? _currentUseEnv;
+    }
+    return _currentUseEnv;
+  }
 
   static const String appEnv = String.fromEnvironment(
     'APP_EVN',
@@ -80,16 +80,17 @@ final class BuildInfo {
     return "APP_EVN:${getCurUseEnv()} baseUrl:? buildTime:${BuildInfo.buildTime} Git:($isEmbedded,  $commitTime,  $commitIdSuffix8) ";
   }
 
-  static bool isTestMode(){
+  static bool isTestBuildMode(){
     return appEnv.contains("TEST");
   }
 
   static bool isProEnv(){
-    return appEnv.contains(proEnvName);
+    var curUseEnv = getCurUseEnv();
+    return curUseEnv.contains(proEnvName);
   }
 
 
   static bool isUseChuker(){
-    return isTestMode();
+    return isTestBuildMode();
   }
 }

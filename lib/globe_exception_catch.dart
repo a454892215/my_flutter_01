@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/Log.dart';
+import 'package:flutter_comm/util/build_info_manager.dart';
 import 'package:flutter_comm/util/file_dir_util.dart';
 
 typedef VoidCallback = void Function();
@@ -35,7 +36,7 @@ class GlobeExceptionHandler {
       errInfoList = errInfoList.sublist(0, 101);
     }
     errorMsg = errInfoList.join(splitMark);
-    if(Log.debugEnable){
+    if(BuildInfo.isTestBuildMode()){
       appendLogToLocal(errorMsg);
     }
     Log.e("Not catch Exception type: $type: lineNum:${errInfoList.length}  $errorMsg");

@@ -1,59 +1,27 @@
-import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter_comm/util/build_info_manager.dart';
 import 'package:logger/logger.dart';
 import 'dart:developer' as developer;
 
-import 'app_util.dart'; // 必须导入
+
+
 
 class Log {
-  static const String tag = "LLpp:";
+  static const String tag = "WMP:";
 
   // 1. 自动识别编译模式：Release 模式下不打印 Debug 级别日志
-  static bool debugEnable = !kReleaseMode;
-
+  static bool isTestBuildMode = BuildInfo.isTestBuildMode();
   static final List<LogItem> _logList = [];
   static LogItem? firstLogItem;
   static List<LogItem> getLogList(){
     return _logList;
   }
-  // 2. 配置 Logger 实例
-  static final Logger _logger = Logger(
-    printer: PrettyPrinter(
-      methodCount: 0,
-      // 内部已通过 getTraceInfo 自定义堆栈，此处设为 0
-      errorMethodCount: 8,
-      // 错误堆栈层级
-      lineLength: 100,
-      // 每行宽度
-      colors: !Platform.isWindows,
-      // Windows 命令行对 ANSI 颜色支持不一，建议关闭以防乱码
-      printEmojis: true,
-      // 是否打印 Emoji
-      printTime: false, // 内部已手动添加时间戳
-      noBoxingByDefault: true, // 重要：设置为 true 彻底去掉边框
-    ),
-  );
 
 
-  static void _handleLogList(Level level, String log, String time) {
-    if (!kDebugMode) return;
-    final String cleanLog = log.replaceAll(RegExp(r'\x1B\[[0-9;]*m'), '');
-    final item = LogItem(level, cleanLog, time);
-    if(_logList.isNotEmpty){
-      _logList.last.next = item;
-    }else{
-      firstLogItem = item;
-    }
-    _logList.add(item);
-    if (_logList.length > 5000) {
-      _logList[999].next = null;
-      _logList.removeRange(0, 1000);
-      firstLogItem = _logList.first;
-    }
-  }
 
   static void d(dynamic msg, {int traceDepth = 1}) {
-    if (debugEnable) {
+    if (isTestBuildMode) {
       _print(Level.debug, msg, traceDepth: traceDepth);
     }
   }
@@ -62,15 +30,16 @@ class Log {
     _print(Level.info, msg);
   }
 
+  static void i2(dynamic msg) {
+    _print(Level.info, msg, force: true);
+  }
+
   static void w(dynamic msg) {
     _print(Level.warning, msg);
   }
 
   static void e(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
-    _print(Level.error, msg);
-    if (error != null || stackTrace != null) {
-      _logger.e("$tag Error details:", error: error, stackTrace: stackTrace);
-    }
+    _print(Level.error, "msg:$msg  error:$error stackTrace:$stackTrace");
   }
 
   // 存储每个 Key 上次打印的时间戳
@@ -84,7 +53,7 @@ class Log {
   /// [throttleKey] 节流的唯一标识，如果不传则使用 msg 本身作为 Key
   /// [throttleMs] 节流时长，单位毫秒
   static void dt(dynamic msg, {String? throttleKey, int throttleMs = defaultThrottleMs, int traceDepth = 0}) {
-    if (!debugEnable) return;
+    if (!isTestBuildMode) return;
 
     final String key = throttleKey ?? _getAutoThrottleKey();
     final int now = DateTime.now().millisecondsSinceEpoch;
@@ -101,47 +70,64 @@ class Log {
     }
   }
 
-  // /// 核心打印逻辑：兼容 PC 与 移动端
-  // static void _print(Level level, dynamic msg, {int traceDepth = 1}) {
-  //   String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
-  //   // 构造最终输出字符串
-  //   String text =
-  //       "${DateTime.now().toIso8601String().split('T').last} $traceInfo $tag$msg";
-  //   // API 选择策略：
-  //   // 1. 在 PC 端运行时，debugPrint (stdout) 是最可靠的输出通道
-  //   // 2. logger.log 内部虽然也用 print，但经过 SimplePrinter/PrettyPrinter 处理后更易读
-  //   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-  //     // 桌面端直接使用 debugPrint，避免 dart:developer.log 在终端失效的问题
-  //     debugPrint(text);
-  //   } else {
-  //     // 移动端使用 logger 库，利用其分段机制防止 Android 系统对单条日志长度（4KB）的限制
-  //     _logger.log(level, text);
-  //   }
-  // }
+  static void _handleLogList(Level level, String log, String time) {
+    if (!BuildInfo.isUseChuker()) return;
+    final String cleanLog = log.replaceAll(RegExp(r'\x1B\[[0-9;]*m'), '');
+    int lastIndex = -1;
+    if(_logList.isNotEmpty){
+      lastIndex = _logList.last.index;
+    }
+    final item = LogItem(level, cleanLog, time, ++lastIndex);
+    if(_logList.isNotEmpty){
+      _logList.last.next = item;
+    }else{
+      firstLogItem = item;
+    }
+    _logList.add(item);
+    if (_logList.length > 5000) {
+      _logList[999].next = null;
+      _logList.removeRange(0, 1000);
+      firstLogItem = _logList.first;
+    }
+  }
 
-
-
-  static void _print(Level level, dynamic msg, {int traceDepth = 1}) {
-    if (kReleaseMode) return; // Release 模式彻底关闭，保护性能
+  static void _print(Level level, dynamic msg, {int traceDepth = 1, bool force = false}) {
+    if (!isTestBuildMode && !force) return; // Release 模式彻底关闭，保护性能
 
     String traceInfo = getTraceInfo(level, traceDepth: traceDepth);
     String text = "$tag$msg";
+    final String nowText = _formatMonthDayTime(DateTime.now());
 
     // 1. 传统的打印（供终端/Logcat使用）
     // 注意：Profile模式下debugPrint可能在IDE控制台不显示，但在adb里有
-    String timestamp = DateTime.now().toIso8601String().split('T').last;
-    if(AppUtil.isDesktop){
-      debugPrint("$timestamp $traceInfo $text");
-    }
-    _handleLogList(level, "$traceInfo $text", timestamp);
+
     // 2. 专门送往 DevTools 的日志
+    var fullLog = "$traceInfo $nowText $text";
+    _handleLogList(level, "$traceInfo $text", nowText);
+    if (level == Level.error) {
+      // \x1B[31m 开启红色，\x1B[0m 恢复默认颜色
+      fullLog = "\x1B[31m$fullLog\x1B[0m";
+      ///  developer.log 无法在终端输出红色的log 所以这里使用 debugPrint，只是 debugPrint 无法输出到调试窗口。
+      debugPrint(fullLog);
+      return;
+    }
+    if(kIsWeb){
+      debugPrint(fullLog);
+      return;
+    }
     developer.log(
-      "$traceInfo $text",
+      fullLog,
       time: DateTime.now(),
       level: _levelToValue(level), // 将 logger 的 Level 转为整数
       name: 'FlutterAppLog',             // DevTools 里的 Tag
       error: null,            // 把堆栈放在 error 字段方便在 DevTools 右侧详情查看
     );
+  }
+
+  static String _formatMonthDayTime(DateTime dt) {
+    String two(int v) => v.toString().padLeft(2, '0');
+    String three(int v) => v.toString().padLeft(3, '0');
+    return "${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}:${two(dt.second)}.${three(dt.millisecond)}";
   }
 
 // 映射 Level 到 developer.log 的级别
@@ -150,7 +136,7 @@ class Log {
     if (level == Level.warning) return 900;
     return 800; // Info/Debug
   }
-  
+
 
   /// 跨平台堆栈轨迹解析
   static String getTraceInfo(Level level, {int traceDepth = 1}) {
@@ -224,5 +210,17 @@ class LogItem{
   String log;
   String? time;
   LogItem? next;
-  LogItem(this.level, this.log, this.time);
+  int index;
+  LogItem(this.level, this.log, this.time, this.index);
+
+  static const _red = '\x1B[31m';
+  static const _reset = '\x1B[0m';
+
+  String getDisplayText() {
+    var line = '$index $time $log';
+    if (level == Level.error) {
+      line = '$_red$line$_reset';
+    }
+    return "$line\n";
+  }
 }

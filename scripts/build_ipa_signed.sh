@@ -155,7 +155,7 @@ print(f"  BUILD_ISO_TIME={build_iso!r}")
 PY
 }
 
-APP_NAME="WmPay"
+APP_NAME="Pay"
 TIMESTAMP="$(date +%Y_%m_%d_%H_%M_%S)"
 EXPORT_DIR="/Users/app/Documents/ipa"
 DART_DEFINES_FILE="$ROOT/build/build_git_dart_defines.json"
