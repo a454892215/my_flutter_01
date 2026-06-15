@@ -6,6 +6,7 @@ import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_4.dart'
 import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_5.dart';
 import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_6.dart';
 import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_7.dart';
+import 'package:flutter_comm/app/modules/ApiUsageTemplate/views/tav_view_8.dart';
 import 'package:flutter_comm/widget/keep_alive_widget.dart';
 
 import 'package:get/get.dart';
@@ -27,6 +28,7 @@ class ApiUsageTemplateView extends GetView<ApiUsageTemplateController> {
     const TabView5(),
     const TabView6(),
     const TabView7(),
+    const TabView8(),
   ];
 
   @override

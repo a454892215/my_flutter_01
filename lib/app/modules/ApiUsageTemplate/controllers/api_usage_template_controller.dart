@@ -21,6 +21,7 @@ class ApiUsageTemplateController extends BaseController
     {'label': '5轮播图', 'value': '5'},
     {'label': '6输入组件', 'value': '6'},
     {'label': '7Sticky Header', 'value': '7'},
+    {'label': '8渐变文字颜色', 'value': '8'},
   ];
    final selectedPageIndex = 0.obs;
 
