@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_comm/skin/app_skin.dart';
 
-import '../skin/app_skin.dart';
 
 class SkinImage extends StatelessWidget {
   final String path; // 只传文件名，如 "ic_user_head.png"

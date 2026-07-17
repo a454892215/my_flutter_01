@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_comm/screen_info.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import '../screen_info.dart';
 
 
 class AppLoading {
@@ -13,10 +13,10 @@ class AppLoading {
       ..indicatorSize = 70.w
       ..radius = 20.w
       ..progressColor = Colors.white
-      ..backgroundColor = Colors.black.withOpacity(0.5)
+      ..backgroundColor = Colors.black.withValues(alpha: 0.5)
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
-      ..maskColor = Colors.blue.withOpacity(0.5)
+      ..maskColor = Colors.blue.withValues(alpha: 0.5)
       ..userInteractions = false
       ..dismissOnTap = false;
   }

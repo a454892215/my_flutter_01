@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_comm/screen_info.dart';
 
-import 'package:flutter/cupertino.dart';
 
-import '../screen_info.dart';
 
 typedef OnScrollToEndListener = void Function();
 

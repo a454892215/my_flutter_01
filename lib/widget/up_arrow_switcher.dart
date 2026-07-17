@@ -25,8 +25,7 @@ class UpArrowSwitcher extends StatelessWidget {
             controller.startSwitch();
             onClick();
           },
-          minSize: 0,
-          padding: EdgeInsets.zero,
+          padding: EdgeInsets.zero, minimumSize: Size(0, 0),
           child: AnimatedRotation(
             turns: controller.turns.value,
             duration: const Duration(milliseconds: 250),

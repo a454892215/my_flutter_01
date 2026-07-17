@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_comm/screen_info.dart';
+import 'package:flutter_comm/util/Log.dart';
+import 'package:flutter_comm/util/text_util.dart';
 import 'package:flutter_comm/widget/scroller_marquee_helper.dart';
-
-import '../../util/Log.dart';
-import '../../util/text_util.dart';
-import '../screen_info.dart';
 
 
 class SingleScrollViewMarquee extends StatefulWidget {

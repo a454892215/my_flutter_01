@@ -1,9 +1,7 @@
-import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_comm/util/Log.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-import 'back_event_interceptor.dart';
-import '../util/Log.dart';
 
 class SmartDialogUtil {
   // smart 弹窗

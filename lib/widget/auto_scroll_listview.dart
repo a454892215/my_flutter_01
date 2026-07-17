@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_comm/util/Log.dart';
 import 'package:get/get.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-import '../util/Log.dart';
 
 typedef ItemBuilder = Widget? Function(BuildContext context, int index);
 

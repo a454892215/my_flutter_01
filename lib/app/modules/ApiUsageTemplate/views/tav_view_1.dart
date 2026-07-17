@@ -4,7 +4,7 @@ import '../../../../screen_info.dart';
 import '../../../../skin/app_skin.dart';
 import '../../../../skin/skin_factory.dart';
 import '../../../../skin/skin_manager.dart';
-import '../../../../widget/getx_dialog_util.dart';
+import '../../../../getx/getx_dialog_util.dart';
 import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../widget/app_button.dart';
 import '../../../widget/text/text_def.dart';
