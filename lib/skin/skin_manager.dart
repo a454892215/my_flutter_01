@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/skin/skin_factory.dart';
 
@@ -17,16 +16,12 @@ class SkinManager extends ChangeNotifier {
 
   Future<void> init() async {
     String? typeName = spUtil.getString(_key);
-    _curSkinType = SkinType.values.firstWhere(
-      (e) => e.name == typeName,
-      orElse: () => SkinType.bright,
-    );
+    _curSkinType = SkinType.values.firstWhere((e) => e.name == typeName, orElse: () => SkinType.bright);
   }
 
   ThemeData get currentTheme => SkinFactory.createTheme(_curSkinType);
 
-  ThemeMode get themeMode =>
-      _curSkinType == SkinType.system ? ThemeMode.system : ThemeMode.light;
+  ThemeMode get themeMode => _curSkinType == SkinType.system ? ThemeMode.system : ThemeMode.light;
 
   void updateSkin(SkinType type) {
     if (_curSkinType == type) return;

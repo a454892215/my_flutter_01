@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../screen_info.dart';
-import '../../../../../util/input_rules.dart';
+import '../../../../../util/input/input_rules.dart';
 import '../../../../../widget/dialog/base_dialog.dart';
 import '../../../../../widget/input_field.dart';
 

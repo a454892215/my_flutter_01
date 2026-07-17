@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
-// 请确保此路径指向你自己的 Log 工具类
-import '../../util/Log.dart';
+import 'package:flutter_comm/util/Log.dart';
 
 class SingleLogInterceptor extends Interceptor {
   @override

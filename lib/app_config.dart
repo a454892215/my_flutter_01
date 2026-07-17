@@ -40,7 +40,7 @@ ThemeData appThemeData = ThemeData(
 ///  ============== AppBarTheme 配置 ===============
 AppBarTheme appBarTheme = const AppBarTheme(
   ///  配置app bar 图标颜色
-  color: Color(0xff044B9A),
+  backgroundColor: Color(0xff044B9A),
 
   /// 设置阴影显示
   elevation: 20,

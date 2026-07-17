@@ -1,8 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_comm/app/routes/app_pages.dart';
 
-
-import '../util/Log.dart';
 
 /// 页面进入和退出监听Observer
 class MyNavigatorObserver extends NavigatorObserver {

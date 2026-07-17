@@ -2,8 +2,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_comm/http/core/response.dart';
-
-import '../../util/Log.dart';
+import 'package:flutter_comm/util/Log.dart';
 import 'dio_client.dart';
 
 /// 把数据转成需要的Modal

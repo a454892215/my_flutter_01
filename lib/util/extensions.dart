@@ -1,11 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_comm/util/sp/sp_util.dart';
-import 'package:flutter_comm/util/sp/sp_util_key.dart';
-import 'package:get/get.dart';
-import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
+
+import 'package:flutter/material.dart';
 
 extension StringExtension on String {
-
   String capitalizeFirstLetter() {
     if (isEmpty) {
       return this;
@@ -14,18 +10,8 @@ extension StringExtension on String {
   }
 }
 
-class AppRxList<T> extends RxList<T> {
-  dynamic other;
-  String? strExt;
-
-  AppRxList([List<T>? initial]) : super(initial ?? <T>[]);
-}
-
 class AppScrollController extends ScrollController {
-  AppScrollController({
-    super.initialScrollOffset,
-    super.keepScrollOffset = true,
-  });
+  AppScrollController({super.initialScrollOffset, super.keepScrollOffset = true});
 
   // 修改：将 Callback 设为可空，便于销毁
   VoidCallback? _bottomCallback;

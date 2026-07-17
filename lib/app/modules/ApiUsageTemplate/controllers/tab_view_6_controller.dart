@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../../../util/input_rules.dart';
+import '../../../../util/input/input_rules.dart';
 import '../../../../widget/input_field.dart';
 import '../../../base/base_controller.dart';
 

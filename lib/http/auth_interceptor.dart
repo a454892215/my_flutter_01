@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_comm/util/Log.dart';
+import 'package:flutter_comm/util/app_util.dart';
+import 'package:flutter_comm/util/sp/sp_util.dart';
+import 'package:flutter_comm/util/system_util.dart';
 
-import '../util/Log.dart';
-import '../util/app_util.dart';
-import '../util/sp/sp_util.dart';
-import '../util/system_util.dart';
 
 
 class AuthInterceptor extends Interceptor {

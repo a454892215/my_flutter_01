@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../screen_info.dart';
-import '../../../../util/input_rules.dart';
+import '../../../../util/input/input_rules.dart';
 import '../../../../widget/input_field.dart';
 import '../../../widget/text/text_def.dart';
 import '../controllers/tab_view_6_controller.dart';

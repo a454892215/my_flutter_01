@@ -4,9 +4,6 @@ import 'package:flutter_comm/util/build_info_manager.dart';
 import 'package:logger/logger.dart';
 import 'dart:developer' as developer;
 
-
-
-
 class Log {
   static const String tag = "WMP:";
 

@@ -1,8 +1,8 @@
+import 'package:flutter_comm/util/Log.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Log.dart';
-
 SpUtil spUtil = SpUtil();
+
 class SpUtil {
   late SharedPreferences prefs;
 
