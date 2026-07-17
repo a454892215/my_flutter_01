@@ -46,12 +46,12 @@ dependencies:
   # 系统与路径（确保 package_info_plus 足够新来解决 win32 冲突）
   path_provider: ^2.1.5
   path: ^1.9.0
-  package_info_plus: ^9.0.0
+  package_info_plus: ^10.2.1
   shared_preferences: ^2.3.5
 
   # UI 组件
   flutter_screenutil: ^5.9.3
-  fluttertoast: ^8.2.8
+  fluttertoast: ^9.1.0
   cupertino_icons: ^1.0.8
   flutter_picker: ^2.1.0
   flutter_sticky_header: ^0.8.0
@@ -79,14 +79,14 @@ dependencies:
   url_launcher: ^6.1.11
   flutter_easyloading: ^3.0.3
   flutter_pickers: ^2.1.9
-  device_info_plus: ^11.0.0 # 确保使用最新版以适配 AGP 8.0+
+  device_info_plus: ^13.2.0 # 确保使用最新版以适配 AGP 8.0+
   flutter_native_splash: ^2.4.7
   flutter_launcher_icons: ^0.14.4
   flutter_smart_dialog: ^5.1.0
   pull_to_refresh_flutter3: ^2.0.2
   cbor: ^6.1.1  # 这是目前适配 Dart 3 强类型且性能最好的版本
   flutter_inappwebview: ^6.1.5
-  wakelock_plus: ^1.5.1 # 禁止自动息屏
+  wakelock_plus: ^1.6.1 # 禁止自动息屏
   vm_service: ^15.0.2
 
 # 这一段是关键：强制将冲突的底层库指向兼容版本
@@ -103,8 +103,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  # 建议将 get_cli 放在这里，或者直接在全局安装，不要污染生产依赖
-  get_cli: ^1.8.1
+  # get_cli 建议全局安装，避免污染依赖解析：
+  # fvm flutter pub global activate get_cli
   # 2. 生成代码的工具
   build_runner: ^2.4.6
   # 3. 具体的生成逻辑
