@@ -33,7 +33,7 @@ class GlobeController extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> printEnv() async {
-    var appInfo = await EnvironmentConfig.getAppInfo();
-    Log.i(EnvironmentConfig.getEnvInfo() + appInfo);
+    var appInfo = await Env.getAppInfo();
+    Log.i(Env.getEnvInfo() + appInfo);
   }
 }

@@ -1,11 +1,11 @@
 import 'package:package_info_plus/package_info_plus.dart';
 
-class EnvironmentConfig {
+class Env {
   static const APP_CHANNEL = String.fromEnvironment('APP_CHANNEL');
   static const APP_ENV = String.fromEnvironment('APP_ENV');
 
   static bool isDebug() {
-    return EnvironmentConfig.APP_ENV == 'debug';
+    return Env.APP_ENV == 'debug';
   }
 
   static String getEnvInfo() {
