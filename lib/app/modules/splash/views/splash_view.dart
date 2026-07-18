@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/screen_info.dart';
-import 'package:flutter_comm/util/global_floating_overlay.dart';
+import 'package:flutter_comm/util/ui/global_floating_overlay.dart';
 import 'package:flutter_comm/widget/toast_util.dart';
 
 import 'package:get/get.dart';

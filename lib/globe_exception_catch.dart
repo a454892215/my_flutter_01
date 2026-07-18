@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/Log.dart';
 import 'package:flutter_comm/util/build_info_manager.dart';
-import 'package:flutter_comm/util/file_dir_util.dart';
+import 'package:flutter_comm/util/file/file_dir_util.dart';
 
 typedef VoidCallback = void Function();
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_comm/widget/toast_util.dart';
 
-import 'Log.dart';
+import '../Log.dart';
 
 class TextMeasureUtil {
   static Size getTextSize({

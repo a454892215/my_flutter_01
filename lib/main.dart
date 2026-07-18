@@ -9,9 +9,9 @@ import 'package:flutter_comm/skin/skin_manager.dart';
 import 'package:flutter_comm/util/Log.dart';
 import 'package:flutter_comm/util/build_info_manager.dart';
 import 'package:flutter_comm/util/debug/usb_dada_channel.dart';
+import 'package:flutter_comm/util/device_util.dart';
 import 'package:flutter_comm/widget/loading_util.dart';
 import 'package:flutter_comm/util/sp/sp_util.dart';
-import 'package:flutter_comm/util/system_util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -33,7 +33,7 @@ void main() async {
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
     await spUtil.init();
     await SkinManager.instance.init();
-    await SysUtil.init();
+    await DeviceUtil.init();
     if(BuildInfo.isUseChuker()){
       UsbDataChannel().connect();
       // ChuckerFlutter.configure(showNotification: false, showOnRelease: true);

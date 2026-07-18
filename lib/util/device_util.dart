@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 
-class SysUtil {
+class DeviceUtil {
 
   /// Android 端：该插件在原生代码中调用的是 Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)。
   /// 在 Android 8.0+ 上，这个 ID 对每个应用和每个签名是唯一的。

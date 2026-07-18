@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_comm/screen_info.dart';
 import 'package:flutter_comm/util/Log.dart';
-import 'package:flutter_comm/util/text_util.dart';
+import 'package:flutter_comm/util/text/text_util.dart';
 import 'package:flutter_comm/widget/scroller_marquee_helper.dart';
 
 

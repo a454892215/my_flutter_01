@@ -1,5 +1,5 @@
 
-import 'Log.dart';
+import '../Log.dart';
 
 class LoadMorePageIndexHelper {
   Map<String, int?> pageIndexMap = {};

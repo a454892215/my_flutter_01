@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
-import 'Log.dart';
+import '../Log.dart';
 
 class LocalSaveHelper {
   final String fileName;

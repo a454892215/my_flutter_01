@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
-import 'Log.dart';
+import '../Log.dart';
 
 /// 分页助手： 适用于依据页数分页的请求逻辑
 class PaginationHelper {

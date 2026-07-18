@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_comm/util/Log.dart';
 import 'package:flutter_comm/util/app_util.dart';
+import 'package:flutter_comm/util/device_util.dart';
 import 'package:flutter_comm/util/sp/sp_util.dart';
-import 'package:flutter_comm/util/system_util.dart';
 
 
 
@@ -26,11 +26,11 @@ class AuthInterceptor extends Interceptor {
     // 2. 注入公共参数
     options.headers['Platform'] = AppUtil.platform;
     options.headers['App-Version'] = AppUtil.appVersion;
-    options.headers['Device-ID'] = SysUtil.deviceId;
+    options.headers['Device-ID'] = DeviceUtil.deviceId;
 
     // 3. 注入 Query 参数 (ts, device_id)
     options.queryParameters.addAll({
-      'device_id': SysUtil.deviceId,
+      'device_id': DeviceUtil.deviceId,
       'ts': DateTime.now().millisecondsSinceEpoch,
     });
 
