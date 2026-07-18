@@ -20,8 +20,8 @@ import 'draggable_floating_widget.dart'; // 引入刚才定义的容器
 ///Raster Layer & Raster Picture（光栅化层与图片缓存）：这两个指标反映了 Flutter 渲染引擎（Raster Thread） 占用的显存/内存。
 ///               Raster Layer： 指合成渲染层（Layers）时消耗的内存。
 ///               Raster Picture： 指被缓存的绘制指令（Display Lists）或录制好的图片。
-///当前 flutter sdk 版本：3.44.1， profile模式下 无法获取Dart/Flutter内存
-/// flutter sdk 版本：3.44.1
+///当前 flutter sdk 版本：3.44.6， profile模式下 无法获取Dart/Flutter内存
+/// flutter sdk 版本：3.44.6
 ///       新建的空项目 RSS内存消耗情况：debug:354M,  profile:226M,  release:192
 ///当前项目（空页面首页RSS内存消耗情况）：debug:400M->430M,  profile:250M->275M,  release:212
 /// flutter 正常的预热与碎片消耗 RSS (物理内存)波动范围是:	5% ~ 12%
