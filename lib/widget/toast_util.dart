@@ -10,6 +10,14 @@ class Toast {
     Fluttertoast.showToast(
         msg: msg.toString(), gravity: ToastGravity.CENTER, timeInSecForIosWeb: 1, backgroundColor: Colors.black, textColor: Colors.white, fontSize: 16.0);
   }
+
+  static void success({required String msg}) {
+    toast(msg);
+  }
+
+  static void error({required String msg}) {
+    toast(msg);
+  }
 }
 
 void toast(Object msg) {

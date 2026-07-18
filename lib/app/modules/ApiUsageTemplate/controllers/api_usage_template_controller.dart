@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../http/app_api_service.dart';
-import '../../../../util/http_self_sign_util.dart';
+import '../../../../util/network/http_self_sign_util.dart';
 import '../../../../util/performance_monitor/perf_monitor.dart';
 import '../../../base/base_controller.dart';
 
