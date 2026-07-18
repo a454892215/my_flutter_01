@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_comm/util/Log.dart';
-import 'package:get/get.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 
 typedef ItemBuilder = Widget? Function(BuildContext context, int index);
 
 class AutoScrollListViewController {
-  final isStopScroll = false.obs;
-  void stopScroll() => isStopScroll.value = true;
-  void startScroll() => isStopScroll.value = false;
+  bool isStopScroll = false;
+  void stopScroll() => isStopScroll = true;
+  void startScroll() => isStopScroll = false;
 }
 
 class AutoScrollUtil {

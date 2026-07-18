@@ -1,6 +1,5 @@
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../util/Log.dart';
 import '../back_event_interceptor.dart';
@@ -14,11 +13,11 @@ abstract class BaseDialog {
   static const Color barrierColor = Color(0xaa000000);
   static const Color transparent = Color(0x00000000);
 
-  /// 保证动画触发和transparent的值做区别
+  /// 保证动画触发和 transparent 的值做区别
   static const Color closedBarrierColor = Color(0x00000001);
-  final bgColor = closedBarrierColor.obs;
+  final ValueNotifier<Color> bgColor = ValueNotifier(closedBarrierColor);
 
-  final RxBool _isMounted = false.obs;
+  final ValueNotifier<bool> _isMounted = ValueNotifier(false);
 
   /// 已经关闭状态
   static final int closedState = 0;
@@ -92,7 +91,7 @@ abstract class BaseDialog {
   Widget createWidget() {
     return BackInterceptorWidget(
       onInterceptBack: (RouteInfo info) {
-        /// 只在showedState 状态才拦截
+        /// 只在 showedState 状态才拦截
         if (_state == showedState || _state == showingState) {
           hide();
           return true;
@@ -106,59 +105,61 @@ abstract class BaseDialog {
         /// 其他状态 不拦截处理
         return false;
       },
-      child: Obx(() {
-        return Visibility(
-          visible: _isMounted.value,
-          maintainAnimation: true,
-          maintainState: true,
-          maintainSize: true,
-          child: Scaffold(
-            resizeToAvoidBottomInset: false, ///  true 使软键盘定顶出布局
-            backgroundColor: Colors.transparent, // 设置为透明
-            body: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                hide();
-              },
-              child: Obx(() {
-                return AnimatedContainer(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: bgColor.value,
-                  alignment: alignment,
-                  duration: Duration(milliseconds: 250),
-                  onEnd: () {
-                    _state = targetState;
-                    if (targetState == hiddenState || targetState == closedState) {
-                      _isMounted.value = false;
-                    }
-                    if (targetState == closedState) {
-                      OverlayHelper().close(key);
-                      widget = null;
-                    }
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _isMounted,
+        builder: (context, isMounted, _) {
+          return Visibility(
+            visible: isMounted,
+            maintainAnimation: true,
+            maintainState: true,
+            maintainSize: true,
+            child: Scaffold(
+              resizeToAvoidBottomInset: false, /// true 使软键盘顶出布局
+              backgroundColor: Colors.transparent,
+              body: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  hide();
+                },
+                child: ValueListenableBuilder<Color>(
+                  valueListenable: bgColor,
+                  builder: (context, color, _) {
+                    return AnimatedContainer(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: color,
+                      alignment: alignment,
+                      duration: const Duration(milliseconds: 250),
+                      onEnd: () {
+                        _state = targetState;
+                        if (targetState == hiddenState || targetState == closedState) {
+                          _isMounted.value = false;
+                        }
+                        if (targetState == closedState) {
+                          OverlayHelper().close(key);
+                          widget = null;
+                        }
+                      },
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: (targetState == showedState) ? 1.0 : 0.0),
+                        duration: const Duration(milliseconds: 250),
+                        builder: (context, value, child) {
+                          return _buildContentAnimation(child!, AlwaysStoppedAnimation(value));
+                        },
+                        /// 避免 buildWidget 点击也被关闭
+                        child: GestureDetector(onTap: () {}, child: buildWidget()),
+                      ),
+                    );
                   },
-
-
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.0, end: (targetState == showedState) ? 1.0 : 0.0),
-                    duration: Duration(milliseconds: 250),
-                    builder: (context, value, child) {
-                      // 将 0.0-1.0 的 value 封装成 Animation 对象传给动画函数
-                      return _buildContentAnimation(child!, AlwaysStoppedAnimation(value));
-                    },
-                    /// 避免 buildWidget点击也被关闭
-                    child: GestureDetector(onTap: () {}, child: buildWidget()),
-                  ),
-                );
-              }),
+                ),
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
-  // --- 修改点 1: 抽取动画构建逻辑，直接复用 GetxDialogUtil 的位置判断逻辑 ---
   Widget _buildContentAnimation(Widget child, Animation<double> animation) {
     // 底部弹出
     if (alignment == Alignment.bottomCenter) {
