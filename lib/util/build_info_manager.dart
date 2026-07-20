@@ -1,5 +1,6 @@
 
 
+import 'package:flutter_comm/env.dart';
 import 'package:flutter_comm/util/Log.dart';
 import 'package:flutter_comm/util/sp/sp_util.dart';
 import 'package:flutter_comm/widget/toast_util.dart';
@@ -39,7 +40,7 @@ final class BuildInfo {
     }
     _curEnvOfDev = devEnvSwitchList[nextIndex];
     spUtil.setString(curEnvKeyOfDev, _curEnvOfDev);
-    Toast.show("测试模式下，环境已切换为：$_curEnvOfDev, 请重新启动app 生效");
+    Toast.success(msg: "测试模式下，环境已切换为：$_curEnvOfDev, 请重新启动app 生效");
   }
 
   static String getCurUseEnv(){
@@ -51,7 +52,7 @@ final class BuildInfo {
 
   static const String appEnv = String.fromEnvironment(
     'APP_EVN',
-    defaultValue: proTestEnvName,
+    defaultValue: testEnvName,
   );
 
   /// 当前分支最近一次提交的完整 hash 的**后 8 位**（小写 hex）。
@@ -77,7 +78,7 @@ final class BuildInfo {
       commitIdSuffix8.isNotEmpty || commitTime.isNotEmpty;
 
   static String getInfo(){
-    return "APP_EVN:${getCurUseEnv()} baseUrl:? buildTime:${BuildInfo.buildTime} Git:($isEmbedded,  $commitTime,  $commitIdSuffix8) ";
+    return "APP_EVN:${getCurUseEnv()} baseUrl:${Env.baseUrl} buildTime:${BuildInfo.buildTime} Git:($isEmbedded,  $commitTime,  $commitIdSuffix8) ";
   }
 
   static bool isTestBuildMode(){

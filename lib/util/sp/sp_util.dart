@@ -50,4 +50,16 @@ class SpUtil {
   List<String>? getStringList(String key) {
     return prefs.getStringList(key);
   }
+
+  bool containsKey(String key) {
+    return prefs.containsKey(key);
+  }
+
+  Set<String> getKeys() {
+    return prefs.getKeys();
+  }
+
+  void clear(){
+    prefs.clear();
+  }
 }

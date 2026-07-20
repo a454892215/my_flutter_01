@@ -34,7 +34,7 @@ class DioClient {
     );
 
     _dio.interceptors.add(AuthInterceptor());
-    _dio.interceptors.add(SingleLogInterceptor());
+    _dio.interceptors.add(SingleLogInterceptor("app api"));
   }
 
   factory DioClient({String key = "default", bool isCborEnabled = false}) {

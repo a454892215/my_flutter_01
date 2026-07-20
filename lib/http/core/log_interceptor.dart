@@ -2,10 +2,20 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_comm/util/Log.dart';
+import 'package:flutter_comm/util/build_info_manager.dart';
 
 class SingleLogInterceptor extends Interceptor {
+  final String tag;
+  SingleLogInterceptor(this.tag);
+
+  bool get _shouldLogHttp => BuildInfo.isTestBuildMode();
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (!_shouldLogHttp) {
+      handler.next(options);
+      return;
+    }
     // 记录请求开始时间
     options.extra['request_start_time'] = DateTime.now().millisecondsSinceEpoch;
     handler.next(options);
@@ -13,12 +23,18 @@ class SingleLogInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    _printLog(response);
+    if (_shouldLogHttp) {
+      _printLog(response);
+    }
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (!_shouldLogHttp) {
+      handler.next(err);
+      return;
+    }
     if (err.response != null) {
       _printLog(err.response!);
     } else {
@@ -27,15 +43,17 @@ class SingleLogInterceptor extends Interceptor {
     handler.next(err);
   }
 
+  static const bool isPrintResponseHeader = false;
   void _printLog(Response response) {
     final options = response.requestOptions;
     final startTime = options.extra['request_start_time'] ?? 0;
     final duration = DateTime.now().millisecondsSinceEpoch - startTime;
 
     final buffer = StringBuffer();
-    buffer.writeln('┌---------------------------------------------------------------');
+    buffer.writeln("http request log");
+    buffer.writeln('┌----------------------------$tag-----------------------------------');
     buffer.writeln('| [HTTP] ${options.method} | Status: ${response.statusCode} | Time: ${duration}ms');
-    buffer.writeln('| URL: ${options.uri}');
+    buffer.writeln('| URL: ${options.uri} ==>End');
 
     // 1. 请求头
     buffer.writeln('| [Request Headers]');
@@ -49,20 +67,25 @@ class SingleLogInterceptor extends Interceptor {
     buffer.writeln('|---------------------------------------------------------------');
 
     // 3. 响应头
-    buffer.writeln('| [Response Headers]');
-    response.headers.forEach((key, values) => buffer.writeln('|   $key: ${values.join(', ')}'));
+    if(isPrintResponseHeader){
+      buffer.writeln('| [Response Headers]');
+      response.headers.forEach((key, values) => buffer.writeln('|   $key: ${values.join(', ')}'));
+    }
 
     // 4. 响应体
     buffer.writeln('| Response: ${_parseData(response.data)}');
     buffer.writeln('└---------------------------------------------------------------');
 
-    _splitLogPrint(buffer.toString());
+    _splitLogPrint(buffer.toString(), isErr: response.statusCode != 200);
   }
 
   void _printErrorLog(DioException err) {
     final buffer = StringBuffer();
+    if(err.type == DioExceptionType.cancel){
+      return;
+    }
     buffer.writeln('┌---------- ERROR ----------------------------------------------');
-    buffer.writeln('| URL: ${err.requestOptions.uri}');
+    buffer.writeln('| URL: ${err.requestOptions.uri} ==>End');
     buffer.writeln('| Method: ${err.requestOptions.method}');
 
     // --- 修改处：增加对 err.error 的提取，解决 message 为 null 的问题 ---
@@ -83,22 +106,19 @@ class SingleLogInterceptor extends Interceptor {
     if (data == null) return "null";
 
     try {
-      String content;
       if (data is Uint8List) {
-        content = utf8.decode(data);
+        return utf8.decode(data);
       } else if (data is List<int>) {
-        content = utf8.decode(data);
+        return utf8.decode(data);
       } else if (data is String) {
-        content = data;
+        // 不再尝试解析/格式化字符串形式的 JSON，保持紧凑原样输出
+        return data;
       } else if (data is Map || data is List) {
-        return const JsonEncoder.withIndent('  ').convert(data);
+        // Map/List 直接紧凑 JSON 输出（不缩进、不额外换行）
+        return json.encode(data);
       } else {
         return data.toString();
       }
-
-      // 尝试格式化字符串形式的 JSON
-      final decoded = json.decode(content);
-      return const JsonEncoder.withIndent('  ').convert(decoded);
     } catch (e) {
       // 无法解析为 JSON 或 utf8，直接返回原始内容或转义
       return data.toString();
@@ -106,16 +126,29 @@ class SingleLogInterceptor extends Interceptor {
   }
 
   /// 适配 Android Logcat 4KB 限制，循环打印
-  void _splitLogPrint(String rawMsg) {
+  void _splitLogPrint(String rawMsg, {isErr=false}) {
+    const int chunkSize = 4000;
     // 如果日志较短直接打印
-    if (rawMsg.length < 4000) {
-      Log.d(rawMsg);
+    if (rawMsg.length <= chunkSize) {
+      if(isErr){
+        Log.e(rawMsg);
+      }else{
+        Log.d(rawMsg);
+      }
       return;
     }
 
-    // 如果超长，按行拆分或分段打印，防止底层被截断
-    for (var line in rawMsg.split('\n')) {
-      Log.d(line);
+    // 如果超长，按长度分段打印，防止底层被截断
+    for (int start = 0; start < rawMsg.length; start += chunkSize) {
+      final int end = (start + chunkSize > rawMsg.length)
+          ? rawMsg.length
+          : start + chunkSize;
+      if(isErr){
+        Log.e(rawMsg.substring(start, end));
+      }else{
+        Log.d(rawMsg.substring(start, end));
+      }
+
     }
   }
 }

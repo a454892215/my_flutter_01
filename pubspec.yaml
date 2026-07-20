@@ -59,12 +59,13 @@ dependencies:
   flutter_sticky_header: ^0.8.0
   visibility_detector: ^0.4.0+2
   # signature: ^5.5.0
-
+  chucker_flutter: ^1.9.1
   # 工具类（将 intl 设为 any，让 pub 自己去匹配 get_cli 和系统的需求）
   intl: any
   logger: ^2.5.0
   easy_debounce: ^2.0.3
   back_button_interceptor: ^8.0.4
+  flutter_secure_storage: ^10.3.1
   stack_trace: ^1.11.1
   # H5 深链（冷启动 + 热启动）
   app_links: ^6.4.0
@@ -93,8 +94,11 @@ dependencies:
   vm_service: ^15.0.2
 
 # 这一段是关键：强制将冲突的底层库指向兼容版本
+# chucker_flutter 仍依赖 share_plus ^12（win32 ^5），与 device_info_plus ^13（win32 ^6）冲突；
+# 等 chucker 正式支持 share_plus 13 后可去掉此 override。
 dependency_overrides:
   intl: ^0.19.0
+  share_plus: ^13.0.0
 
 dev_dependencies:
   flutter_test:

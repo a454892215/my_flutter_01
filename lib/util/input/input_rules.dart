@@ -8,7 +8,6 @@ class InputRules {
   static final RegExp inviteCodeReg = RegExp(r"^[A-Za-z0-9]{6,9}$");
   static final RegExp codeReg = RegExp(r"^[0-9]{4,6}$"); // 原代码有4位和6位冲突，建议兼容
   static final RegExp telegramReg = RegExp(r"^@[a-zA-Z][a-zA-Z0-9_]{3,30}$");
-  static final RegExp emailReg = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
 
   // --- 2. 输入拦截器 (TextInputFormatter) ---
 
