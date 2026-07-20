@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import 'app_navigator_observer.dart';
-import 'globe_controller.dart';
 
 RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 AppNavigatorObserver appNavigatorObserver = AppNavigatorObserver();
+
 /// ============== Theme 配置 ===============
 ThemeData appThemeData = ThemeData(
   /// primarySwatch 用于导航栏和floatActionButton的背景色等
@@ -81,17 +80,3 @@ TextButtonThemeData textButtonTheme = const TextButtonThemeData(
       splashFactory: NoSplash.splashFactory // 为什么无效？
       ),
 );
-
-/// 5. MaterialApp种配置默认页面的三种方式，1.home  2.initialRoute(需要和routes配合使用)， 3. routes种的/
-
-class AppInitBinding extends Bindings {
-  AppInitBinding(this.context);
-
-  final BuildContext context;
-
-  @override
-  void dependencies() {
-    Get.put(GlobeController(context));
-  }
-}
-

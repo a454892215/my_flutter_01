@@ -1,23 +1,17 @@
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LogController extends GetxController {
-  //TODO: Implement LogController
+import '../../../base/base_controller.dart';
 
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
+class LogController extends BaseController {
+  int count = 0;
+
+  void increment() {
+    count++;
+    notifyListeners();
   }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }
+
+final logControllerProvider =
+    ChangeNotifierProvider.autoDispose<LogController>((ref) {
+  return LogController();
+});

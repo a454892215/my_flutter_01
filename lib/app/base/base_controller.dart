@@ -1,27 +1,54 @@
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../util/Log.dart';
 
-class BaseController extends GetxController {
+/// 页面/模块控制器基类（原 GetxController），配合 Riverpod [ChangeNotifierProvider] 使用。
+class BaseController extends ChangeNotifier {
   /// 存储当前 Controller 下所有的 CancelToken
   /// Key 可以是请求的 URL、方法名或者自定义的 Tag
   final Map<String, CancelToken> _cancelTokens = {};
 
-  @override
+  bool _initialized = false;
+
+  BaseController() {
+    _initialize();
+  }
+
+  void _initialize() {
+    if (_initialized) return;
+    _initialized = true;
+    onInit();
+    // 模拟 GetX onReady：首帧后回调
+    Future.microtask(() {
+      if (!_disposed) onReady();
+    });
+  }
+
+  bool _disposed = false;
+
+  bool get disposed => _disposed;
+
+  @mustCallSuper
   void onInit() {
-    super.onInit();
     Log.d(" ======= $runtimeType onInit ========");
   }
 
-  @override
+  @mustCallSuper
   void onReady() {
-    super.onReady();
     Log.d(" ======= $runtimeType onReady ========");
   }
 
-  @override
+  @mustCallSuper
   void onClose() {
+    Log.d(" ======= $runtimeType onClose ======== ");
+  }
+
+  @override
+  @mustCallSuper
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
     // Controller 销毁时，遍历并取消所有注册在内的请求
     _cancelTokens.forEach((tag, token) {
       if (!token.isCancelled) {
@@ -29,8 +56,8 @@ class BaseController extends GetxController {
       }
     });
     _cancelTokens.clear();
-    super.onClose();
-    Log.d(" ======= $runtimeType onClose ======== ");
+    onClose();
+    super.dispose();
   }
 
   /// 获取或创建一个 CancelToken： 对于大多数随页面销毁而销毁的请求，直接使用默认 tag：
@@ -59,7 +86,7 @@ class BaseController extends GetxController {
     }
   }
 
-  String _getTag(String tag){
+  String _getTag(String tag) {
     return "$runtimeType-$tag";
   }
 }

@@ -1,26 +1,12 @@
-import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../base/base_controller.dart';
 
 class TemplateDrawerController extends BaseController {
-  final name = "抽屉页面".obs;
-
-  @mustCallSuper
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
-  @mustCallSuper
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @mustCallSuper
-  @override
-  void onClose() {
-    super.onClose();
-  }
+  String name = "抽屉页面";
 }
+
+final templateDrawerControllerProvider =
+    ChangeNotifierProvider.autoDispose<TemplateDrawerController>((ref) {
+  return TemplateDrawerController();
+});

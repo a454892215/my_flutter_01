@@ -1,46 +1,32 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
-
-import '../../../../widget/auto_scroll_listview.dart';
 import '../../../base/base_controller.dart';
 import '../entity/entities.dart';
 
 class TabView4ControllerController extends BaseController {
-  final list = <ChatMessage>[].obs;
+  List<ChatMessage> list = [];
 
-  @mustCallSuper
   @override
   void onInit() {
     super.onInit();
-    list.value = getTestData();
-  }
-
-  @mustCallSuper
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @mustCallSuper
-  @override
-  void onClose() {
-    super.onClose();
+    list = getTestData();
   }
 
   List<ChatMessage> getTestData({int size = 300}) {
-    List<ChatMessage> list = [];
+    List<ChatMessage> result = [];
     for (int i = 0; i < size; i++) {
       var chatMessage = ChatMessage();
       chatMessage.text = generateRandomChineseString();
       chatMessage.userIcon = "";
       var next1 = Random().nextInt(11);
       var next2 = Random().nextInt(11);
-      chatMessage.imgList = ["assets/images/test/chat/chat$next1.jpg", "assets/images/test/chat/chat$next2.jpg"];
-      list.add(chatMessage);
+      chatMessage.imgList = [
+        "assets/images/test/chat/chat$next1.jpg",
+        "assets/images/test/chat/chat$next2.jpg",
+      ];
+      result.add(chatMessage);
     }
-    return list;
+    return result;
   }
 
   String generateRandomChineseString() {

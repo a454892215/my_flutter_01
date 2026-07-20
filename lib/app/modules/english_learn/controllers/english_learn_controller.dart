@@ -1,26 +1,26 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/Log.dart' show Log;
-import 'package:flutter_comm/util/performance_monitor/perf_monitor.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class EnglishLearnController extends GetxController {
+import '../../../base/base_controller.dart';
 
-  final count = 0.obs;
+class EnglishLearnController extends BaseController {
+  int count = 0;
+
   @override
   void onInit() {
     super.onInit();
-    Log.d("===========EnglishLearnController===11=======onInit===== PerfMonitor.stop();=======");
+    Log.d(
+      "===========EnglishLearnController===11=======onInit===== PerfMonitor.stop();=======",
+    );
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  void increment() {
+    count++;
+    notifyListeners();
   }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }
+
+final englishLearnControllerProvider =
+    ChangeNotifierProvider.autoDispose<EnglishLearnController>((ref) {
+  return EnglishLearnController();
+});

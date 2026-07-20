@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart'
     show RefreshController;
 import '../../../widget/refresh_widget.dart';
@@ -15,25 +13,22 @@ class TabView2 extends StatefulWidget {
 }
 
 class _TabView2State extends State<TabView2> {
-  /// 需要回收的controller 一般建议定义在State中 而不是GetxController中，因为GetxController的生命周期不一定是和Widget严格绑定的
+  /// 需要回收的 controller 建议定义在 State 中，生命周期与 Widget 严格绑定
   late RefreshController _refreshController;
-
   late final TabView2ControllerController controller;
 
   @override
   void initState() {
     super.initState();
-    // 立即实例化并注入内存
-    controller = Get.put(TabView2ControllerController());
-    // 2. 初始化 API 实例
+    controller = TabView2ControllerController();
     _refreshController = RefreshController();
   }
 
   @override
   void dispose() {
-    super.dispose();
     _refreshController.dispose();
-    Get.delete<TabView2ControllerController>();
+    controller.dispose();
+    super.dispose();
   }
 
   // 模拟 API 请求

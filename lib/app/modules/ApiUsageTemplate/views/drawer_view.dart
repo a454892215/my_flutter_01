@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../screen_info.dart';
 import '../../../widget/text/text_def.dart';
 import '../controllers/api_usage_template_drawer_controller.dart';
 
-/// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller
-class DrawerApiView extends GetView<TemplateDrawerController> {
+/// TemplateDrawerController 由 Riverpod provider 注册
+class DrawerApiView extends ConsumerWidget {
   const DrawerApiView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // 只要第一次打开时请求过，数据就会一直保存在这个内存对象中
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(templateDrawerControllerProvider);
     return Container(
       width: 450.w,
       height: double.infinity,
@@ -21,7 +20,7 @@ class DrawerApiView extends GetView<TemplateDrawerController> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          AppText(text: controller.name.value,)
+          AppText(text: controller.name),
         ],
       ),
     );

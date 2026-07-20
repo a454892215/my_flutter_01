@@ -13,7 +13,7 @@ import 'dialog/center_dialog.dart';
 import 'dialog/left_sliding_dialog.dart';
 import 'dialog/right_sliding_dialog.dart';
 
-/// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller
+/// Tab 示例页（原 GetView 注释已过时）
 class TabView1 extends StatefulWidget {
   const TabView1({super.key});
 

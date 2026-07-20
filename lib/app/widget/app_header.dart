@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../screen_info.dart';
 import '../../skin/app_skin.dart';
-import '../../app_style.dart';
 
 class AppHeader extends StatelessWidget {
   const AppHeader({
@@ -28,7 +26,7 @@ class AppHeader extends StatelessWidget {
             child: isNeedLeftBackArrow
                 ? IconButton(
                     onPressed: () {
-                      Get.back();
+                      Navigator.of(context).maybePop();
                     },
                     icon: Icon(
                       Icons.arrow_back,

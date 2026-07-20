@@ -15,14 +15,15 @@ import 'package:flutter_comm/util/sp/sp_util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:get/get_navigation/src/routes/observers/route_observer.dart';
-import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+
+import 'app/app_navigator.dart';
 import 'app/routes/app_pages.dart';
 import 'app_config.dart';
 import 'err_page.dart';
+import 'globe_controller.dart';
 import 'globe_exception_catch.dart';
 import 'navigator/observer.dart';
 
@@ -34,7 +35,7 @@ void main() async {
     await spUtil.init();
     await SkinManager.instance.init();
     await DeviceUtil.init();
-    if(BuildInfo.isUseChuker()){
+    if (BuildInfo.isUseChuker()) {
       UsbDataChannel().connect();
       // ChuckerFlutter.configure(showNotification: false, showOnRelease: true);
     }
@@ -48,11 +49,13 @@ void main() async {
       );
     }
     runApp(
-      ListenableBuilder(
-        listenable: SkinManager.instance,
-        builder: (context, child) {
-          return GetMaterialAppConfig();
-        },
+      ProviderScope(
+        child: ListenableBuilder(
+          listenable: SkinManager.instance,
+          builder: (context, child) {
+            return const AppMaterialAppConfig();
+          },
+        ),
       ),
     );
   });
@@ -121,44 +124,44 @@ class RefreshConfigurationWidget extends StatelessWidget {
   }
 }
 
-class GetMaterialAppConfig extends StatelessWidget {
-  const GetMaterialAppConfig({super.key});
+class AppMaterialAppConfig extends ConsumerWidget {
+  const AppMaterialAppConfig({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 初始化全局 GlobeController（替代原 AppInitBinding）
+    ref.watch(globeControllerProvider);
+
+    return MaterialApp(
+      navigatorKey: appNavigatorKey,
       debugShowCheckedModeBanner: false,
+
       /// 仅在非 Release 模式（即 Debug 或 Profile）下显示:!kReleaseMode
-      showPerformanceOverlay: false,// 性能图层
-      enableLog: false,
+      showPerformanceOverlay: false, // 性能图层
       /// title 只对Android生效，ios种，任务视图名称取的是 Info.pList 文件中的CFBundleDisplayName或CFBundleName
       title: "LB88",
+
       /// 4. Theme.of方法可以获取当前的 ThemeData，MaterialDesign种有些样式不能自定义，比如导航栏高度
       /// 指定浅色模式下的样式：如果 themeMode 为 ThemeMode.light，或者系统处于浅色模式且 themeMode 为 ThemeMode.system，则生效。
       theme: SkinManager.instance.currentTheme,
+
       /// 指定暗黑模式下的样式：如果系统开启了暗黑模式且 themeMode 为 ThemeMode.system，或者显式设置 themeMode 为 ThemeMode.dark，则生效
       darkTheme: SkinFactory.createTheme(SkinType.black),
+
       /// 决定当前使用theme对应的主题样式还是darkTheme对应的主题样式
       ///  ThemeMode.system: 默认值 根据手机系统设置的模式 自动切换 theme 和 darkTheme
       ///  ThemeMode.light: 强制忽略系统设置，始终使用 theme
       ///  ThemeMode.dark: 强制忽略系统设置，始终使用 darkTheme
       themeMode: SkinManager.instance.themeMode,
       // 自动同步系统主题或手动锁定
-      // 将 Transition.noTransition 改为以下之一：
-      defaultTransition: Transition.native,
-      // 自动适配平台原生效果
-      // defaultTransition: Transition.rightToLeft, // 强制左右滑动
-      /// routes 路由配置：对象是Map<String, WidgetBuilder>
-      // routes: [], 这种方式配置路由，defaultTransition 不能生效
-      getPages: AppPages.routes,
+      routes: AppPages.routes,
 
       /// 与 routes 中的 / 效果基本一致， 指定应用的第一个显示页面
       /// /// home 与 routes配置的 / 互斥 同时配置会抛异常
       initialRoute: AppPages.INITIAL,
-      initialBinding: AppInitBinding(context),
 
       /// 配置404页面: 如果路由不存在则跳到该页面
-      onGenerateRoute: (RouteSettings settings) {
+      onUnknownRoute: (RouteSettings settings) {
         return MaterialPageRoute(
           builder: (BuildContext context) => const ErrPage(),
         );
@@ -186,7 +189,6 @@ class GetMaterialAppConfig extends StatelessWidget {
         FlutterSmartDialog.observer,
         appNavigatorObserver,
       ],
-      routingCallback: (Routing? routing) {},
     );
   }
 }

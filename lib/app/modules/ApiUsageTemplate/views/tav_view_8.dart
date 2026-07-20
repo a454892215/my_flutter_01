@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/widget/gradient_text.dart';
 
-import 'package:get/get.dart';
-
-import '../../../../screen_info.dart';
-import '../../../../widget/asset_image.dart';
-import '../../../../widget/banner.dart';
 import '../../../widget/text/text_def.dart';
-import '../controllers/api_usage_template_drawer_controller.dart';
 
-/// TemplateDrawerController 在父组件中注册，GetView 相比 GetBuilder 不会在页面关闭的时候 主动销毁Controller
-class TabView8 extends GetView<TemplateDrawerController> {
+class TabView8 extends StatelessWidget {
   const TabView8({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 只要第一次打开时请求过，数据就会一直保存在这个内存对象中
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -37,7 +29,11 @@ class TabView8 extends GetView<TemplateDrawerController> {
             // 必须将文字颜色设为白色，因为遮罩会和子组件的颜色进行混合
             child: const Text(
               '这是官方API-ShaderMask实现的渐变文字',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
           SizedBox(height: 10),
@@ -48,7 +44,9 @@ class TabView8 extends GetView<TemplateDrawerController> {
               fontWeight: FontWeight.bold,
               // 使用 foreground 属性，注意：设置了 foreground 就不能设置 color 属性
               foreground: Paint()
-                ..shader = const LinearGradient(colors: [Colors.orange, Colors.red]).createShader(
+                ..shader = const LinearGradient(
+                  colors: [Colors.orange, Colors.red],
+                ).createShader(
                   // 这里需要手动指定渐变的范围区域（Rect）
                   const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
                 ),

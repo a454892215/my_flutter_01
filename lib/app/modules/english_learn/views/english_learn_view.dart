@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_comm/util/performance_monitor/perf_monitor.dart';
 
-import 'package:get/get.dart';
-
-import '../controllers/english_learn_controller.dart';
-
-class EnglishLearnView extends GetView<EnglishLearnController> {
+class EnglishLearnView extends StatelessWidget {
   const EnglishLearnView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,14 +18,13 @@ class EnglishLearnView extends GetView<EnglishLearnController> {
   }
 }
 
-class MyWidget2 extends StatefulWidget{
+class MyWidget2 extends StatefulWidget {
   const MyWidget2({super.key});
 
   @override
   State<StatefulWidget> createState() {
-     return _State();
+    return _State();
   }
-
 }
 
 class _State extends State<MyWidget2> {
@@ -42,6 +38,6 @@ class _State extends State<MyWidget2> {
 
   @override
   Widget build(BuildContext context) {
-     return SizedBox.shrink();
+    return SizedBox.shrink();
   }
 }

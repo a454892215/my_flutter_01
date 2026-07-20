@@ -35,8 +35,7 @@ dependencies:
     sdk: flutter
 
   # 状态管理
-  get: ^4.6.6
-  # provider: ^6.1.2
+  flutter_riverpod: ^2.6.1
 
   # 网络与图片
   dio: ^5.7.0
@@ -92,7 +91,6 @@ dependencies:
   flutter_inappwebview: ^6.1.5
   wakelock_plus: ^1.6.1 # 禁止自动息屏
   vm_service: ^15.0.2
-  flutter_riverpod: ^2.6.1
 
 # 这一段是关键：强制将冲突的底层库指向兼容版本
 # chucker_flutter 仍依赖 share_plus ^12（win32 ^5），与 device_info_plus ^13（win32 ^6）冲突；

@@ -1,34 +1,31 @@
-
 import 'package:flutter/cupertino.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/app_navigator.dart';
 import '../../../../util/performance_monitor/perf_monitor.dart';
 import '../../../base/base_controller.dart';
 
 class HomeController extends BaseController {
-
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
   @override
   void onReady() {
     super.onReady();
     // 关键：在 build 完成后启动监控，确保 Overlay 能够找到所在的上下文
-    /// 使用 GetX 提供的全局 overlayContext，它不需要你手动从 Widget 传参
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Get.overlayContext != null) {
-        PerfMonitor.start(Get.overlayContext!);
+      final overlayContext = appOverlayContext;
+      if (overlayContext != null) {
+        PerfMonitor.start(overlayContext);
       }
     });
   }
 
   @override
   void onClose() {
-    super.onClose();
     PerfMonitor.stop();
+    super.onClose();
   }
-
 }
+
+final homeControllerProvider =
+    ChangeNotifierProvider.autoDispose<HomeController>((ref) {
+  return HomeController();
+});
