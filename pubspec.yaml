@@ -66,7 +66,8 @@ dependencies:
   easy_debounce: ^2.0.3
   back_button_interceptor: ^8.0.4
   stack_trace: ^1.11.1
-
+  # H5 深链（冷启动 + 热启动）
+  app_links: ^6.4.0
   # 列表
   scrollview_observer: ^1.21.2
   scrollable_positioned_list: ^0.3.8
