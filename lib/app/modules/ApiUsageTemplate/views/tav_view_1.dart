@@ -4,7 +4,6 @@ import '../../../../screen_info.dart';
 import '../../../../skin/app_skin.dart';
 import '../../../../skin/skin_factory.dart';
 import '../../../../skin/skin_manager.dart';
-import '../../../../getx/getx_dialog_util.dart';
 import '../../../../widget/horizontal_indicator_tab.dart';
 import '../../../widget/app_button.dart';
 import '../../../widget/text/text_def.dart';
@@ -110,54 +109,6 @@ class _TabView1State extends State<TabView1> {
               text: '切换主题-bright',
               onClick: () {
                 SkinManager.instance.updateSkin(SkinType.bright);
-              },
-            ),
-            AppButton(
-              padding: EdgeInsets.all(10),
-              text: 'getx中心弹窗-允许用户关闭',
-              onClick: () {
-                GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag);
-              },
-            ),
-            AppButton(
-              padding: EdgeInsets.all(10),
-              text: 'getx中心弹窗-不允许用户关闭',
-              onClick: () {
-                GetxDialogUtil.show(dialogWidget, tag: dialogTag, isForceShow: true);
-                Future.delayed(Duration(seconds: 5), () {
-                  GetxDialogUtil.dismiss(tag: dialogTag);
-                });
-              },
-            ),
-            AppButton(
-              padding: EdgeInsets.all(10),
-              text: 'getx底部弹窗-允许用户关闭',
-              onClick: () {
-                GetxDialogUtil.show(
-                  dialogWidget,
-                  isForceShow: false,
-                  tag: dialogTag,
-                  alignment: Alignment.bottomCenter,
-                );
-              },
-            ),
-            AppButton(
-              padding: EdgeInsets.all(10),
-              text: 'getx左侧边弹窗-允许用户关闭',
-              onClick: () {
-                GetxDialogUtil.show(
-                  getDialogWidget(height: ScreenInfo.contentHeight),
-                  isForceShow: false,
-                  tag: dialogTag,
-                  alignment: Alignment.bottomLeft,
-                );
-              },
-            ),
-            AppButton(
-              padding: EdgeInsets.all(10),
-              text: 'getx右侧边弹窗-允许用户关闭',
-              onClick: () {
-                GetxDialogUtil.show(dialogWidget, isForceShow: false, tag: dialogTag, alignment: Alignment.centerRight);
               },
             ),
             AppButton(

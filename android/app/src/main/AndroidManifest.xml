@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="my_flutter_01"
+        android:label="通用模版"
         android:enableOnBackInvokedCallback="false"
         android:name="${applicationName}"
         android:usesCleartextTraffic="true"
