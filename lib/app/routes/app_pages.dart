@@ -11,13 +11,13 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.SPLASH;
+  static const initial = Routes.splash;
 
   static final Map<String, WidgetBuilder> routes = {
-    _Paths.SPLASH: (_) => const SplashView(),
-    _Paths.HOME: (_) => const HomeView(),
-    _Paths.API_USAGE_TEMPLATE: (_) => const ApiUsageTemplateView(),
-    _Paths.ENGLISH_LEARN: (_) => const EnglishLearnView(),
-    _Paths.LOG: (_) => const LogView(),
+    Routes.splash: (_) => const SplashView(),
+    Routes.home: (_) => const HomeView(),
+    Routes.apiUsageTemplate: (_) => const ApiUsageTemplateView(),
+    Routes.englishLearn: (_) => const EnglishLearnView(),
+    Routes.log: (_) => const LogView(),
   };
 }

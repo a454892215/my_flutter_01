@@ -63,7 +63,7 @@ class _SplashViewState extends ConsumerState<SplashView> {
               padding: EdgeInsets.all(8),
               text: "去home页面66",
               onClick: () => {
-                Navigator.of(context).pushReplacementNamed(Routes.HOME),
+                Navigator.of(context).pushReplacementNamed(Routes.home),
               },
             ),
           ],

@@ -1,20 +1,11 @@
 part of 'app_pages.dart';
-// DO NOT EDIT. This is code generated via package:get_cli/get_cli.dart
 
 abstract class Routes {
   Routes._();
-  static const SPLASH = _Paths.SPLASH;
-  static const HOME = _Paths.HOME;
-  static const API_USAGE_TEMPLATE = _Paths.API_USAGE_TEMPLATE;
-  static const ENGLISH_LEARN = _Paths.ENGLISH_LEARN;
-  static const LOG = _Paths.LOG;
-}
 
-abstract class _Paths {
-  _Paths._();
-  static const SPLASH = '/splash';
-  static const HOME = '/home';
-  static const API_USAGE_TEMPLATE = '/api-usage-template';
-  static const ENGLISH_LEARN = '/english-learn';
-  static const LOG = '/log';
+  static const splash = '/splash';
+  static const home = '/home';
+  static const apiUsageTemplate = '/api-usage-template';
+  static const englishLearn = '/english-learn';
+  static const log = '/log';
 }

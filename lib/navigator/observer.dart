@@ -10,7 +10,7 @@ class MyNavigatorObserver extends NavigatorObserver {
   //  Log.d("didPop 离开页面 cur: ${cur.settings.name}  pre: ${pre?.settings.name}");
 
     /// 回到main首页请求XX接口
-    // if (pre?.settings.name == Routes.SPLASH && cur.settings.name != null) {
+    // if (pre?.settings.name == Routes.splash && cur.settings.name != null) {
     //
     // }
   }

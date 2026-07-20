@@ -158,7 +158,7 @@ class AppMaterialAppConfig extends ConsumerWidget {
 
       /// 与 routes 中的 / 效果基本一致， 指定应用的第一个显示页面
       /// /// home 与 routes配置的 / 互斥 同时配置会抛异常
-      initialRoute: AppPages.INITIAL,
+      initialRoute: AppPages.initial,
 
       /// 配置404页面: 如果路由不存在则跳到该页面
       onUnknownRoute: (RouteSettings settings) {

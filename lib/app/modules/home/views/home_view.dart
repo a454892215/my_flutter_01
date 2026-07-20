@@ -25,16 +25,16 @@ class HomeView extends ConsumerWidget {
               padding: EdgeInsets.all(12),
               text: "去API使用示列页面",
               onClick: () => {
-                Navigator.of(context).pushNamed(Routes.API_USAGE_TEMPLATE),
+                Navigator.of(context).pushNamed(Routes.apiUsageTemplate),
               },
             ),
             SizedBox(height: 10),
-            //  AppButton(padding: EdgeInsets.all(12), text: "去英语学习页面", onClick: () => {Navigator.of(context).pushNamed(Routes.ENGLISH_LEARN)}),
+            //  AppButton(padding: EdgeInsets.all(12), text: "去英语学习页面", onClick: () => {Navigator.of(context).pushNamed(Routes.englishLearn)}),
             AppButton(
               padding: EdgeInsets.all(12),
               text: "去Debug Log",
               onClick: () => {
-                Navigator.of(context).pushNamed(Routes.LOG),
+                Navigator.of(context).pushNamed(Routes.log),
               },
             ),
           ],
